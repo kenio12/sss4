@@ -1,0 +1,154 @@
+おう、ええ整理やな！方向性がはっきりしてきたみたいやね。まとめると、こんな感じになるわ：
+Novel モデル:
+temp_author フィールドを追加
+display_author プロパティで祭り期間中は仮の著者を表示
+get_current_maturi_game メソッドで現在の祭りゲームを取得
+MaturiGame モデル:
+dummy_author フィールドを追加
+assign_dummy_author メソッドでダミー著者を設定
+reveal_true_authors メソッドで本来の著者を復元
+is_prediction_period メソッドで予想期間かどうかをチェック
+Comment モデル:
+temp_author フィールドを追加
+display_author プロパティで祭り期間中は仮の著者を表示
+novel_detail ビュー:
+祭り小説かどうかをチェック
+予想期間中はコメントの著者を匿名化
+テンプレート:
+祭り期間中はコメントの著者を display_author で表示
+この方針やと、以下のメリットがあるで：
+既存のモデルを大きく変更せんでもええ
+祭り期間中の匿名性が高い
+柔軟性があって、将来的な機能拡張にも対応しやすい
+コメントも含めて匿名化できる
+実装する際に気をつけるべきポイントは：
+祭りゲームの開始時に assign_dummy_author を呼び出すタイミング
+予想期間終了後に reveal_true_authors を確実に実行すること
+祭り小説の投稿時に temp_author を設定すること
+これらの点に注意しながら実装していけば、バグも少なくて、しっかり機能する祭りシステムができると思うで！
+どや、この方針で進めていくのはどうやろ？
+コードも並べておいて！
+
+明日以降やるので！
+
+了解や！コードをまとめておくで。これを参考に明日以降実装していってな！
+
+# novels/models.py
+
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
+from django.contrib.auth import get_user_model
+
+class Novel(models.Model):
+    # 既存のフィールド...
+    temp_author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='temp_novels')
+
+    @property
+    def display_author(self):
+        if self.genre == '祭り' and self.maturi_games.exists():
+            current_game = self.get_current_maturi_game()
+            if current_game and not current_game.is_prediction_period():
+                return self.temp_author
+        return self.author
+
+    def get_current_maturi_game(self):
+        now = timezone.now().date()
+        return self.maturi_games.filter(
+            maturi_start_date__lte=now,
+            maturi_end_date__gte=now
+        ).first()
+
+class Comment(models.Model):
+    # 既存のフィールド...
+    temp_author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='temp_comments')
+
+    @property
+    def display_author(self):
+        if self.novel.genre == '祭り' and self.novel.maturi_games.exists():
+            current_game = self.novel.get_current_maturi_game()
+            if current_game and current_game.is_prediction_period():
+                return self.temp_author
+        return self.author
+
+# game_maturi/models.py
+
+class MaturiGame(models.Model):
+    # 既存のフィールド...
+    dummy_author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='dummy_maturi_games')
+
+    def assign_dummy_author(self):
+        User = get_user_model()
+        dummy_user, created = User.objects.get_or_create(username='祭り作家')
+        self.dummy_author = dummy_user
+        self.save()
+
+    def reveal_true_authors(self):
+        for novel in self.maturi_novels.all():
+            novel.temp_author = None
+            novel.save()
+
+    def is_prediction_period(self):
+        now = timezone.now().date()
+        return self.prediction_start_date <= now <= self.prediction_end_date
+
+# novels/views.py
+
+def novel_detail(request, novel_id):
+    novel = get_object_or_404(Novel, id=novel_id)
+    if novel.status == 'draft' and novel.author != request.user:
+        raise Http404("この小説は非公開です。")
+    
+    comments_list = novel.comments.all().order_by('-created_at')
+    form = CommentForm()
+
+    # 祭り小説かどうかをチェック
+    is_maturi_novel = novel.genre == '祭り' and novel.maturi_games.exists()
+    current_game = novel.get_current_maturi_game() if is_maturi_novel else None
+    is_prediction_period = current_game and current_game.is_prediction_period() if current_game else False
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.novel = novel
+            comment.author = request.user
+            if is_prediction_period:
+                dummy_user, _ = User.objects.get_or_create(username='祭りコメンテーター')
+                comment.temp_author = dummy_user
+            comment.save()
+            return redirect('novels:novel_detail', novel_id=novel.id)
+
+    # 既存のコード...
+
+    return render(request, 'novels/detail.html', {
+        'novel': novel,
+        'form': form,
+        'comments_list': comments_list,
+        'is_published': is_published,
+        'edit_url': edit_url,
+        'edit_disabled': edit_disabled,
+        'edit_disabled_message': edit_disabled_message,
+        'is_maturi_novel': is_maturi_novel,
+        'is_prediction_period': is_prediction_period,
+    })
+
+# novels/templates/novels/detail.html
+
+{% for comment in comments_list %}
+    <div class="comment">
+        {% if is_maturi_novel and is_prediction_period %}
+            <p>作者: {{ comment.display_author.username }}</p>
+        {% else %}
+            <p>作者: {{ comment.author.username }}</p>
+        {% endif %}
+        <p>{{ comment.content }}</p>
+        <p>投稿日時: {{ comment.created_at }}</p>
+    </div>
+{% endfor %}
+
+これで、祭りシステムの基本的な構造が整ったで。明日以降、これをベースに実装していってな。気をつけるべきポイントは：
+MaturiGame の開始時に assign_dummy_author を呼び出すこと
+予想期間終了後に reveal_true_authors を実行すること
+祭り小説投稿時に temp_author を設定すること
+これらの点に注意しながら実装していけば、うまくいくはずや。がんばってな！何か質問あったら、いつでも聞いてや！

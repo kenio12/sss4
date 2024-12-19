@@ -1,0 +1,482 @@
+<!-- novels/novels_paginated.html -->
+{% extends 'base.html' %}
+{% load humanize %}
+{% block body_class %}novels-paginated{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* モダンなベーススタイル */
+    body.novels-paginated {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* テーブルのモダン化 */
+    .sticky-header {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        border: none;
+        margin: 20px 0;
+    }
+
+    .sticky-header thead th {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        font-weight: 600;
+        padding: 15px 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
+    }
+
+    .sticky-header tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .sticky-header tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .sticky-header td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+    }
+
+    /* ソートヘッダーのスタイル改善 */
+    .sort-header {
+        color: white !important;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .sort-header:hover {
+        color: #e0e0e0 !important;
+        transform: translateY(-1px);
+    }
+
+    .sort-header.active {
+        font-weight: bold;
+        text-shadow: 0 0 10px rgba(255,255,255,0.5);
+    }
+
+    /* フィルターオプションの改善 */
+    .filter-options {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 25px;
+        margin: 20px 0;
+    }
+
+    .filter-options h4 {
+        color: #2c3e50;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #3498db;
+    }
+
+    /* 入力フィールドとセレクトボックスの改善 */
+    .filter-table input,
+    .filter-table select {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .filter-table input:focus,
+    .filter-table select:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52,152,219,0.2);
+        outline: none;
+    }
+
+    /* ボタンのスタイル改善 */
+    .button-container button {
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        border: none;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+    .reset-button {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        margin-right: 10px;
+    }
+
+    .apply-button {
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        color: white;
+    }
+
+    .button-container button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* ページネーションの改善 */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin: 30px 0;
+    }
+
+    .pagination a {
+        background: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .pagination a:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .pagination span {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    /* レスポンシブ対応の改善 */
+    @media (max-width: 768px) {
+        .filter-options {
+            padding: 15px;
+        }
+
+        .button-container button {
+            width: 100%;
+            margin: 5px 0;
+        }
+
+        .sticky-header {
+            font-size: 0.9rem;
+        }
+
+        .pagination {
+            flex-wrap: wrap;
+        }
+    }
+
+    /* 「次へ」ボタンの文字色を白に */
+    .pagination a {
+        color: white !important;
+    }
+</style>
+
+<script>
+// デバウンス関数の追加（フィルター処理の最適化用）
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+// DOMContentLoadedイベントで初期化
+document.addEventListener('DOMContentLoaded', function() {
+    // フィルターフォームの処理を最適化
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+        filterForm.addEventListener('submit', debounce(function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            
+            // 全角数字を半角に変換
+            const charCountMinInput = document.getElementById('char_count_min');
+            const charCountMaxInput = document.getElementById('char_count_max');
+            if (charCountMinInput) charCountMinInput.value = zenkakuToHankaku(charCountMinInput.value);
+            if (charCountMaxInput) charCountMaxInput.value = zenkakuToHankaku(charCountMaxInput.value);
+            
+            const searchParams = new URLSearchParams(formData).toString();
+            window.location.href = `{% url 'novels:novels_paginated' %}?${searchParams}`;
+        }, 250));
+    }
+
+    // テーブルの遅延読み込み
+    const novelsTable = document.querySelector('.sticky-header');
+    if (novelsTable) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+        observer.observe(novelsTable);
+    }
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+<!-- デバッグ情報 -->
+<!-- <div style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+    <h4>デバッグ情報</h4>
+    <ul>
+        <li>総件数: {{ page_obj.paginator.count }}</li>
+        <li>現在のページ: {{ page_obj.number }}</li>
+        <li>総ページ数: {{ page_obj.paginator.num_pages }}</li>
+        <li>現在のページアイテム数: {{ page_obj|length }}</li>
+    </ul>
+</div> -->
+
+<!-- フィルターモーダルをインクルード -->
+{% include 'novels/filter_modal.html' %}
+
+<div class="novels-list-container">
+    {% if page_obj.object_list|length > 0 %}
+        <table class="sticky-header">
+            <colgroup>
+                <col>
+                <col>
+                <col>
+                <col>
+                <col>
+                <col>
+                <col>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'word_count' %}-{% endif %}word_count" 
+                           class="sort-header {% if 'word_count' in sort %}active{% endif %}">
+                            文字数
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if request.GET.sort == 'genre' %}-{% endif %}genre" 
+                           class="sort-header {% if 'genre' in request.GET.sort %}active{% endif %}">
+                            ジャンル
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if request.GET.sort == 'title' %}-{% endif %}title" 
+                           class="sort-header {% if 'title' in request.GET.sort %}active{% endif %}">
+                            作品名
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if request.GET.sort == 'author' %}-{% endif %}author" 
+                           class="sort-header {% if 'author' in request.GET.sort %}active{% endif %}">
+                            作家名
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if request.GET.sort == 'published_date' %}-{% endif %}published_date" 
+                           class="sort-header {% if 'published_date' in request.GET.sort %}active{% endif %}">
+                            投稿日
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if request.GET.sort == 'likes' %}-{% endif %}likes"
+                           class="sort-header {% if 'likes' in request.GET.sort %}active{% endif %}">
+                            いいね
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if request.GET.sort == 'comments' %}-{% endif %}comments"
+                           class="sort-header {% if 'comments' in request.GET.sort %}active{% endif %}">
+                            コメ
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for novel in page_obj %}
+                <tr>
+                    <td>{{ novel.word_count|intcomma }}</td>
+                    <td>{{ novel.genre }}</td>
+                    <td><a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title|truncatechars:15 }}</a></td>
+                    <td>
+                        {% if novel.author__nickname %}
+                            <a href="{% url 'accounts:view_other_profile' novel.author_id %}">{{ novel.author__nickname|truncatechars:8 }}</a>
+                        {% else %}
+                            <span>不明な作家</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ novel.published_date|date:"Y/m/d" }}</td>
+                    <td>{{ novel.likes_count }}</td>
+                    <td>{{ novel.comments_count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="no-results" style="text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 8px; margin: 20px 0;">
+            <p style="font-size: 16px; color: #6c757d;">
+                検索結果がありませんでした。条件を変えてください。
+            </p>
+        </div>
+    {% endif %}
+</div>
+
+
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">前へ</a>
+    {% endif %}
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">次へ</a>
+    {% endif %}
+</div>
+
+<div class="filter-options">
+    <h4>絞り込みオプション</h4>
+    <form id="filterForm" method="GET" action="{% url 'novels:novels_paginated' %}">
+        <table class="filter-table">
+            <tr>
+                <td class="label-cell"><label for="author_search">作者名検索:</label></td>
+                <td class="input-cell">
+                    <input type="text" id="author_search" name="author_search" placeholder="作者名で検索" value="{{ request.GET.author_search|default:'' }}">
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell"><label for="author_select">作者名選択:</label></td>
+                <td class="input-cell">
+                    <select id="author_select" name="author_select">
+                        <option value="">全ての作者</option>
+                        {% for author in authors_list %}
+                        <option value="{{ author.id }}" {% if request.GET.author_select == author.id|stringformat:"s" %}selected{% endif %}>
+                            {{ author.nickname }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell"><label for="title_search">タイトル検索:</label></td>
+                <td class="input-cell">
+                    <input type="text" id="title_search" name="title_search" placeholder="タイトルで検索" value="{{ request.GET.title_search|default:'' }}">
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell"><label for="title_initial">タイトルイニシャル:</label></td>
+                <td class="input-cell">
+                    <select id="title_initial" name="title_initial">
+                        <option value="">すべて</option>
+                        {% for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZあいうえおかきくけこさしすせそたちつとなにぬねのはひふへほまみむめもやゆよらりるれろわをん' %}
+                        <option value="{{ char }}" {% if request.GET.title_initial == char %}selected{% endif %}>{{ char }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell"><label for="char_count_min">文字数（最小）:</label></td>
+                <td class="input-cell">
+                    <input type="text" id="char_count_min" name="char_count_min" placeholder="最小文字数" min="0" step="1" value="{{ request.GET.char_count_min|default:'' }}">
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell"><label for="char_count_max">文字数（最大）:</label></td>
+                <td class="input-cell">
+                    <input type="text" id="char_count_max" name="char_count_max" placeholder="最大文字数" min="0" step="1" value="{{ request.GET.char_count_max|default:'' }}">
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell"><label for="genre">ジャンル:</label></td>
+                <td class="input-cell">
+                    <select id="genre" name="genre">
+                        <option value="">全て</option>
+                        {% for code, name in genre_choices %}
+                        <option value="{{ code }}" {% if genre == code %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+        </table>
+        <div class="button-container" style="margin-top: 30px; margin-bottom: 20px;">
+            <button type="button" onclick="resetFilters()" class="reset-button">リセット</button>
+            <button type="submit" class="apply-button">適用</button>
+        </div>
+    </form>
+</div>
+
+
+
+<script>
+    function zenkakuToHankaku(str) {
+        return str.replace(/[０-９]/g, function(s) {
+            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+        });
+    }
+    
+    document.getElementById('filterForm').addEventListener('submit', debounce(function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+    
+        const charCountMinInput = document.getElementById('char_count_min');
+        const charCountMaxInput = document.getElementById('char_count_max');
+        const titleInitial = document.getElementById('title_initial').value;
+    
+        // 全角半角に変換してからFormDataにセット
+        if (charCountMinInput.value) {
+            charCountMinInput.value = zenkakuToHankaku(charCountMinInput.value);
+        }
+        if (charCountMaxInput.value) {
+            charCountMaxInput.value = zenkakuToHankaku(charCountMaxInput.value);
+        }
+    
+        formData.set('char_count_min', charCountMinInput.value);
+        formData.set('char_count_max', charCountMaxInput.value);
+        formData.set('title_initial', titleInitial);
+    
+        const searchParams = new URLSearchParams(formData).toString();
+        window.location.href = `{% url 'novels:novels_paginated' %}?${searchParams}`;
+    
+        updateCurrentFiltersDisplay(formData); // 現在のフィルター表示を更新
+    }, 250));
+    
+    function updateCurrentFiltersDisplay(formData) {
+        const author = formData.get('author_search') || 'すべて';
+        const title = formData.get('title_search') || 'すべて';
+        const charMin = formData.get('char_count_min') || '0文字ら';
+        const charMax = formData.get('char_count_max') || '無制限';
+        const genre = formData.get('genre') || '全て';
+        document.getElementById('currentFilters').textContent = `作者: ${author}, タイトル: ${title}, 文字数: ${charMin}～${charMax}, ジャンル: ${genre}`;
+    }
+    
+    function resetFilters() {
+        // フォームの値をクリア
+        document.getElementById('author_search').value = '';
+        document.getElementById('author_select').value = '';
+        document.getElementById('title_search').value = '';
+        document.getElementById('title_initial').value = '';
+        document.getElementById('char_count_min').value = '';
+        document.getElementById('char_count_max').value = '';
+        document.getElementById('genre').value = '';
+
+        // デフォルトのソート順（投稿日の降順）に戻す
+        window.location.href = '{% url "novels:novels_paginated" %}?sort=-published_date';
+    }
+    </script>
+
+
+{% endblock %}

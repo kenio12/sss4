@@ -1,0 +1,349 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div id="maturi-setup-content">
+    <div class="container">
+        <h2>祭りの設定場所</h2>
+
+        <img src="{% static 'games/images/maturi2.webp' %}" alt="Maturi Game">
+
+        <form method="post" id="setupForm">
+            {% csrf_token %}
+            
+            <div class="debug-info" style="display: none;">
+                <p>Form Action: {{ request.path }}</p>
+                <p>Method: POST</p>
+                <p>Game ID: {{ game.id|default:'New' }}</p>
+            </div>
+
+            <div class="form-group">
+                <p>{{ form.title.label_tag }} {{ form.title }}</p>
+                <p>{{ form.description.label_tag }} {{ form.description }}</p>
+            </div>
+
+            <div>
+                <h3 class="small-heading">イベントの開始日</h3>
+                <div class="date-input-group">
+                    {{ form.maturi_start_date }}
+                </div>
+            </div>
+
+            <div>
+                <h3 class="small-heading">エントリー期間（予想開始の前日まで）</h3>
+                <div class="date-input-group">
+                    {{ form.entry_start_date }}
+                    <span>〜</span>
+                    {{ form.entry_end_date }}
+                </div>
+            </div>
+
+            <div>
+                <h3 class="small-heading">祭りの執筆期間</h3>
+                <div style="display: flex; justify-content: start; align-items: center;">
+                    {{ form.start_date }} <span style="margin: 0 10px;">〜</span> {{ form.end_date }}
+                </div>
+            </div>
+
+            <div class="period-section">
+                <h3 class="small-heading">作者の予想期間（予想開始日＝小説公開日）</h3>
+                <div style="display: flex; justify-content: start; align-items: center;">
+                    {{ form.prediction_start_date }} 
+                    <span style="margin: 0 10px;">〜</span> 
+                    {{ form.prediction_end_date }}
+                </div>
+            </div>
+
+            <div>
+                <h3 class="small-heading">イベントの終了日</h3>
+                <div style="display: flex; justify-content: start; align-items: center;">
+                   {{ form.maturi_end_date }}
+                </div>
+            </div>
+
+            <div>
+                <strong>参考まで：</strong>
+                <ul class="titles-list">
+                    {% if titles %}
+                        {% for title in titles %}
+                        <li>{{ title }}</li>
+                        {% endfor %}
+                    {% else %}
+                        <li>{{ year }}年の同タイトルは、まだありません。</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <h2 class="phrase-heading">次に語句を入力してください</h2>
+            <div class="excel-like-container">
+                <table class="excel-like-table">
+                    <tr>
+                        <td><input type="text" name="phrase1" value="{{ form.phrase1.value|default:'' }}" placeholder="語句1"></td>
+                        <td><input type="text" name="phrase2" value="{{ form.phrase2.value|default:'' }}" placeholder="語句2"></td>
+                        <td><input type="text" name="phrase3" value="{{ form.phrase3.value|default:'' }}" placeholder="語句3"></td>
+                        <td><input type="text" name="phrase4" value="{{ form.phrase4.value|default:'' }}" placeholder="語句4"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" name="phrase5" value="{{ form.phrase5.value|default:'' }}" placeholder="語句5"></td>
+                        <td><input type="text" name="phrase6" value="{{ form.phrase6.value|default:'' }}" placeholder="語句6"></td>
+                        <td><input type="text" name="phrase7" value="{{ form.phrase7.value|default:'' }}" placeholder="語句7"></td>
+                        <td><input type="text" name="phrase8" value="{{ form.phrase8.value|default:'' }}" placeholder="語句8"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" name="phrase9" value="{{ form.phrase9.value|default:'' }}" placeholder="語句9"></td>
+                        <td><input type="text" name="phrase10" value="{{ form.phrase10.value|default:'' }}" placeholder="語句10"></td>
+                        <td><input type="text" name="phrase11" value="{{ form.phrase11.value|default:'' }}" placeholder="語句11"></td>
+                        <td><input type="text" name="phrase12" value="{{ form.phrase12.value|default:'' }}" placeholder="語句12"></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="entrants-section">
+                <h3>エントランツ</h3>
+                <div class="entrants-list">
+                    {% for user in all_users|dictsort:"nickname" %}
+                        <div class="entrant-item">
+                            <input type="checkbox" name="entrants" value="{{ user.id }}" 
+                                   id="entrant_{{ user.id }}" {% if user in entrants %}checked{% endif %}>
+                            <label for="entrant_{{ user.id }}">{{ user.nickname }}</label>
+                        </div>
+                    {% empty %}
+                        <p>ユーザーがおらへんで</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if game %}
+            <div class="current-novels-section">
+                <h3>現在の祭り作品一覧</h3>
+                <div class="table-responsive">
+                    {% if game.maturi_novels.all %}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>タイトル</th>
+                                    <th>現在の著者</th>
+                                    <th>オリジナル著者</th>
+                                    <th>ステータス</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for novel in game.maturi_novels.all %}
+                                    <tr>
+                                        <td>{{ novel.title }}</td>
+                                        <td>{{ novel.author.nickname }}</td>
+                                        <td>
+                                            <span class="original-author" style="display: none;">
+                                                {{ novel.original_author.nickname }}
+                                            </span>
+                                            <button type="button" class="btn btn-sm btn-info toggle-author" 
+                                                    onclick="toggleAuthor(this)"
+                                                    data-shown="false">
+                                                表示する
+                                            </button>
+                                        </td>
+                                        <td>
+                                            {% if novel.author.nickname == '祭り作家' %}
+                                                <span class="badge bg-warning">匿名化済み</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">本名表示中</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>まだ作品がありません。</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="predictions-section">
+                <h3>予想一覧</h3>
+                <div class="table-responsive">
+                    {% if game.predictions.all %}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>予想者</th>
+                                    <th>小説タイトル</th>
+                                    <th>予想された作者</th>
+                                    <th>予想日時</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% regroup game.predictions.all|dictsort:"predictor.nickname" by predictor.nickname as predictions_by_predictor %}
+                                {% for predictor_group in predictions_by_predictor %}
+                                    {% for prediction in predictor_group.list|dictsort:"novel.title" %}
+                                        <tr>
+                                            <td>{{ predictor_group.grouper }}</td>
+                                            <td>{{ prediction.novel.title }}</td>
+                                            <td>
+                                                <span class="predicted-author" style="display: none;">
+                                                    {{ prediction.predicted_author.nickname }}
+                                                </span>
+                                                <button type="button" class="btn btn-sm btn-info toggle-prediction" 
+                                                        onclick="togglePrediction(this)"
+                                                        data-shown="false">
+                                                    予想を見る
+                                                </button>
+                                            </td>
+                                            <td>{{ prediction.created_at|date:"Y/m/d H:i" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>まだ予想がありません。</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">設定完了</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* 祭り設定画面専用のスタイル */
+    #maturi-setup-content {
+        margin-top: 60px;
+        padding: 20px;
+    }
+
+    #maturi-setup-content .date-input-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    #maturi-setup-content input[type="date"] {
+        min-width: 200px;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    #maturi-setup-content .excel-like-container {
+        overflow-x: auto;
+        margin: 20px 0;
+        padding: 10px;
+        background: #fff;
+        border-radius: 4px;
+    }
+
+    #maturi-setup-content .excel-like-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 5px;
+    }
+
+    #maturi-setup-content .excel-like-table input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+        #maturi-setup-content .date-input-group {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        #maturi-setup-content .excel-like-table td {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+<script>
+function submitTestForm(url) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+    
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    const formData = new FormData(document.getElementById('setupForm'));
+    for (let pair of formData.entries()) {
+        if (pair[0] !== 'csrfmiddlewaretoken') {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = pair[0];
+            input.value = pair[1];
+            form.appendChild(input);
+        }
+    }
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function toggleAuthor(button) {
+    const authorSpan = button.previousElementSibling;
+    const isShown = button.getAttribute('data-shown') === 'true';
+    
+    if (isShown) {
+        authorSpan.style.display = 'none';
+        button.textContent = '表示する';
+        button.setAttribute('data-shown', 'false');
+    } else {
+        if (confirm('本当に作者を表示します？')) {
+            authorSpan.style.display = 'inline';
+            button.textContent = '隠す';
+            button.setAttribute('data-shown', 'true');
+        }
+    }
+}
+
+function togglePrediction(button) {
+    const authorSpan = button.previousElementSibling;
+    const isShown = button.getAttribute('data-shown') === 'true';
+    
+    if (isShown) {
+        authorSpan.style.display = 'none';
+        button.textContent = '予想を見る';
+        button.setAttribute('data-shown', 'false');
+    } else {
+        if (confirm('本当に予想を表示しますか？')) {
+            authorSpan.style.display = 'inline';
+            button.textContent = '隠す';
+            button.setAttribute('data-shown', 'true');
+        }
+    }
+}
+</script>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if form.errors %}
+<div class="alert alert-danger">
+    {% for field, errors in form.errors.items %}
+        <p>{{ field }}: {{ errors|join:", " }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

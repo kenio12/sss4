@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+    }
+    .search-form {
+        margin-top: 20px;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .search-form input, .search-form select, .search-form button {
+        padding: 10px;
+        margin-right: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .search-form button {
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+    }
+    .search-form button:hover {
+        background-color: #45a049;
+    }
+    table {
+        width: calc(100% - 40px); /* 全体の幅から40px引く */
+        margin: 20px; /* 上下左右に20pxのマージンを設定 */
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+    .pagination {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .pagination a {
+        color: #333;
+        padding: 8px 16px;
+        text-decoration: none;
+        border: 1px solid #ddd;
+        margin: 0 4px;
+    }
+    .pagination a:hover {
+        border-color: #999;
+    }
+</style>
+
+<div class="search-form">
+    <form method="get">
+        <div>
+            <input type="text" name="q" placeholder="ユーザーを検索..." value="{{ query }}">
+        </div>
+        <div style="margin-top: 10px;">
+            <select name="likes_matcha">
+                <option value="">全て表示</option>
+                <option value="True" {% if likes_matcha == 'True' %}selected{% endif %}>抹茶が好き</option>
+                <option value="False" {% if likes_matcha == 'False' %}selected{% endif %}>抹茶が嫌い</option>
+                <option value="None" {% if likes_matcha == 'None' %}selected{% endif %}>未設定</option>
+            </select>
+            <button type="submit">検索</button>
+        </div>
+    </form>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>ニックネーム</th>
+            <th>抹茶の好み</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td><a href="{% url 'accounts:view_other_profile' user_id=user.id %}">{{ user.nickname }}</a></td>
+            <td>
+                {% if user.profile.likes_matcha == True %}
+                    抹茶が好き
+                {% elif user.profile.likes_matcha == False %}
+                    抹茶が嫌い
+                {% else %}
+                    未設定
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="pagination" style="font-family: 'Arial', sans-serif; background-color: #f8f9fa; padding: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.15);">
+    {% if page_obj.has_other_pages %}
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&q={{ query|urlencode }}&likes_matcha={{ likes_matcha|urlencode }}" style="color: #FF69B4; background-color: #fff0f5; padding: 8px 16px; border-radius: 5px; border: 1px solid #ff69b4; text-decoration: none; margin-right: 10px;">前へ</a>
+        {% endif %}
+        <span style="color: #333; padding: 8px 16px; background-color: #f0f8ff; border-radius: 5px;">ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&q={{ query|urlencode }}&likes_matcha={{ likes_matcha|urlencode }}" style="color: #FF69B4; background-color: #fff0f5; padding: 8px 16px; border-radius: 5px; border: 1px solid #ff69b4; text-decoration: none; margin-left: 10px;">次へ</a>
+        {% endif %}
+    {% endif %}
+</div>
+<!-- デバッグ情報の出力 -->
+<!-- デバッグ情報の出力 -->
+
+
+
+{% endblock %}

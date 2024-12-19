@@ -1,0 +1,314 @@
+<div id="filterModal" style="display: none; position: relative; background-color: #fff; width: 600px; height: 80%; overflow-y: auto; margin: 50px auto; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px;">
+    <button class="closeModal" style="position: absolute; top: 10px; right: 10px; border: none; background: none; font-size: 24px; cursor: pointer;">✖️</button>
+    <div class="filter-options">
+        <h4>絞り込みオプション</h4>
+        <form id="filterForm" method="GET" action="{% url 'novels:novels_paginated' %}">
+            <table class="filter-table">
+                <tr>
+                    <td class="label-cell"><label for="author_search">作者名検索:</label></td>
+                    <td class="input-cell">
+                        <input type="text" id="author_search" name="author_search" placeholder="作者名で検索">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-cell"><label for="author_select">作者名選択:</label></td>
+                    <td class="input-cell">
+                        <select id="author_select" name="author_select">
+                            <option value="">すべての作者</option>
+                            {% for author in authors_list %}
+                            <option value="{{ author.id }}" {% if author.id|stringformat:"s" == author_id %}selected{% endif %}>
+                                {{ author.nickname }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-cell"><label for="title_search">タイトル検索:</label></td>
+                    <td class="input-cell">
+                        <input type="text" id="title_search" name="title_search" placeholder="タイトルで検索">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-cell"><label for="title_select">タイトル選択:</label></td>
+                    <td class="input-cell">
+                        <select id="title_select" name="title_select">
+                            <option value="">すべての作品</option>
+                            {% for title_id, title_name in title_choices %}
+                            <option value="{{ title_id }}">{{ title_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-cell"><label for="char_count_min">文字数（最小）:</label></td>
+                    <td class="input-cell">
+                        <select id="char_count_min" name="char_count_min">
+                            <option value="0">0文字から</option>
+                            <option value="50">50文字から</option>
+                            <option value="100">100文字から</option>
+                            <option value="200">200文字から</option>
+                            <option value="300">300文字から</option>
+                            <option value="400">400文字から</option>
+                            <option value="500">500文字から</option>
+                            <option value="600">600文字から</option>
+                            <option value="700">700文字から</option>
+                            <option value="800">800文字から</option>
+                            <option value="900">900文字から</option>
+                            <option value="1000">1000文字から</option>
+                            <option value="2000">2000文字から</option>
+                            <option value="3000">3000文字から</option>
+                            <option value="4000">4000文字から</option>
+                            <option value="5000">5000文字から</option>
+                            <option value="6000">6000文字から</option>
+                            <option value="7000">7000文字から</option>
+                            <option value="8000">8000文字から</option>
+                            <option value="9000">9000文字から</option>
+                            <option value="10000">10000文字から</option>
+                            <option value="15000">15000文字から</option>
+                            <option value="20000">20000文字から</option>
+                            <option value="25000">25000文字から</option>
+                            <option value="30000">30000文字から</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-cell"><label for="char_count_max">文字数（最大）:</label></td>
+                    <td class="input-cell">
+                        <select id="char_count_max" name="char_count_max">
+                            <option value="">無制限</option>
+                            <option value="30000">30000文字まで</option>
+                            <option value="25000">25000文字まで</option>
+                            <option value="20000">20000文字まで</option>
+                            <option value="15000">15000文字まで</option>
+                            <option value="10000">10000文字まで</option>
+                            <option value="9000">9000文字まで</option>
+                            <option value="8000">8000文字まで</option>
+                            <option value="7000">7000文字まで</option>
+                            <option value="6000">6000文字まで</option>
+                            <option value="5000">5000文字まで</option>
+                            <option value="4000">4000文字まで</option>
+                            <option value="3000">3000文字まで</option>
+                            <option value="2000">2000文字まで</option>
+                            <option value="1000">1000文字まで</option>
+                            <option value="900">900文字まで</option>
+                            <option value="800">800文字まで</option>
+                            <option value="700">700文字まで</option>
+                            <option value="600">600文字まで</option>
+                            <option value="500">500文字まで</option>
+                            <option value="400">400文字まで</option>
+                            <option value="300">300文字まで</option>
+                            <option value="200">200文字まで</option>
+                            <option value="100">100文字まで</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-cell"><label for="likes">いいね:</label></td>
+                    <td class="input-cell">
+                        <select id="likes" name="likes">
+                            <option value="">すべて</option>
+                            <option value="100">100以上</option>
+                            <option value="50">50以上</option>
+                            <option value="30">30以上</option>
+                            <option value="10">10以上</option>
+                            <option value="5">5以上</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-cell"><label for="comments">コメント数:</label></td>
+                    <td class="input-cell">
+                        <select id="comments" name="comments">
+                            <option value="">すべて</option>
+                            <option value="50">50以上</option>
+                            <option value="20">20以上</option>
+                            <option value="10">10以上</option>
+                            <option value="5">5以上</option>
+                            <option value="1">1以上</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-cell"><label for="genre">ジャンル:</label></td>
+                    <td class="input-cell">
+                        <select id="genre" name="genre">
+                            <option value="">全て</option>
+                            {% for code, name in genre_choices %}
+                            <option value="{{ code }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-cell">投稿日（から）:</td>
+                    <td class="input-cell">
+                        <select id="post_date_from_year" name="post_date_from_year" style="margin-left: 10px;">
+                            <option value="">年選択</option>
+                            {% for year in years %}
+                            <option value="{{ year }}" {% if year == 1800 %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id="post_date_from_month" name="post_date_from_month" style="margin-left: 5px;">
+                            <option value="">月選択</option>
+                            <option value="1" selected>1</option>
+                            {% for month in months %}
+                            <option value="{{ month }}" {% if month == 1 %}selected{% endif %}>{{ month }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-cell">投稿日（まで）:</td>
+                    <td class="input-cell">
+                        <select id="post_date_to_year" name="post_date_to_year" style="margin-left: 10px;">
+                            <option value="">年選択</option>
+                            {% for year in years %}
+                            <option value="{{ year }}" {% if year == 2100 %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id="post_date_to_month" name="post_date_to_month" style="margin-left: 5px;">
+                            <option value="">月選択</option>
+                            <option value="12" selected>12</option>
+                            {% for month in months %}
+                            <option value="{{ month }}" {% if month == 12 %}selected{% endif %}>{{ month }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            
+            <div class="button-container" style="margin-top: 30px; margin-bottom: 20px; text-align: center;">
+                <button type="button" onclick="resetFilters()" class="reset-button">リセット</button>
+                <button type="submit" class="apply-button">適用</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .filter-table {
+        width: 100%;
+        border-spacing: 0 10px;  /* 行間のスペース */
+    }
+    
+    .label-cell {
+        width: 30%;
+        text-align: right;
+        padding-right: 15px;
+        vertical-align: middle;
+    }
+    
+    .input-cell {
+        width: 70%;
+    }
+    
+    .input-cell input,
+    .input-cell select {
+        width: 100%;
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .filter-button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+    
+    .button-container {
+        margin-top: 30px !important;
+        margin-bottom: 20px;
+        text-align: center;
+        position: sticky;  /* 追加：スクロール時にボタンを固定 */
+        bottom: 0;        /* 追加：画面の下部に固定 */
+        background-color: white;  /* 追加：背景を白に */
+        padding: 10px 0;  /* 追加：上下のパディング */
+    }
+    
+    .button-container button {
+        margin: 0 10px;
+        padding: 8px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .reset-button {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .apply-button {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .button-container button:hover {
+        opacity: 0.9;
+    }
+</style>
+
+<script>
+    document.getElementById('filterForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const searchParams = new URLSearchParams(formData).toString();
+        const searchParamsHash = btoa(searchParams); // Base64エンコードを使用して一意のキーを生成
+    
+        localStorage.setItem('filterParams', searchParams); // フィルタリング条件をローカルストレージに保存
+        updateSortLinks(searchParams); // ソートリンクを更新
+        fetchDataAndDisplay(searchParams, searchParamsHash); // データの取得と表示
+    });
+    
+    function updateSortLinks(searchParams) {
+        const sortLinks = document.querySelectorAll('th[data-sort] a');
+        sortLinks.forEach(link => {
+            const currentHref = link.getAttribute('href');
+            link.setAttribute('href', `${currentHref.split('?')[0]}?${searchParams}`);
+        });
+    }
+    
+    function fetchDataAndDisplay(searchParams, searchParamsHash) {
+        if (localStorage.getItem(searchParamsHash)) {
+            const cachedData = JSON.parse(localStorage.getItem(searchParamsHash));
+            updateNovelsList(cachedData.novels);
+            document.getElementById('filterModal').style.display = 'none'; // モーダルを閉じる
+        } else {
+            fetch(`/novels/?${searchParams}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                localStorage.setItem(searchParamsHash, JSON.stringify(data)); // データをキャッシュに保存
+                updateNovelsList(data.novels); // 小説リストを更新する関数を呼び出す
+                document.getElementById('filterModal').style.display = 'none'; // モーダルを閉じる
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+    
+    function updateNovelsList(novels) {
+        const tbody = document.querySelector('.novels-list-container table tbody');
+        tbody.innerHTML = ''; // 既存の内容をクリア
+        novels.forEach(novel => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${novel.word_count}</td>
+                <td>${novel.genre || '未分類'}</td>
+                <td><a href="/novels/${novel.id}/">${novel.title}</a></td>
+                <td><a href="/accounts/profile/${novel.author_id}/">${novel.author_nickname}</a></td>
+                <td>${novel.published_date}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+    </script>

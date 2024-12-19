@@ -1,0 +1,922 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load game_maturi_filters %}
+{% load i18n %}
+{% block content %}
+<head>
+    <title>祭りイベント</title>
+    <style>
+        body {
+            margin: 20px; /* 全体のマージンを設定 */
+        }
+        section {
+            margin-bottom: 20px; /* 各セクションの下にマージンを追加 */
+        }
+        h1 {
+            margin-bottom: 30px; /* H1の下のマージンを増やす */
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .schedule-table th, .schedule-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;  /* ここを left に戻したで */
+        }
+        .schedule-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            text-align: center;  /* ヘッダーだけ中央寄せにしたで */
+        }
+        .schedule-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .entrants-container li {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .entrants-container li:last-child {
+            border-bottom: none;
+        }
+        
+        .entrants-container li:hover {
+            background-color: #f5f5f5;
+        }
+        .temp-message {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 吹き出しの親要素用のスタイル */
+        .update-button-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* 吹き出しスタイル */
+        .popup-bubble {
+            position: absolute;
+            top: 100%;
+            left: 0;  /* 左端に合わせる */
+            transform: translateX(20px);  /* 少し右に移動 */
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            white-space: nowrap;
+            margin-top: 10px;
+            z-index: 1000;
+            min-width: max-content;
+        }
+
+        /* 矢印の位置を調整 */
+        .popup-bubble:after, .popup-bubble:before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 25px;  /* 固定位置に変更 */
+            border: solid transparent;
+            height: 0;
+            width: 0;
+            pointer-events: none;
+        }
+
+        .popup-bubble:after {
+            border-color: rgba(248, 249, 250, 0);
+            border-bottom-color: #f8f9fa;
+            border-width: 10px;
+            margin-left: -10px;
+        }
+
+        .popup-bubble:before {
+            border-color: rgba(221, 221, 221, 0);
+            border-bottom-color: #ddd;
+            border-width: 11px;
+            margin-left: -11px;
+        }
+
+        /* 画面左端に近い場合の調整 */
+        @media screen and (max-width: 768px) {
+            .popup-bubble {
+                left: 0;
+                transform: none;
+            }
+            
+            .popup-bubble:after, .popup-bubble:before {
+                left: 20%;
+            }
+        }
+
+        @keyframes bounceIn {
+            0% { 
+                opacity: 0;
+                transform: scale(0.3) translateY(20px);
+            }
+            50% {
+                opacity: 0.9;
+                transform: scale(1.1) translateY(-5px);
+            }
+            100% { 
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: normal;
+        }
+        .bg-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .bg-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .bg-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .result-summary {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .alert-info {
+            background-color: #cce5ff;
+            border: 1px solid #b8daff;
+            color: #004085;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .table-bordered td, .table-bordered th {
+            padding: 0.5rem;
+            vertical-align: middle;
+        }
+
+        /* テーブルのレスポンシブ対応を強化 */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;  /* Firefox用 */
+            scrollbar-color: #888 #f1f1f1;  /* Firefox用 */
+        }
+
+        /* Webkit（Chrome, Safari等）用のスクロールバーカスタマイズ */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;  /* 横スクロール */
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* テーブルセルの最小幅を設定 */
+        .table-bordered th,
+        .table-bordered td {
+            min-width: 60px;  /* セルの最小幅 */
+            padding: 8px;
+        }
+
+        /* タイトル列は固定幅にする */
+        .table-bordered td:first-child {
+            min-width: 200px;  /* タイトル列の幅 */
+            max-width: 200px;
+            position: sticky;
+            left: 0;
+            background-color: white;  /* 背景色を設定して重なりを防ぐ */
+            z-index: 1;
+        }
+
+        /* 最後の列（正解数）も固定 */
+        .table-bordered td:last-child,
+        .table-bordered th:last-child {
+            position: sticky;
+            right: 0;
+            background-color: white;
+            z-index: 1;
+        }
+
+        /* ヘッダー行のスタイル */
+        .table-bordered thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f2f2f2;
+            z-index: 2;
+        }
+
+        /* 左上と右上のセルは特別な z-index が必要 */
+        .table-bordered thead th:first-child {
+            z-index: 3;
+        }
+        .table-bordered thead th:last-child {
+            z-index: 3;
+        }
+
+        .gantt-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .gantt-table th, .gantt-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .gantt-table th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+        .gantt-bar {
+            height: 24px;
+            background-color: #4CAF50;
+            border-radius: 4px;
+            position: relative;
+            margin: 2px 0;
+        }
+        .gantt-bar-entry { background-color: #2196F3; }
+        .gantt-bar-writing { background-color: #FF9800; }
+        .gantt-bar-prediction { background-color: #9C27B0; }
+        .period-label {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 0.9em;
+        }
+        .today-line {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background-color: #ff0000;
+            z-index: 1;
+        }
+        .today-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff0000;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+        }
+
+        .today-label:after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #ff0000 transparent transparent transparent;
+        }
+
+        @keyframes bounceInAndSparkle {
+            0% { 
+                transform: scale(0.95) translateY(5px);
+            }
+            50% {
+                transform: scale(1.05) translateY(-5px);
+            }
+            100% { 
+                transform: scale(0.95) translateY(5px);
+            }
+        }
+
+        @keyframes sparkle {
+            0% { 
+                text-shadow: 0 0 0px rgba(255, 152, 0, 0);
+            }
+            50% { 
+                text-shadow: 0 0 30px rgba(255, 152, 0, 1);
+            }
+            100% {
+                text-shadow: 0 0 0px rgba(255, 152, 0, 0);
+            }
+        }
+
+        @keyframes blinkEmoji {
+            0%, 100% { 
+                opacity: 0;
+            }
+            50% { 
+                opacity: 1;
+            }
+        }
+
+        .sparkle-emoji {
+            animation: blinkEmoji 1.5s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        .phrases-container {
+            margin: 15px 0;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .phrases-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .phrase-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            border-radius: 15px;
+            font-size: 0.85em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .phrase-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        /* 執筆するボタン用のスタイルを追加 */
+        .btn-write {
+            padding: 10px 25px !important;  /* パディングをさらに小さく */
+            font-size: 1.1em !important;    /* フォント���イズをさ小さく */
+            font-weight: bold !important;   
+            margin: 20px 0 !important;      
+            transition: all 0.3s ease !important;  
+            border-radius: 25px !important;  /* 角を丸く */
+        }
+
+        .btn-write:hover {
+            transform: translateY(-2px) !important;  
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;  
+        }
+
+        .keywords-container {
+            display: flex;  /* 水平に並べる */
+            flex-wrap: wrap;  /* 折り返し可能 */
+            gap: 10px;  /* 語句間の間隔 */
+        }
+
+        .phrase-badge {
+            background: #f8f9fa;
+            border: 1px solid #ced4da;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            color: #333;  /* 文字色を追加 */
+        }
+
+        /* 使用された語句のスタイル */
+        .phrase-badge.used {
+            background-color: blue;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    
+
+
+    <h1>祭りイベント</h1>
+    <section>
+        <h2>祭りの概要</h2>
+        <p>この祭りは、特定の語句を使って小説を書くクリエイティブなイベントです。参加者は匿名作品を投稿し、他の参加者の作品の作者を予想します。</p>
+    </section>
+    <section>
+        <h2>祭りの注意点</h2>
+        <p>執筆期間中に、祭り作品を予約公開または公開してください。</p>
+
+    </section>
+    
+
+        <section>
+            <h2>{{ game.title }}の説明</h2>
+            <p>{{ game.description }}</p>
+        </section>
+
+        <section>
+            <h2 style="text-align: left;">祭りのスケジュール</h2>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>期間</th>
+                        <th>開始日</th>
+                        <th>終了日</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>祭りの開始</td>
+                        <td>{{ game.maturi_start_date|date:"Y年m月d日" }}</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>エントリー期間</td>
+                        <td>{{ game.entry_start_date|date:"Y年m月d日" }}</td>
+                        <td>{{ game.entry_end_date|date:"Y年m月d日" }}</td>
+                    </tr>
+                    <tr>
+                        <td>執筆期間</td>
+                        <td>{{ game.start_date|date:"Y年m月d日" }}</td>
+                        <td>{{ game.end_date|date:"Y年m月d日" }}</td>
+                    </tr>
+                    <tr>
+                        <td>作者予想期間（小説公開日）</td>
+                        <td>{{ game.novel_publish_start_date|date:"Y年m月d日" }}</td>
+                        <td>{{ game.prediction_end_date|date:"Y年m月d日" }}</td>
+                    </tr>
+                    <tr>
+                        <td>祭りの終了</td>
+                        <td></td>
+                        <td>{{ game.maturi_end_date|date:"Y年m月d日" }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- ガントチャーをここに移動 -->
+            {% include "game_maturi/includes/gantt_chart.html" with game=game %}
+        </section>
+
+        {% if last_finished_game %}
+            <section>
+                <h2>{{ last_finished_game.title }}の説明</h2>
+                <p>{{ last_finished_game.description }}</p>
+            </section>
+        {% else %}
+            <!-- last_finished_gameが存在しない場合の処理 -->
+        {% endif %}
+
+    
+    <section>
+        <h2>今回の祭りの語句</h2>
+        <div class="keywords-container">
+            {% if game and game.phrases.exists %}
+                {% for phrase in game.phrases.all %}
+                    <div class="phrase-badge">{{ phrase.text }}</div>
+                {% endfor %}
+            {% else %}
+                <p>現在ゲームに設定された語句はありません。</p>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if game %}
+        {# エントリー期間中かつ未エントリーの場合のみエントリーボタンを表示 #}
+        {% if game.is_entry_period and not is_user_entered %}
+
+            <section>
+                <h2>エントリー</h2>
+                <form action="{% url 'game_maturi:entry_action' game_id=game.id %}" method="post" style="text-align: left; margin: 20px 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-lg">
+                        エントリーする！
+                    </button>
+                </form>
+            </section>
+        {% endif %}
+
+        {# 執筆期間中の表示 #}
+        {% if is_user_entered %}
+            {% if game.is_writing_period %}
+                <section style="margin-top: 50px;">
+                    <h2>執筆コーナー</h2>
+                    <div class="alert alert-info">
+                        <p>執筆期間{{ game.start_date|date:"Y年m月d日" }} 〜 {{ game.end_date|date:"Y年m月d日" }}</p>
+                        <p>公開開始日：{{ game.prediction_start_date|date:"Y年m月d日" }}</p>
+                    </div>
+                    <div style="text-align: left; margin: 20px 0;">
+                        <a href="/game_maturi/post_or_edit/" class="btn btn-primary btn-lg btn-write">
+                            <i class="fas fa-pen"></i> 執筆する
+                        </a>
+                    </div>
+                </section>
+            {% else %}
+                <div class="alert alert-warning" style="margin-top: 50px;">
+                    <h4>執筆期間外です</h4>
+                    <p>執筆期間：{{ game.start_date|date:"Y年m月d日" }} 〜 {{ game.end_date|date:"Y年m月d日" }}</p>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+    </section>
+    <section>
+        {% if game %}
+            <h2>エントリーされた方</h2>
+            <div class="entrants-container">
+                {% if active_authors %}
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        {% for author in active_authors %}
+                            <li style="margin-bottom: 10px;">
+                                <a href="{% url 'accounts:view_other_profile' user_id=author.id %}" 
+                                   style="text-decoration: none; color: #0066cc;">
+                                    {{ author.nickname }}
+                                </a>
+                                {% if now > game.end_date %}
+                                    {% with published_novels=game.maturi_novels.all|filter_by_original_author:author|filter_published %}
+                                        (作品数: {{ published_novels|length }})
+                                    {% endwith %}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>現在の祭りにはエントリーした参加者がいません。</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+
+    <div class="messages" style="position: fixed; top: 20px; right: 20px; z-index: 1000; max-width: 300px;">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        // グローバル変数として予想データを初期化
+        const novel_predictions = {{ novel_predictions|safe|default:'{}' }};
+        
+        // デバッグ用の関数
+        function debugPredictionSelect(authorId) {
+            console.group('Debug Prediction Select');
+            document.querySelectorAll('.prediction-select').forEach((select, index) => {
+                console.log(`Select ${index}:`, select.innerHTML);
+                const option = select.querySelector(`option[value="${authorId}"]`);
+                if (option) {
+                    console.log(`Found option for author ${authorId}:`, {
+                        text: option.textContent,
+                        value: option.value,
+                        disabled: option.disabled
+                    });
+                }
+            });
+            console.groupEnd();
+        }
+
+        // カウンター更新の関数を修正
+        function updateRemainingCounts(authorId, change) {
+            console.log(`updateRemainingCounts called for author ${authorId} with change ${change}`);
+            
+            document.querySelectorAll('.prediction-select').forEach(select => {
+                const option = select.querySelector(`option[value="${authorId}"]`);
+                if (option) {
+                    const currentTotal = parseInt(option.dataset.totalNovels);
+                    let currentPredicted = parseInt(option.dataset.predictedCount) || 0;
+                    
+                    // 新しい予測数を計算
+                    currentPredicted = Math.max(0, currentPredicted - change); // changeの符号を反転
+                    const remaining = currentTotal - currentPredicted;
+                    
+                    console.log(`Author ${authorId}:`, {
+                        currentTotal,
+                        currentPredicted,
+                        remaining,
+                        change
+                    });
+
+                    // データを更新
+                    option.dataset.predictedCount = currentPredicted;
+                    
+                    // 選択可能かどうかを更新
+                    if (remaining <= 0 && !select.value.includes(authorId.toString())) {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                    }
+                    
+                    // 表示テキストを更新
+                    const authorName = option.textContent.split('(')[0].trim();
+                    option.textContent = `${authorName} (残り: ${remaining}回)`;
+                }
+            });
+        }
+
+        // DOMContentLoadedイベン���リスナーを修正
+        document.addEventListener('DOMContentLoaded', function() {
+            // novel_predictionsから初期値を設定
+            for (const novelId in novel_predictions) {
+                const prediction = novel_predictions[novelId];
+                const select = document.querySelector(`.prediction-select[data-novel-id="${novelId}"]`);
+                
+                if (select && prediction.predicted_author) {
+                    select.value = prediction.predicted_author.id;
+                    select.setAttribute('data-current-value', prediction.predicted_author.id);
+                    console.log(`Set initial value for novel ${novelId}:`, prediction.predicted_author.id);
+                }
+            }
+        });
+
+        // プダウンの変更イベントハンドラを修正
+        document.querySelectorAll('.prediction-select').forEach(select => {
+            select.addEventListener('change', function(event) {
+                const oldValue = select.getAttribute('data-current-value');
+                const newAuthorId = this.value;
+                const cancelBtn = document.querySelector(`.cancel-prediction-btn[data-novel-id="${this.dataset.novelId}"]`);
+                
+                console.log('Select changed:', {
+                    oldValue,
+                    newAuthorId,
+                    novelId: this.dataset.novelId
+                });
+
+                // 「作者を選択」に戻した場合
+                if (!newAuthorId && oldValue) {
+                    console.log(`Increasing count for old author ${oldValue}`);
+                    updateRemainingCounts(parseInt(oldValue), 1); // 予想数を増やす
+                    cancelBtn.style.display = 'none';
+                } else if (newAuthorId) {
+                    // 新しい作者を選択した場合
+                    if (oldValue) {
+                        console.log(`Increasing count for old author ${oldValue}`);
+                        updateRemainingCounts(parseInt(oldValue), 1); // 古い予想を増やす
+                    }
+                    console.log(`Decreasing count for new author ${newAuthorId}`);
+                    updateRemainingCounts(parseInt(newAuthorId), -1); // 新しい予想を減す
+                    cancelBtn.style.display = 'inline-block';
+                }
+
+                // 現在の選択を保存
+                select.setAttribute('data-current-value', newAuthorId);
+            });
+        });
+
+        // 「一旦取り消す」ボタンのイベントハンドラ
+        document.querySelectorAll('.cancel-prediction-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const novelId = this.dataset.novelId;
+                const select = document.querySelector(`.prediction-select[data-novel-id="${novelId}"]`);
+                const currentAuthorId = select.value;
+
+                console.log('Cancel button clicked:', {
+                    novelId,
+                    currentAuthorId
+                });
+
+                if (currentAuthorId) {
+                    console.log(`Increasing count for author ${currentAuthorId}`); // 予測を解除したので増やす
+                    updateRemainingCounts(parseInt(currentAuthorId), 1); // 予測を解除したので増やす
+                    select.value = '';
+                    select.setAttribute('data-current-value', '');
+                    this.style.display = 'none';
+                }
+            });
+        });
+
+        // CSRFトークン取得用の関数
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // DOMContentLoadedイベントリスナー
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初期表示時に予想データを反映
+            for (const novelId in novel_predictions) {
+                const prediction = novel_predictions[novelId];
+                const select = document.querySelector(`.prediction-select[data-novel-id="${novelId}"]`);
+                const cancelBtn = document.querySelector(`.cancel-prediction-btn[data-novel-id="${novelId}"]`);
+                
+                if (select && prediction.predicted_author) {
+                    select.value = prediction.predicted_author.id;
+                    if (cancelBtn) {
+                        cancelBtn.style.display = 'inline-block';
+                    }
+                }
+            }
+
+            // プダウンの変更を監視
+            const selects = document.querySelectorAll('.prediction-select');
+            selects.forEach(select => {
+                select.addEventListener('change', async function() {
+                    const novelId = this.dataset.novelId;
+                    const authorId = this.value;
+                    const gameId = document.querySelector('[data-game-id]').dataset.gameId;
+
+                    try {
+                        const response = await fetch('/game_maturi/submit-prediction/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: JSON.stringify({
+                                predictions: {
+                                    [novelId]: authorId
+                                },
+                                game_id: gameId
+                            })
+                        });
+
+                        const data = await response.json();
+                        if (data.success) {
+                            showMessage('予想を保存しました', 'success');
+                        } else {
+                            showMessage(`エラー: ${data.message}`, 'danger');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showMessage('通信エラーが発生しました', 'danger');
+                    }
+                });
+            });
+        });
+
+        // メッセージ表示関数を修正
+        function showMessage(message, type = 'success') {
+            const messagesContainer = document.querySelector('.messages');
+            if (!messagesContainer) return;
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            `;
+            
+            messagesContainer.appendChild(alertDiv);
+            
+            // 3秒後に自動的に消える
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+    </script>
+
+    <!-- デバッグ情報を表示するセクション
+    <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">
+        <h3>Debug Information:</h3>
+        <ul>
+            <li>Current Game: {{ game }}</li>
+            <li>User Entered: {{ game.entrants.all|length }}</li>
+            <li>Writing Period: {{ game.is_writing_period }}</li>
+            <li>Current Game Start Date: {{ game.start_date }}</li>
+            <li>Current Game End Date: {{ game.end_date }}</li>
+            <li>Current Game Novels Count: {{ novels|length }}</li>
+            <li>Is Prediction Period: {{ game.is_prediction_period }}</li>
+            <li>Novel Publish Start Date: {{ game.novel_publish_start_date }}</li>
+            <li>User Predictions: {{ predictions|length }}</li>
+            <li>Novel Predictions: {{ novel_predictions|length }}</li>
+        </ul>
+    </div> -->
+
+    <!-- 予想結果の前に区切り線を加 -->
+    <hr class="my-4" style="border-top: 2px solid #ddd; margin: 30px 0;">
+
+    {% if game.is_prediction_period_finished %}
+    <div style="background-color: #f8f9fa; margin: 0 -20px; padding: 20px 20px;">
+        <h2 style="text-align: center; font-weight: bold; margin-bottom: 20px; color: #FF9800; text-shadow: 0 0 10px rgba(255, 152, 0, 0.5); animation: bounceInAndSparkle 2s ease-out infinite;">
+            <span class="sparkle-emoji">✨</span> 結果発表 <span class="sparkle-emoji">✨</span>
+        </h2>
+
+        <!-- game_results.htmlの内容を直接ここに含める -->
+        {% include "game_maturi/includes/game_results.html" %}
+    </div>
+{% endif %}
+
+    <!-- メッセージ表示用のコンテナ -->
+    <div class="messages-container">
+        <div class="messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ゲームIDを保持する要素を追加 -->
+    <div data-game-id="{{ game.id }}" style="display: none;"></div>
+
+    {% if game.is_prediction_period %}
+        <section>
+            <h2>あなたの予想フォーム</h2>
+            {% if request.user.is_authenticated %}
+                {% if novels %}
+                    <form method="post" action="{% url 'game_maturi:submit_prediction' %}" id="prediction-form">
+                        {% csrf_token %}
+                        <table class="schedule-table">
+                            <thead>
+                                <tr>
+                                    <th>作品タイトル</th>
+                                    <th>作者予想</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for novel in novels|dictsort:"title" %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'novels:novel_detail' novel_id=novel.id %}">{{ novel.title }}</a>
+                                        </td>
+                                        <td>
+                                            <select name="prediction_{{ novel.id }}" 
+                                                    class="prediction-select" 
+                                                    data-novel-id="{{ novel.id }}">
+                                                <option value="">作者を選択</option>
+                                                {% for author in active_authors %}
+                                                    <option value="{{ author.id }}"
+                                                        {% with pred_author=novel_predictions|get_item:novel.id|get_item:"predicted_author" %}
+                                                        {% if novel_predictions and novel.id in novel_predictions and pred_author.id == author.id %}
+                                                            selected
+                                                        {% endif %}
+                                                        {% endwith %}>
+                                                        {{ author.nickname }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <!-- デバッグ表示 -->
+                                    {% if debug %}
+                                    <div style="display:none;">
+                                        <p>Novel ID: {{ novel.id }}</p>
+                                        <p>Predictions: {{ novel_predictions|json_script:"predictions-data" }}</p>
+                                        {% if novel.id in novel_predictions %}
+                                            <p>Found prediction for this novel</p>
+                                            <p>Predicted author: {{ novel_predictions|get_item:novel.id|get_item:"predicted_author"|get_item:"nickname" }}</p>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div style="margin-top: 20px; text-align: left;">
+
+                            <div class="mt-2">
+                                <small>予想は結果発表まで他の参加者には見えません。</small>
+                            </div>
+                        </div>
+                    </form>
+                {% else %}
+                    {% if game.has_scheduled_novels %}
+                        <div class="alert alert-info">
+                            <p>小説はまもなく公開されます。しばらくお待ちください。</p>
+                            <p>公開予定日時: {{ game.novel_publish_start_date|date:"Y年m月d日 H:i" }}</p>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <p>まだ祭り小説の予約投稿がありません。</p>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info">
+                    <p>予想するにはログインが必要です。</p>
+                </div>
+            {% endif %}
+        </section>
+    {% endif %}
+
+
+
+{% endblock %}

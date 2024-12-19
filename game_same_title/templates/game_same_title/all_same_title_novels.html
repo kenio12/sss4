@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container" style="margin-top: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>同タイトル小説一覧</h2>
+        <a href="{% url 'game_same_title:same_title' %}" class="btn btn-primary" style="font-size: 1.2rem; padding: 10px 20px;">同タイトル画面に戻る</a>
+    </div>
+    
+    <div id="novels-container" style="background-color: #FFE4E1;">
+        <table class="sticky-header">
+            <thead>
+                <tr>
+                    <th>ジャンル</th>
+                    <th>文字数</th>
+                    <th>作品名</th>
+                    <th>作家名</th>
+                    <th>投稿日</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for novel in page_obj %}
+                {% with month_key=novel.published_date|date:"Y-m" %}
+                <tr {% if ichiban_yari_info|get_item:month_key == novel %}class="ichiban-yari"{% endif %}>
+                    <td>
+                        {% if novel.genre == "同タイトル" %}
+                            同タイ
+                        {% elif novel.genre == "旧同タイトル" %}
+                            旧同タイ
+                        {% else %}
+                            {{ novel.genre }}
+                        {% endif %}
+                    </td>
+                    <td>{{ novel.word_count|intcomma }}</td>
+                    <td>
+                        <a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title }}</a>
+                        {% if ichiban_yari_info|get_item:month_key == novel %}
+                            {% with proposal=monthly_proposals|get_item:month_key %}
+                                {% if proposal %}
+                                    <span class="proposer-name">(提案者: {{ proposal.proposer.nickname }})</span>
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'accounts:view_other_profile' novel.author.id %}">{{ novel.author.nickname }}</a>
+                        {% if ichiban_yari_info|get_item:month_key == novel %}
+                            <span class="ichiban-yari-badge">一番槍！</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ novel.published_date|date:"Y/m/d" }}</td>
+                </tr>
+                {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include "game_same_title/includes/pagination.html" %}
+</div>
+
+<style>
+    .ichiban-yari {
+        background-color: #fff3cd;  /* 薄い黄色の背景 */
+    }
+    .ichiban-yari-badge {
+        display: inline-block;
+        background-color: #ffc107;  /* 金色の背景 */
+        color: #000;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-left: 10px;
+        font-weight: bold;
+        font-size: 0.9em;
+    }
+    
+    .proposer-name {
+        color: #666;
+        font-size: 0.9em;
+        margin-left: 10px;
+    }
+    
+    .sticky-header {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .sticky-header th {
+        background-color: #f8f9fa;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        padding: 10px;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .sticky-header td {
+        padding: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+</style>
+{% endblock %} 

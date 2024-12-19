@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ announcement.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- 詳細部分 -->
+    <div class="announcement-detail mb-5 {% if announcement.is_pinned %}pinned-detail{% endif %}">
+        <div class="announcement-header">
+            {% if announcement.is_pinned %}
+                <div class="pin-badge">
+                    <i class="fas fa-thumbtack"></i> 重要なお知らせ
+                </div>
+            {% endif %}
+            <h1 class="announcement-title">
+                {% if announcement.is_pinned %}
+                    <i class="fas fa-star star-icon"></i>
+                {% endif %}
+                {{ announcement.title }}
+            </h1>
+            <div class="announcement-meta">
+                <span class="announcement-date">
+                    <i class="far fa-calendar-alt"></i>
+                    {{ announcement.created_at|date:"Y年m月d日" }}
+                </span>
+            </div>
+        </div>
+        <div class="announcement-content">
+            {{ announcement.content|linebreaksbr|urlize }}
+        </div>
+    </div>
+
+    <!-- 他のお知らせ一覧 -->
+
+    {% include 'announcements/announcement_list.html' %}
+</div>
+
+<style>
+    /* モダンでゴージャスなデザイン */
+    .container {
+        max-width: 1200px;  /* コンテナの最大幅を設定 */
+        margin: 0 auto;     /* 中央寄せ */
+        padding: 0 15px;    /* 左右の余白 */
+    }
+
+    .announcement-detail {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        width: 100%;        /* 幅を100%に */
+    }
+
+    .pinned-detail {
+        background: linear-gradient(135deg, #fff9f0 0%, #fff5e6 100%);
+        border-left: 5px solid #FFB347;
+    }
+
+    .pinned-detail::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+        animation: shine 3s infinite;
+        pointer-events: none;
+    }
+
+    .announcement-header {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .pin-badge {
+        background: linear-gradient(45deg, #FFB347, #FFCC33);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-size: 1rem;
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 15px rgba(255,179,71,0.3);
+        animation: pulse 2s infinite;
+    }
+
+    .announcement-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1a1a1a;
+        margin-bottom: 1.5rem;
+        line-height: 1.4;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .star-icon {
+        color: #FFB347;
+        font-size: 2rem;
+        animation: twinkle 1.5s infinite;
+    }
+
+    .announcement-meta {
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .announcement-date {
+        color: #666;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .announcement-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+    }
+
+    .announcement-content a {
+        color: #0066cc;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+    .announcement-content a:hover {
+        border-bottom-color: #0066cc;
+    }
+
+    /* レスポンシブ対応 */
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 10px;  /* スマホでは左右の余白を少し狭める */
+        }
+
+        .announcement-detail {
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .announcement-title {
+            font-size: 1.5rem;
+        }
+
+        .announcement-content {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+    }
+
+    /* 一覧部分のスタイル調整 */
+    .sss-novels-list {
+        margin-top: 2rem;
+    }
+
+    .row-grid {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 0.8rem 0;
+    }
+
+    /* 重要バッジ用カラム */
+    .badge-column {
+        width: 120px;  /* バッジ幅を広げる */
+        min-width: 120px;
+        padding-right: 20px;  /* 右の余白を追加 */
+    }
+
+    /* 日付用カラム */
+    .date-column {
+        width: 120px;  /* 日付幅を広げる */
+        min-width: 120px;
+        padding-right: 30px;  /* 日付と星マークの間を広げる */
+    }
+
+    /* タイトル用カラム */
+    .title-column {
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    /* 星アイコンとタイトルの間隔 */
+    .star-icon {
+        margin-right: 15px;  /* 星とタイトルの間を広げる */
+    }
+
+    /* タイトルテキストの位置調整 */
+    .title-text {
+        flex: 1;
+        padding-left: 5px;  /* タイトルテキストを少し右に */
+    }
+
+    /* スマホ表示用の調整 */
+    @media screen and (max-width: 768px) {
+        .badge-column,
+        .date-column {
+            padding-right: 15px;  /* スマホでは間隔を少し狭める */
+        }
+        
+        .star-icon {
+            margin-right: 10px;  /* スマホでは星との間隔も狭める */
+        }
+    }
+</style>
+{% endblock %} 

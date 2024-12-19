@@ -1,0 +1,216 @@
+{% load game_maturi_filters %}
+
+
+<!-- 予想結果セクション -->
+{% if not game.is_prediction_period_finished %}
+    <div class="alert alert-warning">
+        予想期間が終了するまで結果は表示できません。
+    </div>
+{% else %}
+    <div class="mt-4">
+        <!-- ユーザーの予想成績を先に表示 -->
+        {% if request.user.is_authenticated %}
+            <h3 class="mt-4">{{ request.user.nickname }}さんの予想結果</h3>
+            
+            <div class="alert alert-info mt-4">
+                <h4>予想成績</h4>
+                <p>正解数: {{ correct_predictions }}/{{ total_predictions }}</p>
+                <p>正解率: {{ accuracy|floatformat:1 }}%</p>
+            </div>
+
+            {% if predictions %}  {# predictions が存在する場合のみ表示 #}
+            <div class="mt-4">
+                <table class="table user-prediction-table">
+                    <thead>
+                        <tr>
+                            <th>小説タイトル</th>
+                            <th>正解の作者</th>
+                            <th>予想した作者</th>
+                            <th>判定</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prediction in predictions %}
+                        <tr {% if prediction.predicted_author != prediction.novel.original_author %}style="background-color: rgba(0,0,0,0.03);"{% endif %}>
+                            <td>
+                                <a href="{% url 'novels:novel_detail' prediction.novel.id %}" 
+                                   style="color: #007bff; text-decoration: none;">
+                                    {{ prediction.novel.title }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'accounts:view_other_profile' prediction.novel.original_author.id %}"
+                                   style="color: #007bff; text-decoration: none;">
+                                    {{ prediction.novel.original_author.nickname }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'accounts:view_other_profile' prediction.predicted_author.id %}"
+                                   style="color: #007bff; text-decoration: none;">
+                                    {{ prediction.predicted_author.nickname }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if prediction.predicted_author == prediction.novel.original_author %}
+                                    <span class="badge bg-success">正解</span>
+                                {% else %}
+                                    <span class="badge bg-danger">不正解</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        {% endif %}
+
+        <!-- 参加者全員の予想成績を表示 -->
+        <h3 class="mt-4">参加者の予想成績</h3>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">順位</th>
+                        <th>参加者</th>
+                        <th>正解数</th>
+                        <th>正解率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for participant, stats in participants %}
+                        <tr {% if forloop.first %}class="table-warning clickable-row"{% else %}class="clickable-row"{% endif %} 
+                            onclick="window.location='{% url 'game_maturi:prediction_result' user_id=participant.id %}'" 
+                            style="cursor: pointer;">
+                            <td>
+                                {% if forloop.first %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-crown"></i> 優勝
+                                    </span>
+                                {% else %}
+                                    {{ forloop.counter }}位
+                                {% endif %}
+                            </td>
+                            <td>{{ participant.nickname }}</td>
+                            <td>{{ stats.correct }}/{{ stats.total }}</td>
+                            <td>
+                                {{ stats.accuracy|floatformat:1 }}%
+                                <i class="fas fa-chevron-right text-muted float-end"></i>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 予想結果一覧を表示 -->
+        {% if game.is_prediction_period_finished %}
+            <h3 class="mt-4">予想結果一覧</h3>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>作品＼予想者</th>
+                            {% for participant, stats in participants %}
+                                <th>
+                                    <a href="{% url 'accounts:view_other_profile' participant.id %}"
+                                       style="color: #007bff; text-decoration: none;">
+                                        {{ participant.nickname }}
+                                    </a>
+                                </th>
+                            {% endfor %}
+                            <th>正解率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for novel in novels %}
+                            <tr>
+                                <td {% if novel.original_author == request.user %}class="table-info"{% endif %}>
+                                    <a href="{% url 'novels:novel_detail' novel.id %}"
+                                       style="color: #007bff; text-decoration: none;">
+                                        {{ novel.title }}
+                                    </a>
+                                </td>
+                                {% for participant, stats in participants %}
+                                    <td class="text-center {% if participant.id == novel.original_author.id %}table-warning{% endif %}">
+                                        {% for prediction in all_predictions %}
+                                            {% if prediction.novel == novel and prediction.predictor == participant %}
+                                                {% if prediction.predicted_author == novel.original_author %}
+                                                    <span class="text-success">○</span>
+                                                {% else %}
+                                                    <span class="text-danger">×</span>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                {% endfor %}
+                                <td class="text-center">
+                                    {% with stats=novel_stats|get_item:novel.id %}
+                                        {{ stats.fraction|default:"0/0" }}
+                                    {% endwith %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>正解率</td>
+                            {% for participant, stats in participants %}
+                                <td class="text-center">{{ stats.correct }}/{{ stats.total }}</td>
+                            {% endfor %}
+                            <td class="text-center">
+                                {% with total_correct=0 total_predictions=0 %}
+                                    {% for participant, stats in participants %}
+                                        {% with total_correct=total_correct|add:stats.correct %}
+                                            {% with total_predictions=total_predictions|add:stats.total %}
+                                                {% if forloop.last %}
+                                                    {{ total_correct }}/{{ total_predictions }}
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% endwith %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}
+
+<style>
+.fa-crown {
+    color: gold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+.table-warning {
+    background-color: #fff3cd !important;
+}
+.clickable-row {
+    transition: background-color 0.2s ease;
+}
+.clickable-row:hover {
+    background-color: #f8f9fa !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.clickable-row:hover .fa-chevron-right {
+    transform: translateX(3px);
+    transition: transform 0.2s ease;
+}
+
+/* テーブルのデフォルトスタイルをリセット */
+.table {
+    background-color: #ffffff;
+}
+
+/* 特定のクラスを持つセルの背景色を設定 */
+.table-warning {
+    background-color: #fff3cd !important;
+}
+
+
+
+/* ユーザーの予想結果テーブルのスタイルだけを特別に設定 */
+.user-prediction-table tr[style*="background-color: rgba(0,0,0,0.03)"] {
+    background-color: rgba(0,0,0,0.03) !important;
+}
+</style> 

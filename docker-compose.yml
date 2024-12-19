@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: novel_site_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./dumps:/dumps
+    environment:
+      - POSTGRES_DB=${DEV_POSTGRES_DB}
+      - POSTGRES_USER=${DEV_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${DEV_POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    networks:
+      - novel_site_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: novel_site_web
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             touch /code/debug.log &&
+             service cron start &&
+             python manage.py runserver_plus --cert-file cert.pem --key-file key.pem 0.0.0.0:8000 --verbosity 2"
+    volumes:
+      - .:/code
+      - ./cert.pem:/code/cert.pem
+      - ./key.pem:/code/key.pem
+      - ./dumps:/code/dumps
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      old_db:
+        condition: service_started
+    env_file:
+      - .env
+    environment:
+      - ENVIRONMENT=development
+      - TZ=Asia/Tokyo
+      - OLD_DATABASE_URL=postgres://${OLD_POSTGRES_USER}:${OLD_POSTGRES_PASSWORD}@old_db:5432/${OLD_POSTGRES_DB}
+    networks:
+      - novel_site_network
+
+  old_db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=${OLD_POSTGRES_DB}
+      - POSTGRES_USER=${OLD_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${OLD_POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - old_db_data:/var/lib/postgresql/data
+    networks:
+      - novel_site_network
+
+  redis:
+    image: "redis:alpine"
+    container_name: novel_site_redis
+    networks:
+      - novel_site_network
+    environment:
+      - TZ=Asia/Tokyo
+
+  celery:
+    build: .
+    command: celery -A mynovelsite worker -l debug
+    volumes:
+      - .:/code
+    depends_on:
+      - web
+      - redis
+    networks:
+      - novel_site_network
+    environment:
+      - ENVIRONMENT=development
+      - TZ=Asia/Tokyo
+
+  celery-beat:
+    build: .
+    command: celery -A mynovelsite beat -l debug
+    volumes:
+      - .:/code
+    environment:
+      - ENVIRONMENT=development
+      - TZ=Asia/Tokyo
+    depends_on:
+      - web
+      - redis
+    networks:
+      - novel_site_network
+
+networks:
+  novel_site_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  old_db_data:

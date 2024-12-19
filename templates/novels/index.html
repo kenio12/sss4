@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}小説の一覧{% endblock %}
+
+{% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% if user.is_authenticated %}
+<div style="height: 10px;"></div>
+{% else %}
+<div style="height: 7px;"></div>
+{% endif %}
+
+<!-- 遅延読み込みの表を含むコンテナを追加 -->
+
+{% include "novels/novels_list.html" with novels=novels is_index_page=True %}
+
+
+<div style="height: 50px;"></div> <!-- フッターと他のコンテンツとの間にスペースを確保 -->
+
+<!-- フッター内に絞り込みボタンと情報表示エリアを配置 -->
+<div id="filterFooter" style="text-align: left; padding: 5px; color: #333; background-color: #f8f9fa; z-index: 1000000; position: fixed; bottom: 0; width: 100%; display: flex; justify-content: flex-start; align-items: center; left: 0; right: 0;">
+    <button id="filterButton" class="btn btn-primary" style="font-size: 16px; font-weight: bold; margin-right: 10px;">絞り込み</button>
+    <div style="flex-grow: 1; display: flex; align-items: center;"> <!-- ここを変更したで！ -->
+        <p style="margin: 0;">現在のソート順: {{ order|default:'desc' }}</p>
+        <button id="resetButton" class="btn btn-primary" style="font-size: 16px; font-weight: bold; margin-right: 10px;margin-left: 20px; background-color: cadetblue !important;">リセット</button> 
+    </div>
+</div>
+
+<!-- モーダルダイアログ -->
+<div id="filterModal" style="display: none; position: fixed; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000010;">
+    {% include "novels/filter_modal.html" %}
+</div>
+
+
+
+
+<!-- ここに遅延読み込みのための JavaScript コードを追加 -->
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+    // ローカルストレージからフィルタリング条件を読み込む
+
+    const filterParams = localStorage.getItem('filterParams');
+    if (filterParams) {
+        const params = new URLSearchParams(filterParams);
+
+        // 要素の設定とエラーハンドリングを関数化
+        function setElementValue(elementId, paramKey) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.value = params.get(paramKey) || '';
+            } else {
+                console.error(`${elementId} の要素が見つかりません。IDを確認してください。`);
+            }
+        }
+
+        // 各要素に対して設定
+        setElementValue('genre', 'genre');
+        setElementValue('author_search', 'author_search');
+        setElementValue('author_select', 'author_select');
+        setElementValue('title_search', 'title_search');
+        setElementValue('title_select', 'title_select');
+        setElementValue('char_count_min', 'char_count_min');
+        setElementValue('char_count_max', 'char_count_max');
+    }
+
+
+        const closeModalButtons = document.querySelectorAll('.closeModal');
+        closeModalButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const filterModal = document.getElementById('filterModal');
+                filterModal.style.display = 'none';
+            });
+        });
+    
+        let nextPage = 2;
+        let isLoading = false;
+        let currentSortBy = new URLSearchParams(window.location.search).get('sort_by') || '{{ sort_by }}';
+        let currentOrder = new URLSearchParams(window.location.search).get('order') || '{{ order }}';
+    
+        const filterButton = document.getElementById('filterButton');
+        const filterModal = document.getElementById('filterModal');
+        const closeModal = document.getElementById('closeModal');
+        const novelsList = document.querySelector('.novels-list-container');
+    
+        if (filterButton && filterModal) {
+            filterButton.addEventListener('click', function() {
+                filterModal.style.display = 'block';
+            });
+        }
+    
+        if (closeModal) {
+            closeModal.addEventListener('click', function() {
+                filterModal.style.display = 'none';
+            });
+        }
+
+    
+        function updateSortingLinks() {
+            console.log("Current Sort By:", currentSortBy);
+            console.log("Current Order:", currentOrder);
+            const sortHeaders = document.querySelectorAll('th[data-sort] a');
+            sortHeaders.forEach(link => {
+                const header = link.parentElement;
+                const sortBy = header.dataset.sort;
+                if (sortBy === currentSortBy) {
+                    if (currentOrder === 'asc') {
+                        link.classList.add('sorted-asc');
+                        link.classList.remove('sorted-desc');
+                    } else {
+                        link.classList.add('sorted-desc');
+                        link.classList.remove('sorted-asc');
+                    }
+                } else {
+                    link.classList.remove('sorted-asc', 'sorted-desc');
+                }
+            });
+        }
+    
+    //　ここが遅延処理っぽい！ 
+    function handleScroll() {
+    const documentHeight = document.body.scrollHeight;
+    const currentScroll = window.innerHeight + window.scrollY;
+    if (currentScroll >= documentHeight - 100 && !isLoading) {
+        isLoading = true;
+        const filterParams = localStorage.getItem('filterParams');
+        let url = `/novels/?page=${nextPage}`;
+
+        // 現在のソート条件を取得
+        const currentSortBy = new URLSearchParams(window.location.search).get('sort_by') || 'published_date';
+        const currentOrder = new URLSearchParams(window.location.search).get('order') || 'asc';
+
+        // URLにソート条件を追加
+        url += `&sort_by=${currentSortBy}&order=${currentOrder}`;
+
+        if (filterParams) {
+            const params = new URLSearchParams(filterParams);
+            url += '&' + params.toString(); // フィルタリング条件をURLに追加
+        }
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.has_next) {
+                nextPage++;
+            } else {
+                window.removeEventListener('scroll', handleScroll, { passive: true });
+            }
+            isLoading = false;
+            const tbody = document.querySelector('.novels-list-container table tbody');
+            if (tbody) {
+                data.novels.forEach(novel => {
+                    const tr = document.createElement('tr');
+                    tr.classList.add('fade-in');
+                    tr.innerHTML = `
+                    <td><span class="full-cell-link">${novel.word_count}</span></td>
+                    <td>${novel.genre || '未分類'}</td>
+                    <td>
+                        <a class="full-cell-link" href="/novels/${novel.id}/" style="display: block; text-decoration: none; height: 100%; width: 100%;">
+                            ${novel.title}
+                        </a>
+                    </td>
+                    <td>
+                        <a class="full-cell-link" href="/accounts/profile/${novel.author_id}/" style="display: block; text-decoration: none; height: 100%; width=100%;">
+                        ${novel.author_nickname}
+                        </a>
+                    </td>
+                    <td><span class="full-cell-link">${novel.published_date}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                    setTimeout(() => tr.classList.add('visible'), 200);
+                });
+            } else {
+                console.error('tbodyが見つかりません。');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            isLoading = false;
+        });
+    }
+};
+
+    if (document.querySelector('.novels-list-container')) {
+        window.addEventListener('scroll', handleScroll, { passive: true });
+    }
+
+    function toggleGenreSelection(isChecked) {
+    const checkboxes = document.querySelectorAll('input[name="genre"]');
+       checkboxes.forEach(checkbox => {
+           checkbox.checked = isChecked;
+       });
+    }
+
+    if (novelsList) {
+        updateSortingLinks();
+        window.addEventListener('scroll', handleScroll, { passive: true });
+    }
+
+    // フィルタリングのリセットボタン
+    document.getElementById('resetButton').addEventListener('click', function() {
+    // ローカルストレージからフィルタリング条件を削除
+    localStorage.removeItem('filterParams');
+    // ページをリロードして初期状態に戻す
+    window.location.href = '/novels/';
+    });
+});
+</script>
+
+
+{% endblock %}

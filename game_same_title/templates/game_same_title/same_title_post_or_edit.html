@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% if edit %}
+
+{% include 'novels/novel_detail_section.html' with novel=novel is_published=is_published hide_edit_button=True %}
+
+<style>
+    .form-group label {
+        margin-bottom: 15px !important;
+    }
+</style>
+
+<hr style="margin-top: 0;">
+
+<!-- このスタイルは、特定のテキストに蛍光ペンの黄色を塗るためのもんやで！お兄さん、このスタイルを使ってみてな。目立つでー！ -->
+{% endif %}
+<!--  editの場合この上に小説詳細を突っ込む -->
+<div class="container mt-5" style="margin-top: 15px !important;">
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <!-- 小説のIDを保持するための隠しフィールド -->
+        <input type="hidden" id="novelId" name="novelId" value="{{ novel.id }}">
+
+
+        <!-- 同タイトルゲームチェックボックス -->
+        <div class="form-check" style="margin-bottom: 15px; margin-left: 20px;">
+            <input class="form-check-input" 
+                   type="checkbox" 
+                   id="{{ form.is_same_title_game.id_for_label }}" 
+                   name="{{ form.is_same_title_game.name }}" 
+                   checked 
+                   disabled 
+                   style="opacity: 0.7; cursor: not-allowed;">
+            <label class="form-check-label" for="{{ form.is_same_title_game.id_for_label }}" style="opacity: 0.7;">同タイトル</label>
+            <!-- hiddenフィールドを追加して、disabled時でも値を送信 -->
+            <input type="hidden" name="{{ form.is_same_title_game.name }}" value="true">
+        </div>
+
+
+<!-- タイトルフィールドの直前にデバッグ情報を追加 -->
+
+
+<!-- タイトルフィールド -->
+<div class="form-group">
+    <label for="{{ form.title.id_for_label }}" style="margin-bottom: 15px;">タイトル（最初、自分の提案は選択肢出てきません）</label>
+    <select class="form-control" id="{{ form.title.id_for_label }}" name="{{ form.title.name }}">
+        <!-- デフォルトオプションを常に最初に表示 -->
+        <option value="">選択してください</option>
+        {% if current_month_same_title_info and current_month_same_title_info.title %}
+            <!-- 現在の月のタイトルがある場合、それを選択肢に追加 -->
+            <option value="{{ current_month_same_title_info.title }}" {% if form.title.value == current_month_same_title_info.title %}selected{% endif %}>{{ current_month_same_title_info.title }}</option>
+        {% endif %}
+        <!-- 前月の提案されたタイトルを選択肢に追加（自分の提案は除外済み） -->
+        {% for proposal in last_month_proposals %}
+            <option value="{{ proposal.title }}" {% if form.title.value == proposal.title %}selected{% endif %}>{{ proposal.title }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- イニシャル選択フィールド -->
+<div class="form-group">
+    <label for="{{ form.initial.id_for_label }}" style="margin-bottom: 15px;">タイトルの初文字</label>
+    <select class="form-control" id="{{ form.initial.id_for_label }}" name="{{ form.initial.name }}">
+        {% for choice_value, choice_label in form.initial.field.choices %}
+            <option value="{{ choice_value }}" {% if form.initial.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- ステータスフィールド -->
+<div class="form-group">
+    <label for="{{ form.status.id_for_label }}" style="margin-bottom: 15px;">ステータス</label>
+    <input type="text" 
+           class="form-control" 
+           value="{% if novel and novel.status == 'published' %}公開{% elif novel and novel.status == 'draft' %}作成中{% else %}作成中{% endif %}" 
+           readonly 
+           disabled>
+</div>
+
+        <!-- 小説の内容入力フィールド -->
+        <div class="form-group">
+            <label for="{{ form.content.id_for_label }}" style="margin-bottom: 15px;">小説の内容</label>
+            <textarea class="form-control content" id="{{ form.content.id_for_label }}" name="{{ form.content.name }}"
+                      placeholder="ここに小説の中身をお書きどす。ここは自動保存がないので、こまめに保存してや！" maxlength="10000">{{ form.content.value|default_if_none:'' }}</textarea>
+        </div>
+
+        <style>
+            /* 内容フィールドの高さ設定 */
+            textarea.content {
+                min-height: 500px !important;  /* 最小の高さを設定 */
+                height: auto !important;       /* 高さを自動に */
+                overflow-y: auto !important;   /* スクロールを許可に変更 */
+                resize: none !important;       /* リサイズハンドルを非表示に */
+                box-sizing: border-box !important; /* パディングを含めた高さ計算に */
+                transition: height 0.1s ease-in-out !important; /* スムーズな高さ変更 */
+            }
+
+            /* モバイル向けの調整 */
+            @media (max-width: 768px) {
+                textarea.content {
+                    position: static !important;  /* fixedを解除 */
+                    width: 100% !important;
+                    height: 50vh !important;  /* 画面の半分の高さに固定 */
+                    margin: 0.5rem 0 !important;
+                    padding: 0.8rem !important;
+                    border: 2px solid #666 !important;
+                    border-radius: 8px !important;
+                    overflow-y: auto !important;  /* スクロール可能に */
+                    font-size: 20px !important;
+                    line-height: 1.8 !important;
+                    -webkit-overflow-scrolling: touch !important;
+                    touch-action: pan-y !important;
+                    overscroll-behavior: contain !important;
+                    will-change: transform !important;
+                }
+            }
+        </style>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.querySelector('.content');
+            
+            // 初期表示時に高さを調整
+            adjustHeight(textarea);
+            
+            // 入力時に高さを調整（改行、ペースト、キー入力全てに対応）
+            textarea.addEventListener('input', function() {
+                adjustHeight(this);
+            });
+            
+            textarea.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    setTimeout(() => adjustHeight(this), 0);
+                }
+            });
+            
+            textarea.addEventListener('paste', function() {
+                setTimeout(() => adjustHeight(this), 0);
+            });
+            
+            function adjustHeight(element) {
+                // 一旦高さをリセット
+                element.style.height = 'auto';
+                // スクロールの高さに合わせて設定
+                element.style.height = (element.scrollHeight) + 'px';
+            }
+        });
+        </script>
+
+        <div id="autoSaveStatus" style="display: none;"></div>
+        </div>
+        <!-- 下書きとして保存ボタン -->
+        <button type="submit" name="action" value="draft" class="btn btn-secondary" style="margin-top: 0% !important;display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 20px; background-color: orchid; color: white; margin-right: 10px;margin-bottom: 20px; font-size: 24px !important; font-weight: bold;">
+            <span style="margin-right: 8px; font-size: 20px; font-weight: bold;">保存</span>
+            <img src="{% static 'images/save.svg' %}" alt="Icon" style="height: 24px;"> 
+        </button>
+
+
+
+
+{% if edit %}
+
+
+<!-- 休息ボタン -->
+<button type="submit" name="action" value="rest" class="btn btn-secondary" style="display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 20px; background-color: darkgreen; color: white; margin-right: 10px; margin-bottom: 20px; font-size: 24px !important; font-weight: bold;margin-top: 0% !important;">
+    <span style="margin-right: 8px; font-size: 20px; font-weight: bold;">休息</span>
+    <img src="{% static 'images/tea.svg' %}" alt="Icon" style="height: 24px;"> 
+</button>
+
+    <!-- 投稿ボタン -->
+    <button type="submit" name="action" value="publish" class="btn btn-primary" style="display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 20px; background-color: #007bff; color: white; margin-right: 10px;margin-bottom: 20px; font-size: 24px !important; font-weight: bold;">
+        <span style="margin-right: 8px; font-size: 20px; font-weight: bold;">投稿</span>
+        <img src="{% static 'images/post.svg' %}" alt="Icon" style="height: 24px;">
+    </button>
+    
+    <!-- 削除ボタン -->
+    <button type="submit" name="action" value="delete" class="btn btn-primary" style="display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 20px; background-color: red !important; color: white; margin-right: 10px;margin-bottom: 20px; font-size: 24px !important; font-weight: bold;">
+        <span style="margin-right: 8px; font-size: 20px; font-weight: bold;">削除</span>
+        <img src="{% static 'images/delete.svg' %}" alt="Icon" style="height: 24px;">
+    </button>
+{% endif %}
+    </form>
+</div>
+
+
+<!-- フッター内に文字数カウンターを表示 -->
+<div id="footerWordCount" style="text-align: center; padding: 10px; color: #fff; background-color: #333;">
+
+    0 / 10,000文字
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('id_is_same_title_game');
+    const select = document.getElementById('id_title');
+    const hasCurrentMonthTitle = {% if current_month_same_title_info %}true{% else %}false{% endif %};
+    const lastMonthProposals = {% if last_month_proposals_json %}{{ last_month_proposals_json|safe }}{% else %}[]{% endif %};
+    const savedTitle = "{{ form.title.value|default_if_none:""|escapejs }}";
+
+    console.log('前月の提案:', lastMonthProposals);  // デバッグ用
+    console.log('一番槍情報:', {% if current_month_same_title_info %}true{% else %}false{% endif %});  // デバッグ用
+
+    function updateSelectOptions() {
+        if (!select) return;  // selectが存在しない場合は処理を中止
+
+        // デフォルトオプションをクリアし、新しいオプションを追加
+        select.innerHTML = '<option value="">選択してください</option>';
+
+        if (checkbox.checked && hasCurrentMonthTitle) {
+            // 一番槍がある場合
+            {% if current_month_same_title_info %}
+            const option = document.createElement('option');
+            option.value = "{{ current_month_same_title_info.title|escapejs }}";
+            option.textContent = "{{ current_month_same_title_info.title }}";
+            if (option.value === savedTitle) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+            {% endif %}
+        } else if (checkbox.checked && lastMonthProposals.length > 0) {
+            // 前月の提案タイトルを選択肢として表示
+            lastMonthProposals.forEach(function(proposal) {
+                const option = document.createElement('option');
+                option.value = proposal.fields.title;
+                option.textContent = proposal.fields.title;
+                if(proposal.fields.title === savedTitle) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        } else if (!checkbox.checked) {
+            // 同タイトルゲームにチェックが入ってない場合は、自由入力可能に
+            select.outerHTML = `<input type="text" class="form-control" id="id_title" name="title" value="${savedTitle}">`;
+        }
+    }
+
+    checkbox.addEventListener('change', updateSelectOptions);
+    updateSelectOptions(); // 初期ロード時にも実行
+});
+
+    $(document).ready(function() {
+        // 文字カウンターの初期設定と更新処理
+        function updateWordCount() {
+            var contentLength = $('#{{ form.content.id_for_label }}').val().length;
+            $('#footerWordCount').text(contentLength + ' / 10,000文字');
+        }
+
+        // ページ読み込み時に文字カウンターを初期化
+        updateWordCount();
+
+        // コンテンツフィールドの入力ごとに文字カウンターを更新
+        $('#{{ form.content.id_for_label }}').on('input', function() {
+            updateWordCount();
+        });
+
+    });
+
+    </script>
+
+{% endblock %}
+
+

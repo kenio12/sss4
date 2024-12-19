@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- ここから元のコードを挿入し、適宜Bootstrapクラスを追加してレスポンシブ対応にする -->
+<style>
+    .red-button {
+        background-color: red; /* 背景色を赤に設定 */
+        color: white; /* 文字色を白に設定 */
+        border: none; /* 枠線をなくす */
+        padding: 10px 20px; /* パディングを設定 */
+        cursor: pointer; /* カーソルをポインターに設定 */
+    }
+</style>
+<div class="container">
+    <form action="{% url 'accounts:delete_account' %}" method="post" id="delete-account-form">
+        {% csrf_token %}
+        <div class="mb-3">
+            <button type="button" class="btn btn-secondary" onclick="goBack()">踏み止まる</button>
+        </div>
+        <div>
+            <button type="button" onclick="confirmDelete()" class="red-button btn">もう一度聞く？このサイト内での君自身の登録が完全に消えるぞ！まじ消えるぞ（＞＜）</button>
+        </div>
+    </form>
+</div>
+
+<script>
+function confirmDelete() {
+    var result = confirm("おまえ、まじで、やめんの？");
+    if (result) {
+        // ユーザーが「はい」を選択した場合、フォームを送信
+        document.getElementById("delete-account-form").submit();
+    }
+}
+
+function goBack() {
+    window.location.href = '/';  // ホームページにリダイレクト
+}
+</script>
+{% endblock %}

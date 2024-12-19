@@ -1,0 +1,25 @@
+<div style="padding-left: 0; padding-right: 0;">
+    <div class="table-responsive">
+        <table class="table profile-detail-table">
+            <tbody>
+                <div class="profile-details">
+                    <div class="profile-item"><span>長所:</span> {{ profile.strengths }}</div>
+                    <div class="profile-item"><span>短所:</span> {{ profile.weaknesses }}</div>
+                    <div class="profile-item"><span>大体の年齢:</span> {{ profile.age }}</div>
+                    <div class="profile-item"><span>性別:</span> {{ profile.gender }}</div>
+                    <div class="profile-item"><span>生物名:</span> {{ profile.species }}</div>
+                    <div class="profile-item"><span>逆鱗:</span> {{ profile.pet_peeve }}</div>
+                    <div class="profile-item"><span>癖:</span> {{ profile.habit }}</div>
+                    <div class="profile-item"><span>都道府県:</span> {{ profile.residence }}</div>
+                    <div class="profile-item"><span>抹茶が好き:</span> {{ profile.likes_matcha|yesno:"はい,いいえ" }}</div>
+                    <div class="profile-item"><span>趣味:</span> {{ profile.hobby }}</div>
+                    <div class="profile-item"><span>マイブーム:</span> {{ profile.current_trend }}</div>
+                    <div class="profile-item"><span>好きな曲:</span> {{ profile.favorite_songs }}</div>
+                    <div class="profile-item"><span>好きなダンス:</span> {{ profile.favorite_dance }}</div>
+                    <div class="profile-item"><span>好きな言葉:</span> {{ profile.favorite_phrase }}</div>
+                    <div class="profile-item full-width"><span>自己紹介:</span> {{ profile.introduction }}</div>
+                </div>
+            </tbody>
+        </table>
+    </div>
+</div>

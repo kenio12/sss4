@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>メールアドレスの確認</title>
+</head>
+<body>
+    <p>こんにちは、{{ user.nickname }}さん。</p>
+    <p>超短編小説会です！　当会へは次の門をくぐる（リンクをクリック）ことで入門できます。</p>
+    <a href="{{ protocol }}://{{ domain }}/accounts/activate/{{ uid }}/{{ token }}/">
+        門
+    </a>
+</body>
+</html>

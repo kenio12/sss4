@@ -1,0 +1,449 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load novel_filters %} 
+
+{% block title %}{{ novel.title }}{% endblock %}
+
+{% block content %}
+
+<!-- メッセージ表示部分 -->
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {{ message|linebreaksbr }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- 小説の詳細部分 -->
+{% include 'novels/novel_detail_section.html' %}
+
+<!-- いいねボタン -->
+<div class="like-button-container" style="margin-bottom: 20px;">
+    {% if user.is_authenticated %}
+        {% if novel.author == user %}
+            <img src="{% if novel.likes.count > 0 %}{% static 'images/on.png' %}{% else %}{% static 'images/off.png' %}{% endif %}"
+                alt="いいね" class="like-icon">
+        {% else %}
+            <a href="#" class="like-button" data-novel-id="{{ novel.id }}" aria-label="いいね"
+                data-like-img="{% static 'images/on.png' %}" data-unlike-img="{% static 'images/off.png' %}">
+                <img src="{% if novel in user.liked_novels.all %}{% static 'images/on.png' %}{% else %}{% static 'images/off.png' %}{% endif %}"
+                    alt="いいね" class="like-icon">
+            </a>
+        {% endif %}
+    {% else %}
+        <div class="like-button-login-message">
+            <img src="{% static 'images/off.png' %}" alt="いいね" class="like-icon">
+            <small class="text-muted">（いいねするにはログインが必要です）</small>
+        </div>
+    {% endif %}
+    <span class="like-count">{{ novel.likes.count }}</span>
+</div>
+
+<!-- コメントフォームとコメントセクション全体を公開時のみ表示 -->
+{% if novel.status == 'published' %}
+    <!-- コメントフォーム -->
+    {% if user.is_authenticated %}
+        <div class="comment-form" style="margin: 20px;">
+            <form method="post" action="{% url 'novels:post_comment' novel.id %}" data-novel-id="{{ novel.id }}">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.content }}
+                </div>
+                <button type="submit" class="btn-custom" style="display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 20px; background-color: #004085; color: white; font-size: 20px; font-weight: bold; margin-bottom: 20px; margin-top: 15px !important;">
+                    <span style="margin-right: 8px;">コメント</span>
+                    <img src="{% static 'images/comment-suru.svg' %}" alt="Icon" style="height: 24px;">
+                </button>
+            </form>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            コメントを投稿するには<a href="{% url 'accounts:login' %}" class="alert-link">ログイン</a>が必要です。
+        </div>
+    {% endif %}
+
+    <!-- コメントセクション -->
+    <div class="comments-container" style="overflow-y: auto; height: 100vh; margin: 0 20px;">
+        <div class="comments-list mt-4">
+            <h3 style="font-size: 24px; font-weight: bold">コメント</h3>
+            {% for comment in comments_list %}
+                <div class="comment mb-2" 
+                     style="border: 2px solid #ccc !important; 
+                            border-left: 3px solid {{ comment.author.comment_color }} !important;
+                            background-color: #ffffff !important;
+                            padding: 15px !important; 
+                            border-radius: 8px !important; 
+                            margin-bottom: 15px !important; 
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;">
+                    <p class="comment-author">
+                        <strong>
+                            {% if comment.author %}
+                                <a href="{% url 'accounts:view_other_profile' comment.author.id %}" class="author-link">
+                                    {{ comment.author.nickname }}
+                                </a>
+                                {% if comment.author != user %}
+                                    {% if novel.author == user %}
+                                        <label class="mark-as-read" style="{% if not comment.is_read %}background-color: pink !important{% endif %}">
+                                            <input type="checkbox" 
+                                                   class="read-checkbox" 
+                                                   data-comment-id="{{ comment.id }}"
+                                                   onchange="toggleCommentReadStatus({{ comment.id }}, this)"
+                                                   {% if comment.is_read %}checked{% endif %}>
+                                            既読にする
+                                        </label>
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                不明な人
+                            {% endif %}
+                        </strong> - 
+                        {{ comment.created_at|date:"Y-m-d H:i" }}
+                    </p>
+                    <p class="comment-content">{{ comment.content|linebreaksbr }}</p>
+                </div>
+            {% empty %}
+                <p>コメントはまだありません。</p>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endif %}
+
+<style>
+/* コメントリスト用のスタイル */
+.comments-container .mark-as-read {
+    margin-left: 10px !important;
+    font-size: 0.9em !important;
+    color: #666 !important;
+    display: inline-block !important;
+    padding: 2px 8px !important;
+    border-radius: 15px !important;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd !important;
+}
+
+.comments-container .read-checkbox {
+    margin-right: 5px !important;
+    vertical-align: middle !important;
+}
+
+/* コメントリスト内の未読/既読コメントのスタイル */
+.comments-container .unread-comment {
+    background-color: #f8f9fa !important;
+    border-left: 3px solid #007bff !important;
+    padding: 10px !important;
+    margin-bottom: 10px !important;
+}
+
+.comments-container .read-comment {
+    background-color: #ffffff !important;
+    border-left: 3px solid #28a745 !important;
+    padding: 10px !important;
+    margin-bottom: 10px !important;
+}
+
+/* コメントリスト用のスタイル */
+.comments-container .mark-as-read {
+    margin-left: 10px !important;
+    font-size: 0.9em !important;
+    color: #666 !important;
+    display: inline-block !important;
+    padding: 2px 8px !important;
+    border-radius: 15px !important;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd !important;
+}
+
+.comments-container .read-checkbox {
+    margin-right: 5px !important;
+    vertical-align: middle !important;
+}
+
+/* チェックボックスのホバー効果 */
+.comments-container .mark-as-read:hover {
+    background-color: #e9ecef !important;
+    cursor: pointer !important;
+}
+
+/* 未読コメントアイコンの色分け（10色） */
+.comment-icon-container.color-0 { background-color: #FF6B6B !important; }
+.comment-icon-container.color-1 { background-color: #4ECDC4 !important; }
+.comment-icon-container.color-2 { background-color: #45B7D1 !important; }
+.comment-icon-container.color-3 { background-color: #96CEB4 !important; }
+.comment-icon-container.color-4 { background-color: #FFEEAD !important; }
+.comment-icon-container.color-5 { background-color: #D4A5A5 !important; }
+.comment-icon-container.color-6 { background-color: #9B59B6 !important; }
+.comment-icon-container.color-7 { background-color: #3498DB !important; }
+.comment-icon-container.color-8 { background-color: #1ABC9C !important; }
+.comment-icon-container.color-9 { background-color: #F1C40F !important; }
+
+/* コメントアイコンのスタイル */
+.comment-icon-container {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 5px !important;
+    position: relative !important;
+    display: inline-block !important;
+    width: 25px !important;
+    height: 25px !important;
+    background-image: url('{% static "images/comments-icon.svg" %}') !important;
+    background-size: cover !important;
+}
+
+.unread-count {
+    position: absolute !important;
+    top: -5px !important;
+    right: -5px !important;
+    background-color: red !important;
+    color: white !important;
+    border-radius: 50% !important;
+    padding: 2px 6px !important;
+    font-size: 12px !important;
+    min-width: 20px !important;
+    text-align: center !important;
+}
+
+/* コメントリンクのスタイル */
+.comment-link {
+    text-decoration: none !important;
+    display: inline-block !important;
+}
+
+/* 既存のスタイルの中に追加 */
+.author-link {
+    color: #007bff !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease !important;
+}
+
+.author-link:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+}
+</style>
+
+<script>
+// CSRFトークンの取得
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function toggleCommentReadStatus(commentId, checkbox) {
+    fetch(`/novels/comments/${commentId}/toggle-read/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+            is_read: checkbox.checked
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // チェックボックスの親要素（label）の背景色を更新
+            const label = checkbox.closest('.mark-as-read');
+            if (!checkbox.checked) {
+                label.setAttribute('style', 'background-color: pink !important');
+            } else {
+                label.setAttribute('style', 'background-color: #f8f9fa !important');
+            }
+
+            // 未読コメントアイコンの更新処理
+            const unreadCommentsDiv = document.getElementById('unread-comments');
+            
+            // 現在の色インデックスを保持
+            const currentIcons = unreadCommentsDiv.querySelectorAll('.comment-icon-container');
+            const currentColors = {};
+            currentIcons.forEach(icon => {
+                const novelId = icon.closest('a').href.split('/').slice(-2)[0];
+                const colorClass = Array.from(icon.classList)
+                    .find(cls => cls.startsWith('color-'));
+                if (colorClass) {
+                    const currentColor = colorClass.split('-')[1];
+                    console.log('既存の色 - Novel ID:', novelId, 'Color:', currentColor);
+                    currentColors[novelId] = currentColor;
+                }
+            });
+
+            unreadCommentsDiv.innerHTML = '';
+
+            // 新しいアイコンを追加（既存の色維持）
+            data.novels_with_unread
+                .filter(novel => novel.unread_count > 0)
+                .forEach((novel, index) => {
+                    const colorIndex = currentColors[novel.id] || (index % 10);
+                    console.log('Detail.html - New color for novel', novel.id, ':', colorIndex);
+                    console.log('Detail.html - Using existing color?', !!currentColors[novel.id]);
+
+                    const commentLink = document.createElement('a');
+                    commentLink.href = `/novels/${novel.id}/`;
+                    commentLink.className = 'comment-link';
+                    commentLink.title = '未読コメント';
+
+                    const iconContainer = document.createElement('div');
+                    iconContainer.className = `comment-icon-container color-${colorIndex}`;
+                    iconContainer.style.cssText = `
+                        width: 25px !important;
+                        height: 25px !important;
+                        background-image: url('/static/images/comments-icon.svg') !important;
+                        background-size: cover !important;
+                        position: relative !important;
+                    `;
+
+                    const unreadCount = document.createElement('span');
+                    unreadCount.className = 'unread-count';
+                    unreadCount.textContent = novel.unread_count;
+
+                    iconContainer.appendChild(unreadCount);
+                    commentLink.appendChild(iconContainer);
+                    unreadCommentsDiv.appendChild(commentLink);
+                });
+        } else {
+            checkbox.checked = !checkbox.checked;
+            console.error('Error:', data.error);
+        }
+    })
+    .catch(error => {
+        checkbox.checked = !checkbox.checked;
+        console.error('Error:', error);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const commentForm = document.querySelector('.comment-form form');
+    if (commentForm) {
+        commentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const novelId = this.dataset.novelId;
+            const formData = new FormData(this);
+            
+            fetch(`/novels/${novelId}/comment/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Received data:', data);
+                    
+                    // カラーパレットを定義
+                    const BORDER_COLORS = [
+                        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD',
+                        '#D4A5A5', '#9B59B6', '#3498DB', '#1ABC9C', '#F1C40F'
+                    ];
+                    
+                    // まず、既存のコメントから同じ祭り作家の色を探す
+                    const existingCommentsList = document.querySelectorAll('.comment');
+                    let borderColor = null;
+                    
+                    // 投稿者名で既存のコメントを探す
+                    for (const comment of existingCommentsList) {
+                        const authorElement = comment.querySelector('.author-link');
+                        if (authorElement && authorElement.textContent.trim() === data.comment.author) {
+                            // 同じ祭り作家のコメントが見つかった場合、その色を取得
+                            const style = window.getComputedStyle(comment);
+                            borderColor = style.borderLeftColor;
+                            break;
+                        }
+                    }
+                    
+                    // 同じ祭り作家が見つからない場合は、新しい色をランダムにり当て
+                    if (!borderColor) {
+                        const colorIndex = Math.floor(Math.random() * BORDER_COLORS.length);
+                        borderColor = BORDER_COLORS[colorIndex];
+                    }
+                    
+                    // 新しいdiv要素を作成
+                    const newCommentDiv = document.createElement('div');
+                    newCommentDiv.className = 'comment mb-2';
+                    
+                    newCommentDiv.style.cssText = `
+                        border: 2px solid #ccc !important;
+                        border-left: 3px solid ${data.comment.author_color || '#cccccc'} !important;
+                        background-color: #ffffff !important;
+                        padding: 15px !important;
+                        border-radius: 8px !important;
+                        margin-bottom: 15px !important;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+                    `;
+                    
+                    // コメントの内容を設定（XSS対策のためテキストノードとして追加）
+                    const authorP = document.createElement('p');
+                    authorP.className = 'comment-author';
+                    
+                    const authorStrong = document.createElement('strong');
+                    const authorLink = document.createElement('a');
+                    authorLink.href = `/accounts/profile/${data.comment.author_id}/`;
+                    authorLink.className = 'author-link';
+                    authorLink.textContent = data.comment.author;
+                    
+                    authorStrong.appendChild(authorLink);
+                    authorP.appendChild(authorStrong);
+                    authorP.appendChild(document.createTextNode(` - ${data.comment.created_at}`));
+                    
+                    const contentP = document.createElement('p');
+                    contentP.className = 'comment-content';
+                    contentP.innerHTML = data.comment.content.replace(/\n/g, '<br>');
+                    
+                    newCommentDiv.appendChild(authorP);
+                    newCommentDiv.appendChild(contentP);
+                    
+                    // コメントリストの最初に新しいコメントを追加
+                    const commentsContainer = document.querySelector('.comments-list');
+                    const firstComment = commentsContainer.querySelector('div.comment');
+                    
+                    if (firstComment) {
+                        commentsContainer.insertBefore(newCommentDiv, firstComment);
+                    } else {
+                        // 最初のコメントの場合
+                        const emptyMessage = commentsContainer.querySelector('p');
+                        if (emptyMessage) {
+                            emptyMessage.remove();
+                        }
+                        commentsContainer.appendChild(newCommentDiv);
+                    }
+                    
+                    console.log('Comment added successfully');
+                    
+                    // フォームをリセット
+                    commentForm.reset();
+                } else {
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    }
+});
+</script>
+
+{% endblock %}

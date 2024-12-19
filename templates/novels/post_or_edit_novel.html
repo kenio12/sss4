@@ -1,0 +1,826 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}  <!-- widget_tweaksをロード -->
+
+{% block content %}
+{% if novel.id and novel.content %}
+    <div class="novel-detail-section">
+        {% with hide_edit_button=True %}
+            {% include 'novels/novel_detail_section.html' %}
+        {% endwith %}
+    </div>
+    <hr style="margin-top: 0;">
+    <p class="toggle-message" id="message-warning" style="display:none;">
+        ↑こんな感じの仕上がりや！　気に入らへんのなら下↓の欄で編集してやー
+        <button class="toggle-message-button">非表示</button>
+    </p>
+{% endif %}
+
+<style>
+    /* PCとモバイル共通の強力なベーススタイル */
+    html body .container .form-group,
+    html body .container form .form-group {
+        margin-bottom: 2rem !important;
+        padding: 0 !important;
+        background-color: transparent !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    html body .container .form-group label,
+    html body .container form label {
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        color: #2c3e50 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.1em !important;
+        margin-bottom: 0.5rem !important;
+        display: inline-block !important;
+        position: relative !important;
+        padding-left: 1rem !important;
+        border-left: 4px solid #3498db !important;
+        transition: all 0.3s ease !important;
+    }
+
+    html body .container .form-group .form-control,
+    html body .container .form-group .genre-select,
+    html body .container .form-group .initial-select,
+    html body .container form select,
+    html body .container form input[type="text"],
+    html body .container form textarea {
+        font-size: 1.1rem !important;
+        padding: 1rem !important;
+        border: 2px solid #e0e0e0 !important;
+        border-radius: 12px !important;
+        background-color: #f8f9fa !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+    }
+
+    /* 内容フィールドの高さを特別に設定 */
+    textarea#content {
+        min-height: 500px !important;  /* 最小の高さを設定 */
+        height: auto !important;       /* 高さを自動に */
+        overflow-y: auto !important;   /* スクロールを許可に変更 */
+        resize: none !important;       /* リサイズハンドルを非表示に */
+        box-sizing: border-box !important; /* パディングを含めた高さ計算に */
+        transition: height 0.1s ease-in-out !important; /* スムーズな高さ変更 */
+    }
+
+    /* ホバー効果（PCのみ） */
+    @media (min-width: 769px) {
+        html body .container form .form-control:hover,
+        html body .container form select:hover,
+        html body .container form input[type="text"]:hover,
+        html body .container form textarea:hover {
+            border-color: #007bff !important;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15) !important;
+            transform: translateY(-2px) !important;
+        }
+    }
+
+    /* コンテナの幅白を調整 */
+    html body .container {
+        max-width: 100% !important;  /* 800pxの制限を解除 */
+        padding: 0 0.5rem !important;  /* 左右の余白を最小限に */
+        margin: 0 !important;  /* マージンを完全に削除 */
+        width: 100% !important;
+    }
+
+    /* PC向けの特別調整を上書き */
+    @media (min-width: 769px) {
+        html body .container {
+            max-width: 100% !important;  /* PCでも最大幅制限を解除 */
+            padding: 0 1rem !important;
+            margin: 0 !important;
+        }
+        
+        /* メインコンテンツの余白も調整 */
+        .main-content {
+            padding-top: 20px !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin: 0 !important;
+        }
+    }
+
+    /* フォームグループの余白調整 */
+    html body .container .form-group {
+        margin-bottom: 0.8rem !important;
+        padding: 0 !important;
+    }
+
+    /* 入力フィールドの余白調整 */
+    html body .container .form-group .form-control,
+    html body .container .form-group .genre-select,
+    html body .container .form-group .initial-select {
+        margin-bottom: 0.5rem !important;
+        padding: 0.6rem !important;
+    }
+
+    /* モバイル向けの調整 */
+    @media (max-width: 768px) {
+        /* 全体のリセット */
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden !important;
+            width: 100% !important;
+        }
+
+        /* main-contentのリセット */
+        .main-content {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+
+        /* Bootstrapのコンテナリセット */
+        .container {
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: none !important;
+            width: 100% !important;
+            --bs-gutter-x: 0 !important;
+            --bs-gutter-y: 0 !important;
+        }
+
+        /* フォームグループのリセット */
+        .form-group {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        /* テキストエリア用のform-groupだけを特別扱い */
+        #content {
+            position: static !important;  /* fixedを解除 */
+            width: 100% !important;
+            height: 50vh !important;  /* 画面の半分の高さに固定 */
+            margin: 0.5rem 0 !important;
+            padding: 0.8rem !important;
+            border: 2px solid #666 !important;
+            border-radius: 8px !important;
+            overflow-y: auto !important;  /* スクロール可能に */
+            font-size: 20px !important;
+            line-height: 1.8 !important;
+            -webkit-overflow-scrolling: touch !important;
+            touch-action: pan-y !important;
+            overscroll-behavior: contain !important; /* バウンス効果を制御 */
+            will-change: transform !important; /* スクロールのパフォーマンスを改善 */
+        }
+
+        /* プレースホルダーのフォントサイズも調整 */
+        #content::placeholder {
+            font-size: 18px !important;
+            color: #888 !important;
+        }
+
+        /* 入力時のフォントを読みやすく */
+        #content:focus {
+            background-color: #fff !important;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2) !important;
+        }
+
+        /* テキストエリアのラベルを表示 */
+        #content + label,
+        label[for="id_content"] {
+            display: block !important;  /* 非表示を解除 */
+        }
+
+        /* フォームグループの余白復活 */
+        .form-group {
+            margin: 0.5rem 0 !important;
+            padding: 0 0.5rem !important;
+        }
+
+        /* mt-5クラスの上マージンを消す */
+        .mt-5 {
+            margin-top: 0 !important;
+        }
+
+        /* form要素の余白を消す */
+        form {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    }
+
+    /* プレースホルダーのスタイル強化 */
+    html body .container form input::placeholder,
+    html body .container form textarea::placeholder {
+        color: #666 !important;
+        font-size: 1.2rem !important;
+        opacity: 0.8 !important;
+        font-weight: 500 !important;
+    }
+
+    /* コンテナとフォームの余白調整 */
+    html body .container.mt-5 {
+        margin-top: 0 !important;
+        padding: 0.5rem !important;
+    }
+
+    html body .container form {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* form-groupの余白をさらに調整 */
+    html body .container .form-group {
+        margin-bottom: 1rem !important;  /* 2remから1remにさらに縮小 */
+    }
+
+    /* ラベルの余白も調整 */
+    html body .container .form-group label {
+        margin-bottom: 0.5rem !important;  /* 1.2remから0.5remに縮小 */
+    }
+
+    /* 入力フィールドの余白調整 */
+    html body .container .form-group .form-control,
+    html body .container .form-group .genre-select,
+    html body .container .form-group .initial-select {
+        margin-bottom: 1rem !important;  /* 2remから1remに縮小 */
+        padding: 0.8rem !important;  /* 1.2remから0.8remに縮小 */
+    }
+
+    /* ボタンの余白調整 */
+    html body .container form button {
+        margin: 0.5rem 0.5rem 0.5rem 0 !important;
+    }
+
+    /* main-contentの余白調整 */
+    .main-content {
+        padding-top: 20px !important;  /* 70pxから20pxに縮小 */
+        margin: 0 !important;
+    }
+
+    /* コンテナの余白をさらに調整 */
+    html body .container.mt-5 {
+        margin: 0 !important;
+        padding: 0.5rem !important;
+    }
+
+    /* フォームグループ間の余白をさらに縮小 */
+    html body .container .form-group {
+        margin-bottom: 0.8rem !important;  /* 1remから縮小 */
+    }
+
+    /* 入力フィールドの余白も微調整 */
+    html body .container .form-group .form-control,
+    html body .container .form-group .genre-select,
+    html body .container .form-group .initial-select {
+        margin-bottom: 0.8rem !important;
+        padding: 0.6rem !important;
+    }
+
+    /* ラベルの余白も微調整 */
+    html body .container .form-group label {
+        margin-bottom: 0.3rem !important;
+    }
+
+    /* スマホ向けのマージン調整 */
+    @media (max-width: 768px) {
+        /* 新規投稿時の上部マージン */
+        .main-content {
+            margin-top: 60px !important;
+        }
+
+        /* 編集時のプレビュー下のマージン */
+        .novel-detail-section + hr {
+            margin-top: 60px !important;
+        }
+    }
+
+    /* PC・スマホ共通のマージン設定 */
+    .main-content {
+        margin-top: 60px !important;  /* 新規投稿時の上部マージンを60pxに */
+    }
+
+    /* 編集時のプレビュー下のマージン（PC・スマホ共通） */
+    .novel-detail-section + hr {
+        margin-top: 60px !important;  /* 編集時のマージンも60pxに */
+    }
+
+    /* PC向けの追加調整 */
+    @media (min-width: 769px) {
+        .main-content {
+            margin-top: 60px !important;
+        }
+        
+        .novel-detail-section + hr {
+            margin-top: 60px !important;
+        }
+    }
+
+    /* スマホ向けの調整 */
+    @media (max-width: 768px) {
+        .main-content {
+            margin-top: 60px !important;
+        }
+        
+        .novel-detail-section + hr {
+            margin-top: 60px !important;
+        }
+    }
+
+    /* ステータスフィールド用のスタイルを追加 */
+    .form-control[readonly],
+    .form-control[disabled] {
+        background-color: #e9ecef !important;  /* 薄いグレー */
+        opacity: 0.7 !important;               /* 少し透明に */
+        cursor: not-allowed !important;        /* 編集不可のカーソル */
+        color: #6c757d !important;            /* テキストを少し薄く */
+        border-color: #ced4da !important;      /* ボーダーも薄く */
+    }
+
+    /* ボタンのスタイル */
+    button[type="submit"],
+    .btn-save,
+    .btn-rest,
+    .btn-publish,
+    .btn-delete {
+        height: 38px !important;
+        line-height: 1 !important;
+        padding: 0 15px !important;
+        margin: 0 10px 0 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        vertical-align: middle !important;
+        border-radius: 20px !important;
+        font-size: 20px !important;
+        font-weight: bold !important;
+        min-width: 80px !important;  /* 最小幅を設定 */
+    }
+
+    /* マージン・パディングを完全にリセット */
+    button[type="submit"].btn,
+    .btn-save,
+    .btn-rest,
+    .btn-publish,
+    .btn-delete {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    /* ボタン内の要素も強制的に中央揃え */
+    button[type="submit"] span,
+    button[type="submit"] img {
+        line-height: 38px !important;
+        vertical-align: middle !important;
+        margin: auto 4px !important;
+    }
+
+    /* ボタングループのコンテナ */
+    form .button-group {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        margin: 20px 0 !important;
+        height: 38px !important;
+    }
+
+    /* スマホ向けのボタンスタイル調整 */
+    @media (max-width: 768px) {
+        button[type="submit"],
+        .btn-save,
+        .btn-rest,
+        .btn-publish,
+        .btn-delete {
+            min-width: 60px !important;
+            padding: 0 8px !important;
+            margin: 0 5px 0 0 !important;
+            font-size: 16px !important;
+        }
+
+        /* スマではアイコンを非表示に */
+        button[type="submit"] img,
+        .btn-save img,
+        .btn-rest img,
+        .btn-publish img,
+        .btn-delete img {
+            display: none !important;
+        }
+
+        /* ボタン内のテキストのマージンを調整 */
+        button[type="submit"] span,
+        .btn-save span,
+        .btn-rest span,
+        .btn-publish span,
+        .btn-delete span {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* ボタングループの間隔を調整 */
+        form .button-group {
+            gap: 5px !important;
+        }
+    }
+
+    /* フォーカス時のエフェクト */
+    html body .container form .form-control:focus,
+    html body .container form select:focus,
+    html body .container form input[type="text"]:focus,
+    html body .container form textarea:focus {
+        border-color: #3498db !important;
+        box-shadow: 0 0 0 3px rgba(52,152,219,0.2) !important;
+        outline: none !important;
+        transform: translateY(-2px) !important;
+    }
+
+    /* ホバー時のエフェクト */
+    html body .container form .form-control:hover,
+    html body .container form select:hover,
+    html body .container form input[type="text"]:hover,
+    html body .container form textarea:hover {
+        border-color: #3498db !important;
+        background-color: #ffffff !important;
+    }
+
+    /* プレースホルダーのスタイル */
+    html body .container form input::placeholder,
+    html body .container form textarea::placeholder {
+        color: #95a5a6 !important;
+        font-style: italic !important;
+        opacity: 0.7 !important;
+    }
+
+    /* セレクトボックスの特別スタイル */
+    html body .container .form-group .genre-select,
+    html body .container .form-group .initial-select {
+        appearance: none !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233498db' d='M6 8.825L1.175 4 2.238 2.938 6 6.7l3.763-3.762L10.825 4z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 1rem center !important;
+        padding-right: 2.5rem !important;
+    }
+</style>
+
+<div class="container mt-5">
+    <!-- エラーメッセージ用のダイアログを修正 -->
+    {% if form.errors %}
+    <div id="errorDialog" class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.3);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <div class="modal-header" style="background-color: #ff69b4; color: white; border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom: none;">
+                    <h5 class="modal-title" style="font-size: 1.2rem;">
+                        <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
+                        ちょっと修正が必要みたいやで！
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeErrorDialog()" style="filter: brightness(0) invert(1);"></button>
+                </div>
+                <div class="modal-body" style="padding: 20px;">
+                    <ul style="list-style-type: none; padding: 0;">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li style="color: #ff69b4; margin-bottom: 10px; font-size: 1rem;">
+                                    <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
+                                    <strong>{{ field.label }}:</strong> {{ error }}
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li style="color: #ff69b4; margin-bottom: 10px; font-size: 1rem;">
+                                <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
+                                {{ error }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="modal-footer" style="border-top: none; padding: 15px;">
+                    <button type="button" class="btn" onclick="closeErrorDialog()" 
+                        style="background-color: #ff69b4; 
+                               color: white; 
+                               border-radius: 20px; 
+                               padding: 8px 20px;
+                               border: none;
+                               font-size: 1rem;
+                               transition: all 0.3s ease;">
+                        わかた！
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <input type="hidden" id="novelId" name="novelId" value="{{ novel.id|default_if_none:'' }}">
+
+        {% for field in form %}
+        <div class="form-group">
+            {% if field.name == 'genre' %}
+            <!-- ジャンルフィールドの特別な扱い -->
+            <label for="{{ form.genre.id_for_label }}" class="label-spacing">{{ form.genre.label }}</label>
+            <select class="form-control genre-select" id="genre" name="{{ form.genre.html_name }}">
+                {% for value, label in form.genre.field.choices %}
+                    <option value="{{ value }}" {% if form.genre.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+                {% elif field.name == 'initial' %}
+                    <!-- イニシャルフィールドの明示的な記述 -->
+                    <!-- イニシャルフィールドの明示的な記述 -->
+                    <label for="initial" class="label-spacing">{{ field.label }}</label>
+                    <select class="form-control initial-select" id="initial" name="{{ field.name }}" required>
+                        {% for value, label in field.field.choices %}
+                            <option value="{{ value }}" {% if field.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+            {% elif field.name == 'title' %}
+                <!-- タイトル入力フィールドの横に文字数カウンターを追加 -->
+                <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
+                <input type="text" id="title" name="title" class="form-control full-width" value="{{ form.title.value|default_if_none:'' }}" required>
+                <div id="titleWordCount" style="position: absolute; right: 10px; top: 0; color: black;">0 / 30文字</div>
+            {% elif field.name == 'content' %}
+                <!-- 小説の内容入力フィールドの横に既存の文字数カウンターを追加 -->
+                <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
+                <textarea class="form-control content2" id="content" name="{{ field.name }}" rows="20"
+                placeholder="ここに小説の中身をお書きどす。壊れてなければ自動保存してるはず。。" maxlength="10000">{{ form.content.value|default_if_none:'' }}</textarea>
+            {% elif field.name == 'status' %}
+                <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
+                <input type="text" 
+                       class="form-control" 
+                       value="{% if novel.status == 'published' %}公開{% elif novel.status == 'scheduled' %}予約公開{% else %}作成中{% endif %}" 
+                       readonly 
+                       disabled
+                       style="background-color: #e9ecef; opacity: 0.7; cursor: not-allowed;">
+            {% else %}
+                <!-- その他のフィールド -->
+                <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
+                {{ field }}
+            {% endif %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+        <!-- 下書きとして保存ボタン -->
+        {% if edit %}
+            {% if novel.maturi_games.all or novel.is_same_title_game %}
+                <div class="alert alert-warning" role="alert" style="margin: 20px 0;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {% if novel.maturi_games.all %}
+                        <strong>この作品は祭り作品です。</strong> 編集は祭り専用の画面から行ってください。
+                    {% else %}
+                        <strong>この作品は同タイトル作品です。</strong> 編集は同タイトル専用の画面から行ってください。
+                    {% endif %}
+                </div>
+            {% else %}
+                <p class="toggle-message" id="message-warning2" style="display:none;">
+                    下保存タンはこの場のまま保存や！<br>休息は保存して自分の部屋や！<br>投稿ボタンは公開して一覧や！
+                    <button class="toggle-message-button">非表示</button>
+                </p>
+
+                <div class="button-group">
+                    <button type="submit" name="action" value="draft" class="btn btn-secondary btn-save" style="background-color: orchid !important; color: white !important; margin: 0 !important;">
+                        <span>保存</span>
+                        <img src="{% static 'images/save.svg' %}" alt="Icon" style="height: 24px !important;"> 
+                    </button>
+
+                    <button type="submit" name="action" value="rest" class="btn btn-secondary btn-rest" style="background-color: darkgreen !important; color: white !important; margin: 0 !important;">
+                        <span>休息</span>
+                        <img src="{% static 'images/tea.svg' %}" alt="Icon" style="height: 24px !important;">
+                    </button>
+
+                    {% if novel.genre == '祭り' %}
+                        {% if is_writing_period or novel.status == 'published' %}
+                        <button type="submit" name="action" value="publish" class="btn btn-primary btn-publish" style="background-color: #007bff !important; color: white !important; margin: 0 !important;">
+                            <span>投稿</span>
+                            <img src="{% static 'images/post.svg' %}" alt="Icon" style="height: 24px !important;">
+                        </button>
+                        {% endif %}
+                    {% else %}
+                        <button type="submit" name="action" value="publish" class="btn btn-primary btn-publish" style="background-color: #007bff !important; color: white !important; margin: 0 !important;">
+                            <span>投稿</span>
+                            <img src="{% static 'images/post.svg' %}" alt="Icon" style="height: 24px !important;">
+                        </button>
+                    {% endif %}
+
+                    <button type="submit" name="action" value="delete" class="btn btn-primary btn-delete" style="background-color: red !important; color: white !important; margin: 0 !important;" onclick="return confirmDelete()">
+                        <span>削除</span>
+                        <img src="{% static 'images/delete.svg' %}" alt="Icon" style="height: 24px !important;">
+                    </button>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="button-group">
+                <button type="submit" name="action" value="draft" class="btn btn-secondary btn-save" style="background-color: orchid !important; color: white !important; margin: 0 !important;">
+                    <span>保存</span>
+                    <img src="{% static 'images/save.svg' %}" alt="Icon" style="height: 24px !important;"> 
+                </button>
+            </div>
+        {% endif %}
+
+        <div id="autoSaveStatus" style="display: none; color: green; font-size: 16px; position: fixed; bottom: 100px; right: 20px; background-color: rgba(248, 249, 250, 0.5); padding: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+    </form>
+</div>
+
+<!-- フッター内に文字数カウンターを表示 -->
+<div id="footerWordCount" style="text-align: center; padding: 10px; color: #fff; background-color: #333;">
+    0 / 10,000文字
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var autoSaveTimeout;
+    var lastSavedData = {};
+
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    function updateLastSavedData() {
+        lastSavedData = {
+            novel_id: document.getElementById('novelId').value,
+            title: document.getElementById('title').value,
+            content: document.getElementById('content').value,
+            genre: document.getElementById('genre').value,
+            initial: document.getElementById('initial').value
+        };
+        console.log('LastSavedData updated:', lastSavedData);
+    }
+
+    function initializeLastSavedData() {
+        updateLastSavedData();
+    }
+
+    function hasDataChanged() {
+        var currentData = {
+            novel_id: document.getElementById('novelId').value,
+            title: document.getElementById('title').value,
+            content: document.getElementById('content').value,
+            genre: document.getElementById('genre').value,
+            initial: document.getElementById('initial').value
+        };
+        return JSON.stringify(currentData) !== JSON.stringify(lastSavedData);
+    }
+
+    function autoSave() {
+        var novelId = document.getElementById('novelId').value;
+        var titleElement = document.getElementById('title');
+        var contentElement = document.getElementById('content');
+        var genreElement = document.getElementById('genre');
+        var initialElement = document.getElementById('initial');
+
+        var currentData = {
+            novel_id: novelId,
+            title: titleElement.value,
+            content: contentElement.value,
+            genre: genreElement.value,
+            initial: initialElement.value
+        };
+
+        if (hasDataChanged()) {
+            console.log('Auto-saving now...');
+            fetch('/novels/auto_save/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify(currentData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Save successful:', data);
+                updateLastSavedData();
+
+                // 受け取った novel_id を hidden input 要素設定
+                if (data.novel_id) {
+                    document.getElementById('novelId').value = data.novel_id;
+                }
+            })
+            .catch(error => {
+                console.error('Save failed:', error);
+            });
+        }
+    }
+
+    document.querySelectorAll('input, textarea, select').forEach(input => {
+        input.addEventListener('input', () => {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(autoSave, 20000); // 20秒後に自動保存
+        });
+    });
+
+    initializeLastSavedData();
+
+    // 文字数カウンターの更新関数
+    function updateWordCount() {
+        var titleElement = document.getElementById('title');
+        var contentElement = document.getElementById('content');
+        var titleCount = titleElement.value.length;
+        var contentCount = contentElement.value.length;
+        var titleWordCountElement = document.getElementById('titleWordCount');
+        var footerWordCountElement = document.getElementById('footerWordCount');
+
+        if (titleWordCountElement) {
+            titleWordCountElement.textContent = `${titleCount} / 30文字`;
+        }
+        if (footerWordCountElement) {
+            footerWordCountElement.textContent = `${contentCount} / 10,000文字`;
+        }
+    }
+
+    // 入力イベント文字数カウンターの更新を追加
+    document.getElementById('title').addEventListener('input', updateWordCount);
+    document.getElementById('content').addEventListener('input', updateWordCount);
+
+    // ページ読み込み時にも文字数を更新
+    updateWordCount();
+
+    // 文字カウンターの表示制御
+    const footerCounter = document.getElementById('footerWordCount');
+    let counterTimeout;
+
+    footerCounter.addEventListener('click', function() {
+        // カウンターを非表示に
+        this.style.opacity = '0';
+        
+        // 10分後に再表示 (10分 = 600000ミリ秒)
+        clearTimeout(counterTimeout);
+        counterTimeout = setTimeout(() => {
+            footerCounter.style.opacity = '1';
+        }, 600000);  // 10分に変更
+    });
+
+    // マウスが乗ったときにちょっと明るく
+    footerCounter.addEventListener('mouseenter', function() {
+        this.style.backgroundColor = '#444';
+    });
+
+    // マウスが離れたときに元の色に
+    footerCounter.addEventListener('mouseleave', function() {
+        this.style.backgroundColor = '#333';
+    });
+});
+
+// 既存のスクリプトの前に追加
+function closeErrorDialog() {
+    var dialog = document.getElementById('errorDialog');
+    if (dialog) {
+        dialog.style.display = 'none';
+    }
+}
+
+// エスケープキーでもダイアログを閉じられるようにする
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeErrorDialog();
+    }
+});
+
+// ダイアログの外側をクリックしても閉じられるようにする
+document.addEventListener('click', function(event) {
+    var dialog = document.getElementById('errorDialog');
+    if (dialog && event.target === dialog) {
+        closeErrorDialog();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('content');
+    
+    // 初期表示時に高さを調整
+    adjustHeight(textarea);
+    
+    // 入力時に高さを調整（改行、ペースト、キー入力全てに対応）
+    textarea.addEventListener('input', function() {
+        adjustHeight(this);
+    });
+    
+    textarea.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            setTimeout(() => adjustHeight(this), 0);
+        }
+    });
+    
+    textarea.addEventListener('paste', function() {
+        setTimeout(() => adjustHeight(this), 0);
+    });
+    
+    function adjustHeight(element) {
+        // 一旦高さをリセット
+        element.style.height = 'auto';
+        // スクロールの高さに合わせて設定
+        element.style.height = (element.scrollHeight) + 'px';
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}お知らせ一覧{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="section-title mb-4">
+        <i class="fas fa-bullhorn"></i> お知らせ一覧
+    </h1>
+    
+    <div class="sss-novels-list">
+        {% for announcement in announcements %}
+            <!-- PC表示用 -->
+            <div class="sss-novel-row pc-view {% if announcement.is_pinned %}pinned-announcement{% endif %}">
+                <div class="row-grid">
+                    <!-- 重要バッジ用の固定幅カラム -->
+                    <div class="badge-column">
+                        {% if announcement.is_pinned %}
+                            <div class="pin-badge">
+                                <i class="fas fa-thumbtack"></i> 重要
+                            </div>
+                        {% endif %}
+                    </div>
+                    <!-- 日付用の固定幅カラム -->
+                    <div class="date-column">
+                        <div class="sss-date">{{ announcement.created_at|date:"Y/m/d" }}</div>
+                    </div>
+                    <!-- タイトル用の伸縮カラム -->
+                    <div class="title-column">
+                        <div class="sss-title">
+                            <a href="{% url 'announcements:detail' announcement.id %}">
+                                <div class="title-wrapper">
+                                    {% if announcement.is_pinned %}
+                                        <i class="fas fa-star star-icon"></i>
+                                    {% endif %}
+                                    <span class="title-text">{{ announcement.title }}</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- スマホ表示用 -->
+            <div class="sss-novel-row sp-view {% if announcement.is_pinned %}pinned-announcement{% endif %}">
+                <div class="row-grid">
+                    <!-- 重要バッジ用の固定幅カラム -->
+                    <div class="badge-column">
+                        {% if announcement.is_pinned %}
+                            <div class="pin-badge">
+                                <i class="fas fa-thumbtack"></i> 重要
+                            </div>
+                        {% endif %}
+                    </div>
+                    <!-- 日付用の固定幅カラム -->
+                    <div class="date-column">
+                        <div class="sss-date">{{ announcement.created_at|date:"Y/m/d" }}</div>
+                    </div>
+                    <!-- タイトル用の伸縮カラム -->
+                    <div class="title-column">
+                        <div class="sss-title">
+                            <a href="{% url 'announcements:detail' announcement.id %}">
+                                <div class="title-wrapper">
+                                    {% if announcement.is_pinned %}
+                                        <i class="fas fa-star star-icon"></i>
+                                    {% endif %}
+                                    <span class="title-text">{{ announcement.title }}</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="no-announcements">
+                <i class="far fa-comment-dots"></i>
+                お知らせはありません。
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    /* 2024年トレンドのモダンなデザイン */
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 4px;
+        background: linear-gradient(90deg, #FF6B6B, #4ECDC4);
+        border-radius: 2px;
+    }
+
+    .sss-novels-list {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    /* 固定お知らせのスタイル */
+    .pinned-announcement {
+        background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,248,240,1) 100%);
+        border-left: 5px solid #FFB347 !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .pinned-announcement::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+        animation: shine 3s infinite;
+    }
+
+    .pin-badge {
+        background: linear-gradient(45deg, #FFB347, #FFCC33);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        margin-right: 15px;
+        box-shadow: 0 2px 10px rgba(255,179,71,0.3);
+        animation: pulse 2s infinite;
+    }
+
+    .star-icon {
+        width: 24px;  /* 星マークの幅を固定 */
+        color: #FFB347;
+        margin-right: 0;  /* 右マージンをリセット */
+        animation: twinkle 1.5s infinite;
+    }
+
+    /* アニメーション定義 */
+    @keyframes shine {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    @keyframes twinkle {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+
+    /* 基本の行スタイル（非固定用） */
+    .sss-novel-row {
+        display: flex;
+        align-items: center;
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        border-left: 5px solid #4ECDC4;  /* 薄い青の縦ライン */
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(250,250,255,1) 100%);
+    }
+
+    .sss-novel-row:hover {
+        background: rgba(78,205,196,0.05);  /* 薄い青の背景 */
+        transform: translateX(5px);
+    }
+
+    /* 固定お知らせは別スタイル */
+    .pinned-announcement {
+        background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,248,240,1) 100%);
+        border-left: 5px solid #FFB347 !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* 固定お知らせのホバー効果を上書き */
+    .pinned-announcement:hover {
+        background: rgba(255,179,71,0.05) !important;  /* 薄い橙色の背景 */
+        transform: translateX(5px);
+    }
+
+    .sss-date {
+        width: 100px;
+        color: #666;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .sss-title {
+        flex: 1;
+    }
+
+    .sss-title a {
+        color: #2C3E50;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1.1rem;
+        transition: all 0.2s ease;
+    }
+
+    .sss-title a:hover {
+        color: #3498DB;
+    }
+
+    /* 表示切り替えの基本スタイル */
+    .pc-view {
+        display: flex;  /* PCではflexで表示 */
+    }
+    
+    .sp-view {
+        display: none;  /* PCでは非表示 */
+    }
+
+    /* レスポンシブ対応 */
+    @media screen and (max-width: 768px) {
+        .pc-view {
+            display: none;  /* スマホでは非表示 */
+        }
+        
+        .sp-view {
+            display: flex;  /* スマホではflexで表示 */
+            flex-direction: column;
+        }
+        
+        .sss-novel-row {
+            padding: 1rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+        }
+
+        .pin-badge {
+            margin-bottom: 8px;
+        }
+
+        .sss-header-row {
+            margin-bottom: 5px;
+        }
+    }
+
+    /* グリッドレイアウト用のスタイル */
+    .row-grid {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .badge-column {
+        width: 100px;  /* 重要バッジ用の固定幅 */
+        min-width: 100px;
+        padding-right: 15px;  /* バッジと日付の間隔を追加 */
+    }
+
+    .date-column {
+        width: 100px;  /* 日付用の固定幅 */
+        min-width: 100px;
+        padding-right: 30px;  /* 日付と星マークの間隔を広げる */
+    }
+
+    .title-column {
+        flex: 1;  /* 残りのスペースを全て使用 */
+        padding-left: 15px;  /* タイトルの開始位置を統一 */
+    }
+
+    /* バッジがない場合でも同じスペースを確保 */
+    .badge-column:empty {
+        width: 100px;
+        min-width: 100px;
+        padding-right: 15px;  /* 空の場合も同じパディングを維持 */
+    }
+
+    /* 既存のスタイルを調整 */
+    .pin-badge {
+        margin: 0;  /* マージンをリセット */
+        white-space: nowrap;  /* バッジのテキストを1行に */
+        text-align: left;    /* バッジを左寄せに */
+    }
+
+    .sss-date {
+        white-space: nowrap;  /* 日付を1行に */
+        text-align: left;    /* 日付を左寄せに */
+    }
+
+    .sss-title {
+        padding-left: 0;     /* タイトルの左パディングをリセット */
+    }
+
+    /* スマホ表示用のグリッド調整 */
+    @media screen and (max-width: 768px) {
+        .badge-column {
+            width: auto;
+            min-width: auto;
+            margin-bottom: 5px;
+            padding-right: 0;  /* スマホ表示時はパディングをリセット */
+        }
+
+        .date-column {
+            padding-right: 0;  /* スマホ表示時はパディングをリセット */
+        }
+
+        .title-column {
+            padding-left: 0;  /* スマホ表示時はパディングをリセット */
+        }
+
+        .sp-view .row-grid {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    .title-wrapper {
+        display: flex;
+        align-items: center;
+        margin-left: 0;  /* マージンをリセット */
+    }
+
+    .star-icon {
+        width: 24px;  /* 星マークの幅を固定 */
+        color: #FFB347;
+        margin-right: 8px;  /* 星マークとタイトルの間隔を追加 */
+        animation: twinkle 1.5s infinite;
+    }
+
+    .title-text {
+        flex: 1;
+    }
+
+    /* スマホ表示用の調整 */
+    @media screen and (max-width: 768px) {
+        .date-column {
+            padding-right: 0;  /* スマホ表示時はパディングをリセット */
+        }
+        
+        .star-icon {
+            margin-right: 5px;  /* スマホ表示時は���隔を狭める */
+        }
+    }
+</style>
+{% endblock %} 

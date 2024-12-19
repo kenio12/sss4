@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  .card {
+    position: relative;
+    display: inline-block;
+    width: 100%; /* カードの幅を調整 */
+    border-radius: 30px; /* カードの角を丸くする */
+  }
+
+  .card-title {
+    font-size: 35px;
+  }
+  .card-img-top {
+    width: 100%; /* 画像の幅をカードの幅に合わせる */
+    height: auto; /* 画像の高さを自動調整 */
+    border-radius: 30px; /* 画像の左上の角を丸くする */
+
+  }
+  .title-overlay {
+    position: absolute;
+    top: 10px; /* タイトルの位置を上部から少し下げる */
+    left: 0;
+    right: 0;
+    text-align: center; /* タイトルを中央揃えに */
+    color: white; /* タイトルの文字色 */
+    font-size: 24px; /* タイトルのフォントサイズ */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* 文字の周りに黒い影を追加 */
+  }
+  .text-overlay {
+    position: absolute;
+    bottom: 10px; /* 説明文の位置を下部から少し上げる */
+    left: 0;
+    right: 0;
+    text-align: center; /* 説明文を中央揃えに */
+    color: white; /* 説明文の文字色 */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* 文字の周りに黒い影を追加 */
+  }
+</style>
+
+<div class="container mt-4">
+    <div class="row">
+      <div class="col-md-6 mb-4">
+        <a href="{% url 'game_same_title:same_title' %}" style="text-decoration: none; color: inherit;">
+            <div class="card">
+                <img src="{% static 'games/images/doutai.webp' %}" class="card-img-top" alt="同タイトルの画像">
+                <div class="title-overlay">
+                    <h5 class="card-title">同タイトル（毎月）</h5>
+                </div>
+                <div class="text-overlay">
+                    <p class="card-text">同じタイトルで小説書こうぜ！</p>
+                </div>
+            </div>
+        </a> <!-- この行も追加 -->
+    </div>
+        <div class="col-md-6 mb-4">
+          <a href="{% url 'game_maturi:maturi_list' %}" style="text-decoration: none; color: inherit;">
+              <div class="card">
+                  <img src="{% static 'games/images/maturi2.webp' %}" class="card-img-top" alt="祭りの画像">
+                  <div class="title-overlay">
+                      <h5 class="card-title">祭り（年末年始）</h5>
+                  </div>
+                  <div class="text-overlay">
+                      <p class="card-text">同タイトルで使った語句を盛り込んで＋匿名で小説を書いて＋その作者を当てようぜー！</p>
+                  </div>
+              </div>
+          </a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

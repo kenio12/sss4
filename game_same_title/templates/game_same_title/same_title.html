@@ -1,0 +1,443 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block content %}
+<style>
+    .details {
+      line-height: 2;
+      border: 1px solid #f9b2f7;
+      color: #28697E;
+      width: 100%;
+      margin: 0 0 20px 0; /* 左寄せにするために変更 */
+    }
+    .details__summary {
+      position: relative;
+      cursor: pointer;
+      background: #fafff3;
+      margin: 0;
+      padding: 10px 16px;
+      font-size: 40px;
+    }
+    .details__summary::before {
+      display: block;
+      content: "";
+      box-sizing: border-box;
+      position: absolute;
+      top: calc(50% - 20px); /* サイズ調整のため変更 */
+      right: 16px;
+      width: 20px; /* 大きさを調整 */
+      height: 20px; /* 大きさを調整 */
+      border: 20px solid transparent; /* 大きさを調整 */
+      border-top-color: #28697E; /* 色を指定 */
+      transition: all 0.4s ease-out;
+      transform-origin: 50% 50%; /* 回転軸の位置を調整 */
+    }
+    .details__summary.active::before {
+      transform: rotate(180deg);
+    }
+    .details__content {
+      overflow: hidden;
+      max-height: 0; /* 初期状は内容が見えないように */
+      transition: max-height 0.4s ease-out; /* トランジションを追加 */
+      padding: 0 16px;
+    }
+    .details__content.active {
+      max-height: 500px; /* activeクラスが追加されたときに内容が見えるように */
+    }
+    .details__content * {
+      transition: all 0.4s ease-out;
+      line-height: 0;
+      opacity: 0;
+      margin: 0;
+      padding: 0;
+    }
+    .details__content.active * {
+      line-height: 2;
+      opacity: 1;
+    }
+    ul {
+      padding-left: 30px !important;
+    }
+    li {
+      margin: 0 !important; /* liタグの間のスペースを調整 */
+    }
+    .highlight {
+      background-color: rgb(246, 250, 211); /* 背景色を設定 */
+      padding: 10px; /* 余白を設定 */
+      border-radius: 5px; /* 角を丸くする */
+    }
+
+    .entry-form h4:before, .proposal h4:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: 3px;
+        width: 6px;
+        height: 100%;
+    }
+
+    .entry-form h4:before {
+        background: #ffc778; /* エントリーフォームのバー色 */
+    }
+
+    .proposal h4:before {
+        background: #8ecae6; /* 提案フォームのバー色 */
+    }
+
+    .entry-form h4, .proposal h4 {
+        position: relative;
+        padding-left: 15px;
+        /* その他スタイル設定 */
+    }
+
+    /* エントリーフォームと提案フォームのスタイル */
+    .entry-form, .proposal {
+        margin-top: 20px;
+        margin-left: 30px;
+        margin-right: 30px;
+        padding: 20px;
+        background-color: #f0f8ff;
+        border: 1px solid #B2E8F9;
+    }
+    .entry-form {
+        background-color: #FFE5B4; /* 薄いオレンジ色 */
+        /* その他のスタイル設定 */
+      }
+
+      .highlighted {
+        background-color: #ffff00; /* 蛍光黄色 */
+        padding: 5px; /* 少しの余白 */
+        border-radius: 5px; /* 角を丸く */
+    }
+    </style>
+
+<div style="margin-top: 20px; margin-left: 30px; margin-right: 30px;">
+  {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+    <div class="details">
+        <div class="details__summary" data-bs-toggle="collapse" data-bs-target="#gameDescription" role="button" aria-expanded="false" aria-controls="gameDescription">
+            『同タイトル』とは
+        </div>
+        <div class="collapse" id="gameDescription">
+            <!-- ゲームの説明文 -->
+            <p>『同タイトルとは超短編小説会（SSS）の歴史あるゲームです。
+              複数の作家が同じタイトルの小説に挑みます。
+              読者は、同じタイトルでありながら、
+              異なった作品を楽しむことができます。</p>
+          <h3 class="highlight">タイトル提案者について（詳細）</h3>
+          <ul>
+              <li>月初めに、当サイトの会員が小説のタイトルを提案します（毎月、誰でも、ひとり３つまで提案可）。</li>
+              <li>エントリーしていた作家が一番最初に投稿した小説のタイトルが、その月の『同タイトル』になります。</li>
+              <li>提案されたタイトルについて、最初は誰が提案したかは伏せていますが、同タイトルが決まると、タイトルの提案者の名が明らかになります。</li>
+          </ul>
+          <h3 class="highlight">作家について（詳細）</h3>
+          <ul>
+            <li>同タイトルに参加する作家は事前エントリーが必要です。</li>
+            <li>一番最初に投稿された小説のタイトルが、その月の『同タイトル』になります。</li>
+              <li>なお、一番最初に投稿する作家は、自身が提案していたタイトルを選べません。他が提案したタイトルの中からひとつを選び小説を書いて、投稿することになります。</li>
+              <li>同タイトルが決まれば、エントリーしていた他の作家は、同タイトルで小説を書くことになります。</li>
+              <li>要するに早い者勝ちで、一番最初に小説を書き上げ投稿した作家が、提案されたタイトルの中から同タイトルを決定できます。</li>
+              <li>なお、同タイトルに公開投稿した小説は、削除や非公開に変更することはできません。編集はできます。</li>
+              <li>また、エントリー作家はニックネームが晒されます。一度、エントリーすると、取り消すことも、身を隠すことができません。つまり、同タイトルにエントリーしておきながら、期日内に同タイトルの小説を書かなければ、負け犬となると言うことです。</li>
+          </ul>
+          <h3 class="highlight">同タイトルの流れ（詳細）</h3>
+          <ul>
+            <li>同タイトルの提案は、翌月分の提案になります。</li>
+            <li>作家としてエントリーする場合も、翌月分のエントリーになります。</li>
+            <li>翌月１日になると、先月提案された複数のタイトルが一斉に公開されます。エントリー作家は、それを見て、執筆を開始することになります。</li>
+            <li>くどいですが、その月で一番最初に小説を書いた作家のタイトルがその月の「同タイトル」に決定されるため、先を越されると、書き始めていた小説が同タイトルとしては公開投稿できなくなり、とても悲しい思いをすることでしょう。そのご注意とご理解のため今ここに書いています。もし、そんな悲しい思いをしたくない方は、どなたかが同タイトルの小説を公開投稿するのを待って、その月の同タイトルが決定されてから、ゆったりと執筆する方がいいかも知れません。</li>
+            <li>もっとも、先陣を切り、同タイトルの小説を書き上げ公開投稿することは、この超短編小説会において一番槍（いちばんやり）と言われ、戦人（いくさびと）のとっての垂涎の的（すいぜんのまと）です。もちろん戦人だけではありません。一番槍を取ったと言うだけで、町の娘婦人から「キャーキャー」との黄色い声を八方から浴びます。童からも大人気で、あなたは夜な夜な複数の座敷童取り囲まれ、寝返りすら打てなくなることでしょう！ほとんど軍神上杉謙信状態です！ぜひ狙ってみてください！</li>
+          </ul>
+        </div>
+    </div>
+</div>
+
+
+<!-- ログインしている場合の提案フォーム -->
+{% if user.is_authenticated %}
+<div class="proposal" style="margin: 20px 30px; padding: 20px; background-color: #f0f8ff; border: 1px solid #B2E8F9;">
+  <h4 style="margin-bottom: 20px;">来月の同タイトルを提案してみよう！</h4>
+  <p style="margin-bottom: 20px;">毎月最大３つまでタイトルを提案できます。入力して、提案するボタンを押してください！</p>
+  <form method="post" action="{% url 'game_same_title:create_title_proposal' %}">
+    {% csrf_token %}
+    {% for proposal in existing_proposals %}
+    <li>{{ proposal.title }}</li>
+    {% endfor %}
+    
+    {% if existing_proposals.count == 0 %}
+    <!-- まだ何も提案されていない場合、3つの入力フィールドを表示 -->
+      <input type="text" class="form-control" id="title1" name="title1" placeholder="タイトルを入力">
+      <input type="text" class="form-control" id="title2" name="title2" placeholder="タイトルを入力">
+      <input type="text" class="form-control" id="title3" name="title3" placeholder="タイトルを入力">
+    {% elif existing_proposals.count == 1 %}
+    <!-- 1つ提案されている場合、2つの入力フィールドを表示 -->
+      <input type="text" class="form-control" id="title2" name="title2" placeholder="タイトルを入力">
+      <input type="text" class="form-control" id="title3" name="title3" placeholder="タイトルを入力">
+    {% elif existing_proposals.count == 2 %}
+    <!-- 2つ提案されている場合、1つの入力フィールドを表示 -->
+      <input type="text" class="form-control" id="title3" name="title3" placeholder="タイトルを入力">
+    {% endif %}
+    
+    {% if existing_proposals.count < 3 %}
+    <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 20px !important; font-size: 25px !important;">提案する</button>
+    {% else %}
+    <p class="text-warning" style="color: red !important; ">あなたは既に上のとおりタイトルを３つ提案されました。上限３つに達したため、もう来月のタイトルを提案できません。</p>
+    {% endif %}
+  </form>
+</div>
+{% else %}
+<!-- ログインしていな場合のメッセージ -->
+<div class="alert alert-info" role="alert" style="margin: 20px 30px;">
+  同タイトルを提案するには、<a href="{% url 'accounts:login' %}">ログイン</a>または<a href="{% url 'accounts:signup' %}">サインアップ</a>してください。
+</div>
+{% endif %}
+
+
+
+<div style="margin-top: 20px; margin-left: 30px; margin-right: 30px; padding: 20px; background-color: #f0f8ff; border: 1px solid #B2E8F9;">
+  
+  {% if decided_title %}
+    <div style="position: relative; padding-left: 15px;">
+      <h4 style="margin-bottom: 20px;">
+        <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: #8ecae6;"></div>
+        今月の一番槍はこの方や！：<span class="highlighted">{{ decided_title.novel.author.nickname }}</span>
+      </h4>
+      <h4 style="margin-bottom: 20px;">
+        今月の同タイトルや！：<span class="highlighted">{{ decided_title.title }}</span>
+      </h4>
+      <h4 style="margin-bottom: 20px;">
+        同タイトルの提案者や！：<span class="highlighted">{{ decided_title.proposer_nickname }}</span>
+      </h4>
+    </div>
+  {% else %}
+  <div style="position: relative; padding-left: 15px;">
+    <h4 style="margin-bottom: 20px;">
+      <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: #8ecae6;"></div>
+      今月の同タイトルはまだ決定されておりません。
+    </h4>
+  </div>
+  {% endif %}
+  
+  <h4 style="position: relative; padding-left: 15px;">
+    <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: #8ecae6;"></div>
+    今月の同タイトル候補
+  </h4>
+  <div style="position: relative; padding-left: 15px;">
+    <ul>
+      {% for candidate in title_candidates %}
+        <li>
+          {{ candidate.title }}
+          {% if decided_title %}
+            ・・・by {{ candidate.proposer_nickname }}
+          {% endif %}
+        </li>
+      {% empty %}
+        <li>今月の候補まだありません。</li>
+      {% endfor %}
+    </ul>
+
+
+<!-- 小説リストの表示 -->
+<div id="novels-container" style="background-color: #FFE4E1; margin-bottom: 30px;">
+    <table class="sticky-header">
+        <thead>
+            <tr>
+                <th>文字数</th>
+                <th>作品名</th>
+                <th>作家名</th>
+                <th>提案者</th>
+                <th>投稿日</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for novel in page_obj %}
+            <tr {% if decided_title and decided_title.novel and decided_title.novel.id == novel.id %}class="ichiban-yari"{% endif %}>
+                <td>{{ novel.word_count|intcomma }}</td>
+                <td><a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title }}</a></td>
+                <td>
+                    <a href="{% url 'accounts:view_other_profile' novel.author.id %}">{{ novel.author.nickname }}</a>
+                    {% if decided_title and decided_title.novel and decided_title.novel.id == novel.id %}
+                        <span class="ichiban-yari-badge">一番槍！</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if decided_title %}
+                        {{ decided_title.proposer_nickname }}
+                    {% endif %}
+                </td>
+                <td>{{ novel.published_date|date:"Y年m月d日" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<a href="{% url 'game_same_title:all_same_title_novels' %}" class="btn btn-primary" style="margin-top: 20px;">過去の同タイトルも見る</a>
+
+</div>
+
+</div>
+
+<!-- ログインしている場合のエントリーフォーム -->
+{% if user.is_authenticated %}
+  {% if not already_entered %}
+  <div class="entry-form" style="margin: 20px 30px; padding: 20px; background-color: #FFE5B4; border: 1px solid #B2E8F9;">
+    <h4 style="margin-bottom: 20px;">来月の同タイトルにエントリーしてみよう！</h4>
+    <p style="margin-bottom: 20px; padding-left: 20px !important;">エントリーされる方は下のエントリーするのボタンを押してください！</p>
+    <form method="post" action="{% url 'game_same_title:same_title_entry' %}">
+      {% csrf_token %}
+      <!-- ここにエントリに必要な入力フィールドを配置 -->
+      <button type="submit" class="btn btn-primary" onclick="return confirmEntry()", style="margin-top: 20px; font-size: 25px !important; background-color: #641E16 !important; margin-left: 20px !important;">エントリー</button>
+    </form>
+  </div>
+  {% else %}
+  <!-- エントリー済みのメッセージを表示 -->
+  <div class="entry-form" role="alert" style="margin: 20px 30px; padding: 20px; background-color:  #FFE5B4; border: 1px solid #B2E8F9;">
+    <h4><span style="font-family: BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">来月{{ next_month }}</span>の同タイトルへのエントリーが完了！</h4>
+    <p style="margin-left: 20px;"><span style="font-family: BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">{{ next_month }}</span>１日から開催されるので、ここに来て同タイトルの小説を執筆してください。</p>
+    <!-- エントリーしたユーザーのニックネームを表示 -->
+    <h4><span style="font-family: BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">来月の同タイトルへのエントリーを表明された勇者たち：</span></h4>
+    <ul>
+      {% for entry in already_entered_users %}
+        <li><strong>{{ entry.user.nickname }}</strong></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+{% else %}
+<div class="alert alert-info" role="alert" style="margin: 20px 30px; padding: 20px; background-color: #f0f8ff; border: 1px solid #B2E8F9;">
+  来月の同タイトルにエントリーするには、<a href="{% url 'accounts:login' %}">ログイン</a>または<a href="{% url 'accounts:signup' %}">サインアップ</a>してください。
+</div>
+{% endif %}
+
+
+
+{% if entered_last_month %}
+<style>
+  .entry-button {
+    display: inline-block;
+    margin-top: 20px;
+    margin-left: 20px;
+    font-size: 25px;
+    background-color: #641E16; /* ボタンの背景色 */
+    color: white; /* 文字色を白に設定 */
+    padding: 10px 20px;
+    text-decoration: none !important;
+    /* border: 1px solid #B2E8F9; */
+    border-radius: 5px; /* 角をもっと丸く */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .entry-button:hover {
+    background-color: #923c28; /* マウスオーバー時の色を少し明るく */
+    box-shadow: 0 0 8px 2px rgba(255,255,255,0.3); /* ボタン全体が少し明るように */
+    text-decoration: none !important;
+    color: white !important; 
+  }
+</style>
+
+<!-- 先月エントリーした人だけに表示される執筆フィールド -->
+<div class="entry-form" style="margin-top: 20px; background-color: #FFE5B4; border: 1px solid #B2E8F9;">
+  <h4>今月の同タイトル小説を執筆してみよう！</h4>
+  <label style="margin-left: 20px; display: block; margin-bottom: 10px;">エントリーしていた同タイトルが始まりました！さあ、思う存分書いてくれ！</label>
+  <a href="{% url 'game_same_title:post_or_edit_same_title' %}" class="entry-button">執筆開始！</a>
+</div> 
+{% endif %}
+
+<script>
+  let nextPage = 2;
+  let isLoading = false;
+
+  function formatDate(dateString) {
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+      return new Date(dateString).toLocaleDateString('ja-JP', options).replace(/\//g, '年').replace(/(\d+)$/, '月$1日');
+  }
+
+  function loadMoreData() {
+      if (!isLoading) {
+          isLoading = true;
+          let url = `/game_same_title/same_title/page/${nextPage}/`;
+          fetch(url, {
+              headers: {
+                  'X-Requested-With': 'XMLHttpRequest'
+              }
+          })
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error(`Server responded with status: ${response.status}`);
+              }
+              return response.json();
+          })
+          .then(data => {
+              if (data.has_next) {
+                  nextPage++;
+                  const tbody = document.querySelector('#novels-container table tbody');
+                  data.novels.forEach(novel => {
+                      const tr = document.createElement('tr');
+                      tr.innerHTML = `
+                          <td>${novel.word_count}</td>
+                          <td>${novel.genre}</td>
+                          <td><a href="/novels/${novel.id}/">${novel.title}</a></td>
+                          <td><a href="/accounts/${novel.author_id}/">${novel.author_nickname}</a></td>
+                          <td>${formatDate(novel.published_date)}</td>
+                      `;
+                      tbody.appendChild(tr);
+                  });
+                  isLoading = false;
+              } else {
+                  document.getElementById('loadMore').style.display = 'none';
+              }
+          })
+          .catch(error => {
+              console.error('Error loading more novels:', error);
+              alert('エラーが発生しました。ページをリロードしてください。');
+              isLoading = false;
+          });
+      }
+  }
+</script>
+
+<!-- エントリー成功の確認とアラート表示 -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      function confirmEntry() {
+          return confirm('来月同タイトルを執筆することになります。問題ないですか？');
+      }
+
+      if ({{ entry_success|yesno:"true,false" }}) {
+          alert('エントリーが完了しました。');
+      }
+  });
+</script>
+
+<!-- Bootstrap CSSのリンク -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JavaScriptのリンク -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+    .ichiban-yari {
+        background-color: #fff3cd;  /* 薄い黄色の背景 */
+    }
+    .ichiban-yari-badge {
+        display: inline-block;
+        background-color: #ffc107;  /* 金色の背景 */
+        color: #000;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-left: 10px;
+        font-weight: bold;
+        font-size: 0.9em;
+    }
+</style>
+
+
+
+{% endblock %}

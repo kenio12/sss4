@@ -1,0 +1,36 @@
+<!-- 予想結果テーブル -->
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>参加者</th>
+                <th>正解数</th>
+                <th>予想数</th>
+                <th>正解率</th>
+                <th>詳細</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for participant, stats in participants %}
+            <tr {% if participant == predictor %}class="table-primary"{% endif %}>
+                <td>{{ participant.nickname }}</td>
+                <td>{{ stats.correct }}</td>
+                <td>{{ stats.total }}</td>
+                <td>
+                    {% if stats.total > 0 %}
+                        {{ stats.accuracy|floatformat:1 }}%
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'game_maturi:prediction_result' user_id=participant.id %}" 
+                       class="btn btn-info btn-sm">
+                        予想結果を見る
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div> 
