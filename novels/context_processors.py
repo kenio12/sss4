@@ -49,16 +49,17 @@ def latest_unread_novels(request):
                     comments__author__isnull=False
                 ) & ~Q(comments__author=request.user)
             )
-        ).order_by('id').distinct()  # idでソートして順序を固定
+        ).order_by('id').distinct()
 
-        # 色インデックスは小説のIDを10で割った余りを使用
+        # unread_countが0のものを除外
         novels_with_colors = [
             {
                 'id': novel.id,
                 'unread_count': novel.unread_count,
-                'color_index': novel.id % 10  # IDを使って色を決定
+                'color_index': novel.id % 10
             }
             for novel in novels
+            if novel.unread_count > 0  # ここで未読数0のものを除外
         ]
 
         return {
