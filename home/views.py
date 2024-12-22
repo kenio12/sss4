@@ -11,6 +11,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.views.generic import ListView
 from announcements.models import Announcement
+from game_maturi.models import MaturiGame
 
 class HomePageView(TemplateView):
     template_name = 'home/home.html'
@@ -41,6 +42,9 @@ class HomePageView(TemplateView):
         context['announcements'] = Announcement.objects.filter(
             is_active=True
         ).order_by('-is_pinned', '-created_at')[:2]
+        
+        # 現在開催中の祭りを取得
+        context['current_maturi_game'] = MaturiGame.find_current_game()
         
         return context
 
