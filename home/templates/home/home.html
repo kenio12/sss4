@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <!-- 祭り期間中のみ表示 -->
         {% if current_maturi_game %}
         <div class="home-btn home-btn-list home-btn-maturi" title="祭り">
-            <a href="{% url 'game_maturi:game_maturi_top' %}">
+            <a href="{% url 'game_maturi:game_maturi_top' game_id=current_maturi_game.id %}">
                 <img src="{% static 'home/images/maturi.svg' %}" alt="Icon" style="width: 100%; height: auto;">
             </a>
         </div>
