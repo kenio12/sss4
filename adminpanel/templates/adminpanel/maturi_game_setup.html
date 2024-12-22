@@ -19,7 +19,7 @@
 
             <div class="form-group">
                 <p>{{ form.title.label_tag }} {{ form.title }}</p>
-                <p>{{ form.description.label_tag }} {{ form.description }}</p>
+                <p>{{ form.description.label_tag }} <textarea name="description" rows="4" class="form-control">{{ form.description.value|default:'' }}</textarea></p>
             </div>
 
             <div>
@@ -302,7 +302,7 @@ function toggleAuthor(button) {
         button.textContent = '表示する';
         button.setAttribute('data-shown', 'false');
     } else {
-        if (confirm('本当に作者を表示します？')) {
+        if (confirm('本当に作���を表示します？')) {
             authorSpan.style.display = 'inline';
             button.textContent = '隠す';
             button.setAttribute('data-shown', 'true');
