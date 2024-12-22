@@ -64,14 +64,6 @@ class MaturiGameForm(forms.ModelForm):
         }
     def clean(self):
         cleaned_data = super().clean()
-        game = self.instance
-        entry_end_date = cleaned_data.get('entry_end_date')
-        prediction_start_date = cleaned_data.get('prediction_start_date')
-
-        # エントリー終了日が予想開始日より前であることを確認
-        if entry_end_date and prediction_start_date and entry_end_date >= prediction_start_date:
-            raise forms.ValidationError("エントリー終了日は予想開始日より前でなければなりません。")
-
         return cleaned_data
 
     def clean_phrases(self):
@@ -196,7 +188,7 @@ class MaturiGameForm(forms.ModelForm):
                     phrase, created = Phrase.objects.get_or_create(text=phrase_text)
                     new_phrases.append(phrase)
             
-            # 選択された既���のphrasesを追加
+            # 選択された���存のphrasesを追加
             if 'phrases' in self.cleaned_data and self.cleaned_data['phrases']:
                 new_phrases.extend(self.cleaned_data['phrases'])
             

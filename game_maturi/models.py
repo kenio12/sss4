@@ -205,12 +205,6 @@ class MaturiGame(models.Model):
                         f"同じ語句を複数使用することはできません。重複している語句: {', '.join(duplicate_phrases)}"
                     )
 
-        if self.entry_start_date and self.entry_end_date:
-            if not (start_year <= self.entry_start_date.year <= end_year):
-                raise ValidationError("エントリー期間の開始日はタイトルに記載された年の範囲内である必要があります。")
-            if not (start_year <= self.entry_end_date.year <= end_year):
-                raise ValidationError("エントリー期間の終了日はタイトルに記載された年の範囲内である必要があります。")
-
     def save(self, *args, **kwargs):
         """
         保存時にyearフィールドをタイトルから自動設定
