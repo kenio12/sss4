@@ -93,7 +93,23 @@
         // タイムラインの作成
         var container = document.getElementById('timeline');
         var timeline = new vis.Timeline(container, items, groups, options);
-        timeline.setCurrentTime(new Date());
+        
+        // 現在時刻の線を更新する関数
+        function updateCurrentTime() {
+            timeline.setCurrentTime(new Date());
+        }
+
+        // 初期表示時に現在時刻の線を設定
+        updateCurrentTime();
+
+        // タイムラインの表示範囲が変更されたときのイベントハンドラ
+        timeline.on('rangechanged', function() {
+            // 少し遅延を入れて現在時刻の線を更新
+            setTimeout(updateCurrentTime, 100);
+        });
+
+        // 定期的に現在時刻の線を更新（1秒ごと）
+        setInterval(updateCurrentTime, 1000);
     });
 </script>
 
@@ -108,6 +124,7 @@
         background-color: #fff;
         position: relative !important;
         overflow: visible !important;
+        z-index: 1;
     }
     .vis-item {
         border-color: rgba(0, 0, 0, 0.1);
@@ -151,20 +168,23 @@
     .vis-current-time {
         background-color: #FF4081 !important;
         width: 2px !important;
-        z-index: 1000 !important;
+        z-index: 9999 !important;
         opacity: 1 !important;
         pointer-events: none;
+        position: absolute !important;
+        height: 100% !important;
     }
     /* 現在時刻のマーカーを追加 */
     .vis-current-time:before {
         content: '';
         position: absolute;
-        top: 0;
+        top: -5px;
         left: -4px;
         width: 10px;
         height: 10px;
         background-color: #FF4081;
         border-radius: 50%;
+        box-shadow: 0 0 4px rgba(255, 64, 129, 0.8);
     }
     /* 年月表示を右寄せに */
     .vis-time-axis .vis-text.vis-major {
