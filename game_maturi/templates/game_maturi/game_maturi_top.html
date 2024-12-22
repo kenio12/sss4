@@ -458,12 +458,14 @@
         <section>
             <h2>{{ game.title }}の説明</h2>
             <div class="description-container">
-                <div class="description-content collapsed">
+                <div class="description-content">
                     {{ game.description|linebreaks }}
                 </div>
-                <button class="toggle-description btn btn-link">
-                    もっと見る <i class="fas fa-chevron-down"></i>
-                </button>
+                {% if game.description|length > 300 %}  {# 300文字以上の場合のみボタンを表示 #}
+                    <button class="toggle-description btn btn-link">
+                        もっと見る <i class="fas fa-chevron-down"></i>
+                    </button>
+                {% endif %}
             </div>
         </section>
 
@@ -836,24 +838,23 @@
         document.addEventListener('DOMContentLoaded', function() {
             const content = document.querySelector('.description-content');
             const toggle = document.querySelector('.toggle-description');
-
-            // 内容が短い場合はボタンを非表示にする
-            if (content.scrollHeight <= 100) {
-                toggle.style.display = 'none';
-                content.classList.remove('collapsed');
-                return;
-            }
+            
+            if (!content || !toggle) return;  // 要素がない場合は処理を中止
+            
+            // 初期状態を設定
+            content.style.maxHeight = '100px';
+            content.style.overflow = 'hidden';
+            let isExpanded = false;
 
             toggle.addEventListener('click', function() {
-                content.classList.toggle('collapsed');
-                content.classList.toggle('expanded');
-                toggle.classList.toggle('expanded');
-                
-                if (content.classList.contains('expanded')) {
-                    toggle.innerHTML = '閉じる <i class="fas fa-chevron-up"></i>';
-                } else {
+                if (isExpanded) {
+                    content.style.maxHeight = '100px';
                     toggle.innerHTML = 'もっと見る <i class="fas fa-chevron-down"></i>';
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    toggle.innerHTML = '閉じる <i class="fas fa-chevron-up"></i>';
                 }
+                isExpanded = !isExpanded;
             });
         });
     </script>
