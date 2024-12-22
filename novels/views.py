@@ -382,19 +382,16 @@ def novel_detail(request, novel_id):
     for comment in comments_list:
         if comment.author:  # 作者が存在する場合のみ
             print(f"作者: {comment.author.nickname}")
+            print(f"作者の色: {comment.author.comment_color}")
         else:
-            print("作者: 退会したユーザー")
-        print(f"コメントID: {comment.id}")
-        print(f"作者の色: {comment.author.comment_color}")
-        print(f"is_maturi_comment: {comment.is_maturi_comment}")
-        print(f"maturi_game_id: {comment.maturi_game_id}")
-        print(f"original_commenter_id: {comment.original_commenter_id}")
-        print("--------------------")
-    print("========================\n")
+            print(f"作者: 退会したユーザー")
+            print(f"作者の色: #cccccc")  # デフォルトのグレー色
 
     context = {
         'novel': novel,
-        'user': request.user,
+        'can_edit': can_edit,
+        'hide_edit_button': False,
+        'form': form,
         'comments_list': comments_list,
         'form': form,
         'can_edit': can_edit,
