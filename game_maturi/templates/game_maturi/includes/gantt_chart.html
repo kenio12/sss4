@@ -82,13 +82,18 @@
                     hour: 'M/D'
                 }
             },
-            zoomable: false
+            zoomable: false,
+            currentTime: {
+                updateInterval: 1000,
+                visible: true
+            }
         };
         {% endwith %}
 
         // タイムラインの作成
         var container = document.getElementById('timeline');
         var timeline = new vis.Timeline(container, items, groups, options);
+        timeline.setCurrentTime(new Date());
     });
 </script>
 
@@ -101,6 +106,8 @@
         border: 1px solid #ddd;
         border-radius: 4px;
         background-color: #fff;
+        position: relative !important;
+        overflow: visible !important;
     }
     .vis-item {
         border-color: rgba(0, 0, 0, 0.1);
@@ -142,9 +149,22 @@
     }
     /* 現在時刻の線のスタイル */
     .vis-current-time {
+        background-color: #FF4081 !important;
+        width: 2px !important;
+        z-index: 1000 !important;
+        opacity: 1 !important;
+        pointer-events: none;
+    }
+    /* 現在時刻のマーカーを追加 */
+    .vis-current-time:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -4px;
+        width: 10px;
+        height: 10px;
         background-color: #FF4081;
-        width: 2px;
-        z-index: 2;
+        border-radius: 50%;
     }
     /* 年月表示を右寄せに */
     .vis-time-axis .vis-text.vis-major {
