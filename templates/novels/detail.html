@@ -74,7 +74,7 @@
             {% for comment in comments_list %}
                 <div class="comment mb-2" 
                      style="border: 2px solid #ccc !important; 
-                            border-left: 3px solid {{ comment.author.comment_color }} !important;
+                            border-left: 3px solid {% if comment.author %}{{ comment.author.comment_color }}{% else %}#cccccc{% endif %} !important;
                             background-color: #ffffff !important;
                             padding: 15px !important; 
                             border-radius: 8px !important; 
@@ -99,7 +99,7 @@
                                     {% endif %}
                                 {% endif %}
                             {% else %}
-                                不明な人
+                                <span style="color: #666;">退会したユーザー</span>
                             {% endif %}
                         </strong> - 
                         {{ comment.created_at|date:"Y-m-d H:i" }}
