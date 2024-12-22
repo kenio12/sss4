@@ -380,8 +380,11 @@ def novel_detail(request, novel_id):
     # コメント情報のデバッグ出力を追加
     print("\n==== コメント情報 ====")
     for comment in comments_list:
+        if comment.author:  # 作者が存在する場合のみ
+            print(f"作者: {comment.author.nickname}")
+        else:
+            print("作者: 退会したユーザー")
         print(f"コメントID: {comment.id}")
-        print(f"作者: {comment.author.nickname}")
         print(f"作者の色: {comment.author.comment_color}")
         print(f"is_maturi_comment: {comment.is_maturi_comment}")
         print(f"maturi_game_id: {comment.maturi_game_id}")
@@ -987,7 +990,7 @@ def toggle_comment_read(request, comment_id):
     })
 
 def home(request):
-    # 公開済��の小説を4つだけ取得するように変更
+    # 公開済の小説を4つだけ取得するように変更
     latest_novels = Novel.objects.filter(
         status='published'
     ).select_related(
