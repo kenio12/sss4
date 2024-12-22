@@ -83,6 +83,15 @@ def game_maturi_top(request, game_id):
             }
             print(f"Novel {pred.novel.id}: Predicted author = {pred.predicted_author.nickname}")
     
+    # ユーザーの小説を取得（既存のコードの直前に追加）
+    user_novels = []
+    if request.user.is_authenticated and is_user_entered:
+        user_novels = game.maturi_novels.filter(
+            models.Q(author=request.user) | 
+            models.Q(original_author=request.user)
+        ).order_by('created_at')
+        print(f"Found {user_novels.count()} novels for user {request.user.nickname}")  # デバッグ用
+
     # 基本のコンテキストを作成
     context = {
         'game': game,
@@ -92,6 +101,7 @@ def game_maturi_top(request, game_id):
         'is_user_entered': is_user_entered,
         'novel_predictions': novel_predictions,  # 初期化済みの辞書を渡す
         'now': timezone.now().date(),
+        'user_novels': user_novels,  # これを追加
     }
 
     # 予測期間が終了しているかどうかをチェック

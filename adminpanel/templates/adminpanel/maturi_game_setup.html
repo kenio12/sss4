@@ -19,7 +19,7 @@
 
             <div class="form-group">
                 <p>{{ form.title.label_tag }} {{ form.title }}</p>
-                <p>{{ form.description.label_tag }} <textarea name="description" rows="8" class="form-control">{{ form.description.value|default:'' }}</textarea></p>
+                <p>{{ form.description.label_tag }} <textarea name="description" rows="16" class="form-control">{{ form.description.value|default:'' }}</textarea></p>
             </div>
 
             <div>
@@ -266,7 +266,7 @@
 
     /* 説明文テキストエリアのスタイル追加 */
     #maturi-setup-content textarea[name="description"] {
-        min-height: 200px;  /* 最小の高さを設定 */
+        min-height: 400px;  /* 最小の高さを倍に */
         resize: vertical;   /* 縦方向のリサイズのみ許可 */
     }
 </style>

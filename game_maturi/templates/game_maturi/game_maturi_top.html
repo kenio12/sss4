@@ -368,7 +368,7 @@
         /* 執筆するボタン用のスタイルを追加 */
         .btn-write {
             padding: 10px 25px !important;  /* パディングをさらに小さく */
-            font-size: 1.1em !important;    /* フォントイズをさ小さく */
+            font-size: 1.1em !important;    /* フォント���ズをさ小さく */
             font-weight: bold !important;   
             margin: 20px 0 !important;      
             transition: all 0.3s ease !important;  
@@ -913,7 +913,7 @@
         {% endif %}
     </div>
 
-    <!-- ゲームIDを保持する要素を追加 -->
+    <!-- ゲームIDを保��する要素を追加 -->
     <div data-game-id="{{ game.id }}" style="display: none;"></div>
 
     {% if game.is_prediction_period %}
@@ -995,6 +995,48 @@
         </section>
     {% endif %}
 
-
+    {% if game and is_user_entered %}
+        <section class="user-novels-section" style="margin: 20px 0;">
+            <h3 style="color: #FF8C00; margin-bottom: 15px;">現在の祭りのあなたの小説</h3>
+            <div class="user-novels-list">
+                {% if user_novels %}
+                    {% for novel in user_novels %}
+                        <div class="user-novel-card" style="
+                            background: #fff3cd;
+                            border: 1px solid #ffeeba;
+                            padding: 15px;
+                            border-radius: 8px;
+                            margin-bottom: 10px;
+                            transition: all 0.3s ease;">
+                            <a href="{% url 'novels:novel_detail' novel_id=novel.id %}" 
+                               style="text-decoration: none; color: #856404; display: block;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <h4 style="margin: 0;">{{ novel.title }}</h4>
+                                    <span class="status-badge" style="
+                                        padding: 4px 8px;
+                                        border-radius: 4px;
+                                        font-size: 0.9em;
+                                        {% if novel.status == 'published' %}
+                                            background-color: #28a745;
+                                            color: white;
+                                        {% elif novel.status == 'scheduled' %}
+                                            background-color: #17a2b8;
+                                            color: white;
+                                        {% else %}
+                                            background-color: #ffc107;
+                                            color: #000;
+                                        {% endif %}">
+                                        {{ novel.get_status_display }}
+                                    </span>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #856404;">まだ小説を投稿していません。</p>
+                {% endif %}
+            </div>
+        </section>
+    {% endif %}
 
 {% endblock %}
