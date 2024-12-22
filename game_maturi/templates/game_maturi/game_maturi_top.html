@@ -425,17 +425,28 @@
             width: 100%;
             text-align: center;
             padding: 10px;
-            background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%);
+            margin-top: 10px;
+            /* グラデーションを濃くして、より見やすく */
+            background: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.9) 50%);
             border: none;
             cursor: pointer;
+            /* ボタンのスタイルを目立つように変更 */
+            color: #0056b3;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(255,255,255,0.8);
+            /* ボーダーを追加してボタンらしく */
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .toggle-description:hover {
+            color: #003d82;
+            text-decoration: none;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,1) 50%);
         }
 
         .toggle-description i {
             transition: transform 0.3s ease;
-        }
-
-        .toggle-description.expanded i {
-            transform: rotate(180deg);
         }
     </style>
 </head>
