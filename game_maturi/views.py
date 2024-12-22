@@ -416,6 +416,23 @@ def post_or_edit_maturi_novel(request, novel_id=None):
                 current_game.maturi_novels.add(saved_novel)
                 current_game.save()
 
+            # 削除アクションの処理を修正
+            if action == 'delete':
+                if novel:
+                    # 現在のゲームを取得
+                    current_game = MaturiGame.find_current_game()
+                    if current_game:
+                        # 祭りゲームから小説を削除
+                        current_game.maturi_novels.remove(novel)
+                    
+                    # 2. この小説に関連する全ての予想を削除
+                    GamePrediction.objects.filter(novel=novel).delete()
+                    
+                    # 3. 小説自体を削除
+                    novel.delete()
+                    messages.success(request, '小説を削除しました。')
+                    return redirect('accounts:view_profile')
+
             # リダイレクト処理
             if action == 'rest':
                 messages.success(request, '小説を保存して休憩します。')
