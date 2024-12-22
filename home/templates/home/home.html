@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 .responsive-image {
-    max-width: 100%; /* コ���テナの幅に合わせて調整 */
+    max-width: 100%; /* コンテナの幅に合わせて調整 */
     height: auto; /* 高さは自動で調整 */
 }
     .home-btn {
@@ -941,6 +941,60 @@ document.addEventListener('DOMContentLoaded', function() {
     .list-button.novels-button:hover {
         background-color: #286090 !important;  /* ホバー時は元の濃い青 */
         border-color: #204d74 !important;
+    }
+
+    /* 既存のスタイルに追加 */
+    .home-btn-maturi {
+        background: linear-gradient(45deg, #FF4081, #FF1744) !important;
+        box-shadow: 0 0 15px rgba(255, 64, 129, 0.5) !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* キラキラエフェクト */
+    .home-btn-maturi::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            45deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent
+        );
+        transform: rotate(45deg);
+        animation: shine 3s infinite;
+    }
+
+    /* ホバーエフェクト */
+    .home-btn-maturi:hover {
+        transform: scale(1.1);
+        transition: transform 0.3s ease;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes shine {
+        0% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+        100% {
+            transform: translateX(100%) rotate(45deg);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 15px rgba(255, 64, 129, 0.5);
+        }
+        50% {
+            box-shadow: 0 0 25px rgba(255, 64, 129, 0.8);
+        }
+        100% {
+            box-shadow: 0 0 15px rgba(255, 64, 129, 0.5);
+        }
     }
 </style>
 
