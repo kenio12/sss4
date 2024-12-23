@@ -473,37 +473,21 @@
 
     /* モバイル向けの調整をさらに修正 */
     @media (max-width: 768px) {
-        textarea.content {
+        textarea.content, textarea.content2 {  /* content2クラスも対象に追加 */
+            /* 基本設定 */
             position: relative !important;
             width: 100% !important;
             min-height: 50vh !important;
             height: auto !important;
-            margin: 0.5rem 0 !important;
+            
+            /* キーボード表示時の対策 */
             padding: 1rem !important;
-            border: 2px solid #666 !important;
-            border-radius: 8px !important;
-            
-            /* スクロール関連の設定を強化 */
-            overflow: auto !important;  /* visible から auto に変更 */
-            -webkit-overflow-scrolling: touch !important;
-            overscroll-behavior: auto !important;  /* バウンス効果を許可 */
-            touch-action: pan-y pinch-zoom !important;  /* 垂直スクロールとズームを許可 */
-            
-            /* パフォーマンス改善 */
-            will-change: transform !important;  /* スクロールのパフォーマンスを改善 */
-            transform: translateZ(0) !important;  /* GPUアクセラレーションを有効化 */
-            
-            /* フォント設定 */
-            font-size: 20px !important;
-            line-height: 1.8 !important;
-            
-            /* 下部の余白を確保 */
-            margin-bottom: 100px !important;  /* フッターのワードカウントに被らないように */
+            margin-bottom: 50vh !important;  /* ビューポートの半分の余白 */
         }
         
-        /* コンテナにも余白を追加 */
+        /* コンテナ自体にも大きな余白を確保 */
         .container {
-            padding-bottom: 120px !important;  /* フッターに余裕を持たせる */
+            padding-bottom: 50vh !important;  /* ビューポートの半分の余白 */
         }
     }
 </style>
@@ -588,7 +572,7 @@
                 <!-- 小説の内容入力フィールドの横に既存の文字数カウンターを追加 -->
                 <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
                 <textarea class="form-control content2" id="content" name="{{ field.name }}" rows="20"
-                placeholder="ここに小説の中身をお書きどす。壊れてなければ自動保存してるはず。。" maxlength="10000">{{ form.content.value|default_if_none:'' }}</textarea>
+                placeholder="ここに��説の中身をお書きどす。壊れてなければ自動保存してるはず。。" maxlength="10000">{{ form.content.value|default_if_none:'' }}</textarea>
             {% elif field.name == 'status' %}
                 <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
                 <input type="text" 
@@ -840,32 +824,32 @@ document.addEventListener('click', function(event) {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-    const textarea = document.getElementById('content');
+    const textarea = document.querySelector('.content2');  // content2クラスを使用
+    const originalHeight = window.innerHeight;
     
-    // 初期表示時に高さを調整
-    adjustHeight(textarea);
-    
-    // 入力時に高さを調整（改行、ペースト、キー入力全てに対応）
-    textarea.addEventListener('input', function() {
-        adjustHeight(this);
-    });
-    
-    textarea.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            setTimeout(() => adjustHeight(this), 0);
+    // キーボードが表示された時の処理
+    window.addEventListener('resize', function() {
+        const currentHeight = window.innerHeight;
+        
+        // キーボードが表示されたと判断される場合
+        if (currentHeight < originalHeight) {
+            // テキストエリアの位置を自動調整
+            if (document.activeElement === textarea) {
+                // カーソル位置が見えるようにスクロール
+                setTimeout(() => {
+                    textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
         }
     });
     
-    textarea.addEventListener('paste', function() {
-        setTimeout(() => adjustHeight(this), 0);
+    // フォーカス時の処理
+    textarea.addEventListener('focus', function() {
+        // フォーカス時に少し上にスクロール
+        setTimeout(() => {
+            window.scrollBy(0, -100);
+        }, 100);
     });
-    
-    function adjustHeight(element) {
-        // 一旦高さをリセット
-        element.style.height = 'auto';
-        // スクロールの高さに合わせて設定
-        element.style.height = (element.scrollHeight) + 'px';
-    }
 });
 </script>
 

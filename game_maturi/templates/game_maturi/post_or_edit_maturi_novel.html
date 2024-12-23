@@ -455,21 +455,28 @@ function confirmSchedulePublish() {
 document.addEventListener('DOMContentLoaded', function() {
     const textarea = document.querySelector('.content');
     
-    // 初期表示時に高さを自動調整
-    function initialAdjustHeight(element) {
-        // スクロールの高さに合わせて設定
-        element.style.height = 'auto';
-        element.style.height = (element.scrollHeight) + 'px';
-    }
+    // キーボードが表示された時の処理
+    window.addEventListener('resize', function() {
+        const currentHeight = window.innerHeight;
+        
+        // キーボードが表示されたと判断される場合
+        if (currentHeight < originalHeight) {
+            // テキストエリアの位置を自動調整
+            if (document.activeElement === textarea) {
+                // カーソル位置が見えるようにスクロール
+                setTimeout(() => {
+                    textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        }
+    });
     
-    // 編集時の初期表示で自動調整
-    if (textarea.value) {
-        initialAdjustHeight(textarea);
-    }
-    
-    // 入力時の自動調整
-    textarea.addEventListener('input', function() {
-        initialAdjustHeight(this);
+    // フォーカス時の処理
+    textarea.addEventListener('focus', function() {
+        // フォーカス時に少し上にスクロール
+        setTimeout(() => {
+            window.scrollBy(0, -100);
+        }, 100);
     });
 });
 </script>
