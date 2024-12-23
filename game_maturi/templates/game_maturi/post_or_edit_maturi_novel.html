@@ -524,7 +524,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function adjustHeight() {
         // 最小の高さを設定
         const minHeight = Math.max(500, window.innerHeight * 0.7);
-        textarea.style.minHeight = minHeight + 'px';
         
         // 既存のスタイルを保持しながら高さだけ調整
         const currentStyles = window.getComputedStyle(textarea);
@@ -532,8 +531,8 @@ document.addEventListener('DOMContentLoaded', function() {
             height: ${Math.max(textarea.scrollHeight, minHeight)}px !important;
             min-height: ${minHeight}px !important;
             margin-left: 3px !important;
-            margin-right: 3px !important;
-            width: calc(100% - 6px) !important;
+            margin-right: 10px !important;
+            width: calc(100% - 13px) !important;
         `;
     }
     
