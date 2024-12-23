@@ -74,7 +74,8 @@
 
     /* タイトル入力欄の下のマージンを増やす */
     .form-group {
-        margin-bottom: 10px;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
     /* タイトル以外のフォームコントロールのフォントサイズ */
@@ -132,8 +133,8 @@
 
     /* タイトル入力フィールドのスタイル調整 */
     .form-control.title2 {
-        font-size: 20px !important;  /* 40pxから20pxに変更 */
-        padding: 10px !important;    /* パディングも少し調整 */
+        font-size: 20px !important;
+        padding: 10px !important;
         height: auto !important;
     }
 
@@ -143,7 +144,7 @@
         width: 100% !important;
         height: auto !important;
         min-height: 300px !important;
-        padding: 0 !important;      /* パディングを0に */
+        padding: 0 !important;
         
         /* スクロール関連 */
         overflow: auto !important;
@@ -389,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
         requiredPhrases.forEach(function(phrase, index) {
             var phraseElement = document.getElementById('phrase-' + (index + 1));
             if (content.includes(phrase.toLowerCase())) {
-                usedPhrases.add(phrase); // Setを使用���て重複を自動的に排除
+                usedPhrases.add(phrase); // Setを使用して重複を自動的に排除
                 phraseElement.style.backgroundColor = 'blue';
                 phraseElement.style.color = 'white';
             } else {
