@@ -88,49 +88,26 @@
         </div>
 
         <style>
-            /* 内容フィールドの高さ設定 */
+            /* テキストエリアの制限解除 */
             textarea.content {
+                /* スクロール関連の制限を全て解除 */
+                overflow: visible !important;
+                -webkit-overflow-scrolling: auto !important;
+                overscroll-behavior: auto !important;
+                
+                /* 基本設定 */
+                width: 100% !important;
                 min-height: 500px !important;
                 height: auto !important;
-                overflow-y: visible !important;  /* スクロール制限を解除 */
-                resize: vertical !important;     /* 垂直方向のリサイズを許可 */
-                box-sizing: border-box !important;
-                line-height: 1.5 !important;    /* 行間を調整 */
+                resize: vertical !important;
+                line-height: 1.5 !important;
             }
 
             /* モバイル向けの調整 */
             @media (max-width: 768px) {
                 textarea.content {
-                    position: relative !important;
-                    width: 100% !important;
                     min-height: 50vh !important;
-                    height: auto !important;
-                    margin: 0.5rem 0 !important;
                     padding: 1rem !important;
-                    border: 2px solid #666 !important;
-                    border-radius: 8px !important;
-                    
-                    /* スクロール関連の設定を強化 */
-                    overflow: auto !important;  /* visible から auto に変更 */
-                    -webkit-overflow-scrolling: touch !important;
-                    overscroll-behavior: auto !important;  /* バウンス効果を許可 */
-                    touch-action: pan-y pinch-zoom !important;  /* 垂直スクロールとズームを許可 */
-                    
-                    /* パフォーマンス改善 */
-                    will-change: transform !important;  /* スクロールのパフォーマンスを改善 */
-                    transform: translateZ(0) !important;  /* GPUアクセラレーションを有効化 */
-                    
-                    /* フォント設定 */
-                    font-size: 20px !important;
-                    line-height: 1.8 !important;
-                    
-                    /* 下部の余白を確保 */
-                    margin-bottom: 100px !important;  /* フッターのワードカウントに被らないように */
-                }
-                
-                /* コンテナにも余白を追加 */
-                .container {
-                    padding-bottom: 120px !important;  /* フッターに余裕を持たせる */
                 }
             }
         </style>
@@ -138,31 +115,31 @@
         <script>
         document.addEventListener('DOMContentLoaded', function() {
             const textarea = document.querySelector('.content');
+            const originalHeight = window.innerHeight;
             
-            // 初期表示時に高さを調整
-            adjustHeight(textarea);
-            
-            // 入力時に高さを調整（改行、ペースト、キー入力全てに対応）
-            textarea.addEventListener('input', function() {
-                adjustHeight(this);
-            });
-            
-            textarea.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    setTimeout(() => adjustHeight(this), 0);
+            // キーボードが表示された時の処理
+            window.addEventListener('resize', function() {
+                const currentHeight = window.innerHeight;
+                
+                // キーボードが表示されたと判断される場合
+                if (currentHeight < originalHeight) {
+                    // テキストエリアの位置を自動調整
+                    if (document.activeElement === textarea) {
+                        // カーソル位置が見えるようにスクロール
+                        setTimeout(() => {
+                            textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 100);
+                    }
                 }
             });
             
-            textarea.addEventListener('paste', function() {
-                setTimeout(() => adjustHeight(this), 0);
+            // フォーカス時の処理
+            textarea.addEventListener('focus', function() {
+                // フォーカス時に少し上にスクロール
+                setTimeout(() => {
+                    window.scrollBy(0, -100);
+                }, 100);
             });
-            
-            function adjustHeight(element) {
-                // 一旦高さをリセット
-                element.style.height = 'auto';
-                // スクロールの高さに合わせて設定
-                element.style.height = (element.scrollHeight) + 'px';
-            }
         });
         </script>
 

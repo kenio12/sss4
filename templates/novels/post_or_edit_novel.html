@@ -490,6 +490,29 @@
             padding-bottom: 50vh !important;  /* ビューポートの半分の余白 */
         }
     }
+
+    /* テキストエリアの制限解除 */
+    textarea.content, textarea.content2 {
+        /* スクロール関連の制限を全て解除 */
+        overflow: visible !important;
+        -webkit-overflow-scrolling: auto !important;
+        overscroll-behavior: auto !important;
+        
+        /* 基本設定 */
+        width: 100% !important;
+        min-height: 500px !important;
+        height: auto !important;
+        resize: vertical !important;
+        line-height: 1.5 !important;
+    }
+
+    /* モバイル向けの調整 */
+    @media (max-width: 768px) {
+        textarea.content, textarea.content2 {
+            min-height: 50vh !important;
+            padding: 1rem !important;
+        }
+    }
 </style>
 
 <div class="container mt-5">
@@ -572,7 +595,7 @@
                 <!-- 小説の内容入力フィールドの横に既存の文字数カウンターを追加 -->
                 <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
                 <textarea class="form-control content2" id="content" name="{{ field.name }}" rows="20"
-                placeholder="ここに��説の中身をお書きどす。壊れてなければ自動保存してるはず。。" maxlength="10000">{{ form.content.value|default_if_none:'' }}</textarea>
+                placeholder="ここに小説の中身をお書きどす。壊れてなければ自動保存してるはず。。" maxlength="10000">{{ form.content.value|default_if_none:'' }}</textarea>
             {% elif field.name == 'status' %}
                 <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
                 <input type="text" 
