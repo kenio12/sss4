@@ -481,12 +481,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const textarea = document.querySelector('.content');
     
     function adjustHeight() {
+        // 一旦autoにして実際の内容の高さを取得
         textarea.style.height = 'auto';
-        textarea.style.height = textarea.scrollHeight + 'px';
+        // スクロールの高さに合わせて高さを設定
+        textarea.style.height = (textarea.scrollHeight) + 'px';
     }
     
+    // 入力時に高さを自動調整
     textarea.addEventListener('input', adjustHeight);
-    adjustHeight();
+    
+    // 初期表示時にも高さを自動調整（少し遅延させて確実に実行）
+    setTimeout(adjustHeight, 0);
+    
+    // ウィンドウのリサイズ時にも高さを再調整
+    window.addEventListener('resize', adjustHeight);
 });
 </script>
 
