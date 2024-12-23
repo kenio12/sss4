@@ -189,10 +189,9 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
         {% endif %}
 
-        <div class="home-btn home-btn-list home-btn-list-blue" title="同タイトル小説">
-            <a href="{% url 'game_same_title:same_title' %}">
-                <img src="{% static 'home/images/dou_game.svg' %}" alt="Icon" style="width: 100%; height: auto;">
-            </a>
+        <!-- 同タイトル小説ボタン -->
+        <div class="home-btn home-btn-list home-btn-list-blue" title="同タイトル小説" onclick="showMaintenanceDialog()">
+            <img src="{% static 'home/images/dou_game.svg' %}" alt="Icon" style="width: 100%; height: auto;">
         </div>
 
         <div class="home-btn home-btn-list home-btn-list-purple" title="このサイトについて">
@@ -256,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="novels-list-container">
     <div class="sss-novels-list">
         {% for novel in latest_novels|slice:":4" %}
-            <!-- PC表示用 -->
+            <!-- PC表示�� -->
             <div class="sss-novel-row pc-view">
                 <div class="sss-date">{{ novel.published_date|date:"Y/m/d" }}</div>
                 <div class="sss-genre">{{ novel.genre }}</div>
@@ -314,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
         width: 100%; /* 画像の幅を100%に設定 */
         height: auto; /* 高さは自動で調整 */
         max-height: 430px; /* 最大の高さを500pxに設定 */
-        object-fit: cover; /* コンテナのサイズに合わせて画像をトリミング */
+        object-fit: cover; /* コンテナのサイズに合わせて画像をトリミ���グ */
     }
     .image-container {
         position: relative; /* 相対位置 */
@@ -351,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 .responsive-image {
-    max-width: 100%; /* コンテナの幅に合わせて調整 */
+    max-width: 100%; /* コンテナの幅に合わせ��調整 */
     height: auto; /* 高さは自動で調整 */
 }
     .home-btn {
@@ -997,5 +996,77 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 </style>
+
+<!-- メンテナンス中ダイアログ用のスタイル -->
+<style>
+.maintenance-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s;
+}
+
+.maintenance-modal-content {
+    position: relative;
+    background-color: #fff3cd;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #ffeeba;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+    animation: slideIn 0.3s;
+}
+
+.maintenance-close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    color: #856404;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.maintenance-close:hover {
+    color: #000;
+}
+</style>
+
+<!-- メンテナンス中ダイアログ -->
+<div id="maintenanceModal" class="maintenance-modal">
+    <div class="maintenance-modal-content">
+        <span class="maintenance-close">&times;</span>
+        <h3 style="color: #856404; margin-bottom: 15px;">お知らせ</h3>
+        <p style="color: #555;">同タイトル小説は現在、メンテナンス中です。<br>ご迷惑をおかけして申し訳ありません。</p>
+    </div>
+</div>
+
+<!-- メンテナンス中ダイアログ用のJavaScript -->
+<script>
+function showMaintenanceDialog() {
+    var modal = document.getElementById('maintenanceModal');
+    modal.style.display = "block";
+
+    // 閉じるボタンの処理
+    var closeBtn = modal.getElementsByClassName('maintenance-close')[0];
+    closeBtn.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // モーダルの外側をクリックしても閉じる
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+}
+</script>
 
 {% endblock content %}
