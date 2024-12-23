@@ -14,7 +14,11 @@ from utils.constants import INITIAL_CHOICES
 
 class NovelForm(ModelForm):
     initial = forms.ChoiceField(choices=INITIAL_CHOICES, label='イニシャル', required=False)
-    is_same_title_game = forms.BooleanField(label='同タイトル', required=False, initial=True)
+    is_same_title_game = forms.BooleanField(
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
     status = forms.CharField(widget=forms.HiddenInput(), required=False, initial='published')
 
     def clean(self):
@@ -55,6 +59,13 @@ class NovelForm(ModelForm):
     class Meta:
         model = Novel
         fields = ['title', 'content', 'is_same_title_game', 'initial', 'status']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control content',
+                'placeholder': 'ここに小説の中身をお書きどす。ここは自動保存がないので、こまめに保存してや！',
+                'maxlength': '10000'
+            }),
+        }
 
 
 class CommentForm(forms.ModelForm):
