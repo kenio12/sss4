@@ -153,12 +153,12 @@
         resize: none !important;
     }
 
-    /* form-groupのパディングを確実に削除 */
+    /* form-groupのパディングを確実に削除し、左右マージンを追加 */
     html body .container .form-group,
     html body .form-group,
     .form-group {
         padding: 0 !important;
-        margin: 0 !important;
+        margin: 0 3px !important;  /* 左右に3pxのマージン */
         border: none !important;
         background: none !important;
     }
@@ -173,10 +173,11 @@
     /* テキストエリアのスタイル */
     html body textarea.content, 
     html body textarea.form-control.content {
-        width: 100% !important;
+        width: calc(100% - 6px) !important;  /* 左右マージン分を引く */
         height: auto !important;
-        min-height: 500px !important;  /* 最小の高さを増やす */
+        min-height: 500px !important;
         padding: 0 !important;
+        margin: 0 3px !important;  /* 左右に3pxのマージン */
         
         /* スクロール関連 */
         overflow: auto !important;
