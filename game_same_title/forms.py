@@ -42,17 +42,6 @@ class NovelForm(ModelForm):
         
         if commit:
             novel.save()
-            
-            # 一番槍の処理は、novelが保存された後かつ公開状態の場合のみ行う
-            if not novel.pk and novel.status == 'published' and not MonthlySameTitleInfo.objects.filter(month=novel.same_title_event_month).exists():
-                MonthlySameTitleInfo.objects.create(
-                    novel=novel,
-                    title=novel.title,
-                    author=novel.author,
-                    proposer=novel.author,  # 一番槍の場合は作者が提案者
-                    published_date=timezone.now().date(),
-                    month=novel.same_title_event_month
-                )
         
         return novel
 
