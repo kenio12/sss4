@@ -90,31 +90,47 @@
         <style>
             /* 内容フィールドの高さ設定 */
             textarea.content {
-                min-height: 500px !important;  /* 最小の高さを設定 */
-                height: auto !important;       /* 高さを自動に */
-                overflow-y: auto !important;   /* スクロールを許可に変更 */
-                resize: none !important;       /* リサイズハンドルを非表示に */
-                box-sizing: border-box !important; /* パディングを含めた高さ計算に */
-                transition: height 0.1s ease-in-out !important; /* スムーズな高さ変更 */
+                min-height: 500px !important;
+                height: auto !important;
+                overflow-y: visible !important;  /* スクロール制限を解除 */
+                resize: vertical !important;     /* 垂直方向のリサイズを許可 */
+                box-sizing: border-box !important;
+                line-height: 1.5 !important;    /* 行間を調整 */
             }
 
             /* モバイル向けの調整 */
             @media (max-width: 768px) {
                 textarea.content {
-                    position: static !important;  /* fixedを解除 */
+                    position: relative !important;
                     width: 100% !important;
-                    height: 50vh !important;  /* 画面の半分の高さに固定 */
+                    min-height: 50vh !important;
+                    height: auto !important;
                     margin: 0.5rem 0 !important;
-                    padding: 0.8rem !important;
+                    padding: 1rem !important;
                     border: 2px solid #666 !important;
                     border-radius: 8px !important;
-                    overflow-y: auto !important;  /* スクロール可能に */
+                    
+                    /* スクロール関連の設定を強化 */
+                    overflow: auto !important;  /* visible から auto に変更 */
+                    -webkit-overflow-scrolling: touch !important;
+                    overscroll-behavior: auto !important;  /* バウンス効果を許可 */
+                    touch-action: pan-y pinch-zoom !important;  /* 垂直スクロールとズームを許可 */
+                    
+                    /* パフォーマンス改善 */
+                    will-change: transform !important;  /* スクロールのパフォーマンスを改善 */
+                    transform: translateZ(0) !important;  /* GPUアクセラレーションを有効化 */
+                    
+                    /* フォント設定 */
                     font-size: 20px !important;
                     line-height: 1.8 !important;
-                    -webkit-overflow-scrolling: touch !important;
-                    touch-action: pan-y !important;
-                    overscroll-behavior: contain !important;
-                    will-change: transform !important;
+                    
+                    /* 下部の余白を確保 */
+                    margin-bottom: 100px !important;  /* フッターのワードカウントに被らないように */
+                }
+                
+                /* コンテナにも余白を追加 */
+                .container {
+                    padding-bottom: 120px !important;  /* フッターに余裕を持たせる */
                 }
             }
         </style>
