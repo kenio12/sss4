@@ -576,6 +576,32 @@
         -webkit-overflow-scrolling: unset !important;
         overscroll-behavior: none !important;
     }
+
+    /* コンテナ自体の余白を強制的に設定 */
+    .container {
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+        max-width: 90% !important;
+        margin: 0 auto !important;
+    }
+
+    /* テキストエリアのスタイル */
+    textarea.content, textarea.content2 {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 300px !important;
+        padding: 1rem !important;
+        
+        /* スクロール関連の設定も全部 !important 付けます */
+        overflow: auto !important;
+        -webkit-overflow-scrolling: unset !important;
+        overscroll-behavior: none !important;
+        resize: none !important;
+        
+        /* 余白も !important で指定 */
+        margin-left: 20px !important;
+        margin-right: 20px !important;
+    }
 </style>
 
 <div class="container mt-5">
