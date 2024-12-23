@@ -129,6 +129,28 @@
         overscroll-behavior: none !important;
         resize: none !important;
     }
+
+    /* タイトル入力フィールドのスタイル調整 */
+    .form-control.title2 {
+        font-size: 20px !important;  /* 40pxから20pxに変更 */
+        padding: 10px !important;    /* パディングも少し調整 */
+        height: auto !important;
+    }
+
+    /* テキストエリアのスタイル */
+    textarea.content, 
+    textarea.form-control.content {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 300px !important;
+        padding: 0 !important;      /* パディングを0に */
+        
+        /* スクロール関連 */
+        overflow: auto !important;
+        -webkit-overflow-scrolling: unset !important;
+        overscroll-behavior: none !important;
+        resize: none !important;
+    }
 </style>
 
 <div class="container mt-5">
@@ -367,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function() {
         requiredPhrases.forEach(function(phrase, index) {
             var phraseElement = document.getElementById('phrase-' + (index + 1));
             if (content.includes(phrase.toLowerCase())) {
-                usedPhrases.add(phrase); // Setを使用して重複を自動的に排除
+                usedPhrases.add(phrase); // Setを使用���て重複を自動的に排除
                 phraseElement.style.backgroundColor = 'blue';
                 phraseElement.style.color = 'white';
             } else {
