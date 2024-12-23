@@ -43,8 +43,8 @@ class NovelForm(ModelForm):
         if commit:
             novel.save()
             
-            # 一番槍の処理は、novelが保存された後に行う
-            if not novel.pk and not MonthlySameTitleInfo.objects.filter(month=novel.same_title_event_month).exists():
+            # 一番槍の処理は、novelが保存された後かつ公開状態の場合のみ行う
+            if not novel.pk and novel.status == 'published' and not MonthlySameTitleInfo.objects.filter(month=novel.same_title_event_month).exists():
                 MonthlySameTitleInfo.objects.create(
                     novel=novel,
                     title=novel.title,

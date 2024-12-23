@@ -309,7 +309,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 from .models import TitleProposal, SameTitleEntry
-from .forms import NovelForm  # 必要なフォームをイ��ポート
+from .forms import NovelForm  # 必要なフォームをインポート
 from django.shortcuts import render, redirect
 from django.http import HttpResponseForbidden
 import datetime
@@ -468,21 +468,24 @@ def post_or_edit_same_title(request, novel_id=None):
             current_month = timezone.now().strftime('%Y-%m')
             if not novel.same_title_event_month and novel.is_same_title_game:
                 novel.same_title_event_month = current_month
-            if not novel.genre and novel.is_same_title_game:  # genreが空で同タイトルゲームがtrueの場合のみ
-                novel.genre = '同タイトル'  # genreに「同タイトル」を設定
+            if not novel.genre and novel.is_same_title_game:
+                novel.genre = '同タイトル'
             existing_entry = MonthlySameTitleInfo.objects.filter(month=current_month).first()
 
             if is_locked:
-                if action == 'draft' or action == 'rest':
+                if action == 'draft':
                     if form.is_valid():
                         novel.content = form.cleaned_data['content']
                         # content, title, initialを更新対象に指定
                         novel.save(update_fields=['content'])
                         messages.success(request, '変更が保存されました。')
-                    if action == 'draft':
-                        return redirect('game_same_title:post_or_edit_same_title_with_id', novel_id=novel.id)
-                    elif action == 'rest':
-                        return redirect('accounts:view_profile')
+                    return redirect('game_same_title:post_or_edit_same_title_with_id', novel_id=novel.id)
+                elif action == 'rest':
+                    if form.is_valid():
+                        novel.content = form.cleaned_data['content']
+                        novel.save(update_fields=['content'])
+                        messages.success(request, '変更を保存して休憩します。')
+                    return redirect('accounts:view_profile')
                 elif action == 'publish':
                     if form.is_valid():
                         novel.content = form.cleaned_data['content']
@@ -519,15 +522,17 @@ def post_or_edit_same_title(request, novel_id=None):
                             messages.success(request, 'やったね！あんたが今月の一番槍や！')
                         return redirect('game_same_title:same_title')
 
-                elif action == 'draft' or action == 'rest':
+                elif action == 'draft':
                     novel.status = 'draft'
                     novel.save()
                     form.save_m2m()
-                    if action == 'draft':
-                        return redirect(reverse('game_same_title:post_or_edit_same_title_with_id', kwargs={'novel_id': novel.id}))
-                    elif action == 'rest':
-                        return redirect('accounts:view_profile')
-
+                    return redirect('game_same_title:post_or_edit_same_title_with_id', novel_id=novel.id)
+                elif action == 'rest':
+                    novel.status = 'draft'
+                    novel.save()
+                    form.save_m2m()
+                    messages.success(request, '変更を保存して休憩します。')
+                    return redirect('accounts:view_profile')
                 elif action == 'delete':
                     if novel:
                         novel.delete()
