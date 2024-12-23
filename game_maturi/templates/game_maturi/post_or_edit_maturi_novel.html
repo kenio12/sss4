@@ -84,17 +84,21 @@
 
     /* テキストエリアの制限解除 */
     textarea.content {
-        /* スクロール関連の制限を全て解除 */
-        overflow: visible !important;
-        -webkit-overflow-scrolling: auto !important;
-        overscroll-behavior: auto !important;
+        /* 高さを内容に合わせて自動調整 */
+        height: fit-content !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        
+        /* 内容に合わせて自動的に広がる */
+        overflow: hidden !important;
         
         /* 基本設定 */
         width: 100% !important;
-        min-height: 500px !important;
-        height: auto !important;
-        resize: vertical !important;
         line-height: 1.5 !important;
+        padding: 1rem !important;
+        
+        /* サイズ変更は縦方向のみ許可 */
+        resize: vertical !important;
     }
 
     /* モバイル向けの調整 */
@@ -289,7 +293,7 @@
                                         value="schedule_publish"
                                         class="btn btn-info" 
                                         style="margin:5px !important;" 
-                                        title="{{ current_game.prediction_start_date|date:'Y年m月d日' }}に自動で公開��れます">
+                                        title="{{ current_game.prediction_start_date|date:'Y年m月d日' }}に自動で公開れます">
                                         予約公開する
                                 </button>
                             </div>
@@ -432,29 +436,13 @@ function confirmSchedulePublish() {
 document.addEventListener('DOMContentLoaded', function() {
     const textarea = document.querySelector('.content');
     
-    // キーボードが表示された時の処理
-    window.addEventListener('resize', function() {
-        const currentHeight = window.innerHeight;
-        
-        // キーボードが表示されたと判断される場合
-        if (currentHeight < originalHeight) {
-            // テキストエリアの位置を自動調整
-            if (document.activeElement === textarea) {
-                // カーソル位置が見えるようにスクロール
-                setTimeout(() => {
-                    textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 100);
-            }
-        }
-    });
+    function adjustHeight() {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
     
-    // フォーカス時の処理
-    textarea.addEventListener('focus', function() {
-        // フォーカス時に少し上にスクロール
-        setTimeout(() => {
-            window.scrollBy(0, -100);
-        }, 100);
-    });
+    textarea.addEventListener('input', adjustHeight);
+    adjustHeight();
 });
 </script>
 

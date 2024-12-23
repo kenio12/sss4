@@ -513,6 +513,25 @@
             padding: 1rem !important;
         }
     }
+
+    /* テキストエリアを風船のように自由に伸縮 */
+    textarea.content, textarea.content2 {
+        /* 高さを内容に合わせて自動調整 */
+        height: fit-content !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        
+        /* 内容に合わせて自動的に広がる */
+        overflow: hidden !important;
+        
+        /* 基本設定 */
+        width: 100% !important;
+        line-height: 1.5 !important;
+        padding: 1rem !important;
+        
+        /* サイズ変更は縦方向のみ許可 */
+        resize: vertical !important;
+    }
 </style>
 
 <div class="container mt-5">
@@ -595,7 +614,7 @@
                 <!-- 小説の内容入力フィールドの横に既存の文字数カウンターを追加 -->
                 <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
                 <textarea class="form-control content2" id="content" name="{{ field.name }}" rows="20"
-                placeholder="ここに小説の中身をお書きどす。壊れてなければ自動保存してるはず。。" maxlength="10000">{{ form.content.value|default_if_none:'' }}</textarea>
+                placeholder="ここに小説の中身をお書きどす。壊れて���ければ自動保存してるはず。。" maxlength="10000">{{ form.content.value|default_if_none:'' }}</textarea>
             {% elif field.name == 'status' %}
                 <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
                 <input type="text" 
@@ -873,6 +892,18 @@ document.addEventListener('DOMContentLoaded', function() {
             window.scrollBy(0, -100);
         }, 100);
     });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('.content2');
+    
+    function adjustHeight() {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+    
+    textarea.addEventListener('input', adjustHeight);
+    adjustHeight();
 });
 </script>
 
