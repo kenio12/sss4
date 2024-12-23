@@ -516,13 +516,15 @@
 
     /* テキストエリアを風船のように自由に伸縮 */
     textarea.content, textarea.content2 {
-        /* 高さを内容に合わせて自動調整 */
-        height: fit-content !important;
+        /* 高さの制限を完全解除 */
+        height: auto !important;
         min-height: 0 !important;
         max-height: none !important;
         
-        /* 内容に合わせて自動的に広がる */
-        overflow: hidden !important;
+        /* スクロール関連の設定を変更 */
+        overflow: visible !important;  /* hiddenからvisibleに変更 */
+        -webkit-overflow-scrolling: touch !important;  /* スムーズスクロール有効化 */
+        overscroll-behavior: auto !important;  /* スクロールの継続を許可 */
         
         /* 基本設定 */
         width: 100% !important;
