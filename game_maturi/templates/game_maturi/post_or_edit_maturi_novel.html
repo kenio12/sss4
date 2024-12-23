@@ -178,11 +178,14 @@
     /* テキストエリアのスタイル */
     html body textarea.content, 
     html body textarea.form-control.content {
-        width: 100% !important;  /* 親要素いっぱいに広げる */
+        width: calc(100% - 6px) !important;  /* 全体幅から左右マージンを引く */
         height: auto !important;
         min-height: 500px !important;
         padding: 0 !important;
-        margin: 0 !important;
+        margin-left: 3px !important;   /* 左に3px */
+        margin-right: 3px !important;  /* 右に3px */
+        margin-top: 0 !important;      /* 上下のマージンは0 */
+        margin-bottom: 0 !important;
         
         /* スクロール関連 */
         overflow: auto !important;
@@ -523,9 +526,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const minHeight = Math.max(500, window.innerHeight * 0.7);
         textarea.style.minHeight = minHeight + 'px';
         
-        // 内容に応じて高さを調整
-        textarea.style.height = 'auto';
-        textarea.style.height = Math.max(textarea.scrollHeight, minHeight) + 'px';
+        // 既存のスタイルを保持しながら高さだけ調整
+        const currentStyles = window.getComputedStyle(textarea);
+        textarea.style.cssText = `
+            height: ${Math.max(textarea.scrollHeight, minHeight)}px !important;
+            min-height: ${minHeight}px !important;
+            margin-left: 3px !important;
+            margin-right: 3px !important;
+            width: calc(100% - 6px) !important;
+        `;
     }
     
     // 入力時に高さを自動調整
@@ -533,7 +542,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 初期表示時に確実に高さを調整
     setTimeout(adjustHeight, 0);
-    setTimeout(adjustHeight, 100);  // 念のため少し遅らせても実行
+    setTimeout(adjustHeight, 100);
     
     // ウィンドウのリサイズ時にも高さを再調整
     window.addEventListener('resize', adjustHeight);
