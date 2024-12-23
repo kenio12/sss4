@@ -158,9 +158,13 @@
     html body .form-group,
     .form-group {
         padding: 0 !important;
-        margin: 0 3px !important;  /* 左右に3pxのマージン */
+        margin: 0 !important;
         border: none !important;
         background: none !important;
+        position: relative !important;
+        width: calc(100% - 6px) !important;  /* 全体幅からマージンを引く */
+        left: 3px !important;  /* 左から3px */
+        right: 3px !important;  /* 右から3px */
     }
 
     /* タイトル入力フィールドのスタイル調整 */
@@ -168,16 +172,17 @@
         font-size: 20px !important;
         padding: 10px !important;
         height: auto !important;
+        width: 100% !important;  /* 親要素いっぱいに広げる */
     }
 
     /* テキストエリアのスタイル */
     html body textarea.content, 
     html body textarea.form-control.content {
-        width: calc(100% - 6px) !important;  /* 左右マージン分を引く */
+        width: 100% !important;  /* 親要素いっぱいに広げる */
         height: auto !important;
         min-height: 500px !important;
         padding: 0 !important;
-        margin: 0 3px !important;  /* 左右に3pxのマージン */
+        margin: 0 !important;
         
         /* スクロール関連 */
         overflow: auto !important;
