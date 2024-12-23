@@ -429,16 +429,41 @@ def post_or_edit_same_title(request, novel_id=None):
         if form.is_valid():
             novel = form.save(commit=False)
             action = request.POST.get('action', '')
-
-            # 休息処理
-            if action == 'rest':
-                # 明示的にステータスを設定
-                novel.status = 'draft'
+            
+            if action == 'publish':
+                novel.status = 'published'
+                novel.published_date = timezone.now()
                 novel.save()
                 
-                # デバッグ用のログ
-                logger.info(f"保存後のノベルステータス: {novel.status}")
-                
+                # 一番槍の処理（公開時のみ）
+                if novel.is_same_title_game:
+                    target_month = novel.same_title_event_month
+                    existing_entry = MonthlySameTitleInfo.objects.filter(month=target_month).exists()
+                    
+                    if not existing_entry:
+                        title_proposal = TitleProposal.objects.filter(
+                            title=novel.title,
+                            proposal_month=target_month
+                        ).first()
+                        proposer_instance = title_proposal.proposer if title_proposal else request.user
+                        
+
+                        print("🔵 新規作成時の一番槍作成！")  
+
+                        
+                        MonthlySameTitleInfo.objects.create(
+                            title=novel.title,
+                            author=request.user,
+                            proposer=proposer_instance,
+                            published_date=timezone.now(),
+                            month=target_month,
+                            novel=novel
+                        )
+                        messages.success(request, 'やったね！あんたが今月の一番槍や！')
+            
+            elif action == 'rest' or action == 'draft':
+                novel.status = 'draft'
+                novel.save()
                 messages.success(request, '変更を保存して休憩します。')
                 return redirect('accounts:view_profile')
 
@@ -454,24 +479,6 @@ def post_or_edit_same_title(request, novel_id=None):
                     new_novel.genre = '同タイトル'
                     print("Genre set to 同タイトル")
                 new_novel.save()  # ここで先にnovelを保存
-
-                # 一番槍の処理（必要な場合）
-                current_month = timezone.now().strftime('%Y-%m')
-                existing_entry = MonthlySameTitleInfo.objects.filter(month=current_month).first()
-                
-                if not existing_entry and new_novel.is_same_title_game:
-                    title_proposal = TitleProposal.objects.filter(title=new_novel.title).first()
-                    proposer_instance = title_proposal.proposer if title_proposal else request.user
-                    
-                    MonthlySameTitleInfo.objects.create(
-                        title=new_novel.title,
-                        author=request.user,
-                        proposer=proposer_instance,
-                        published_date=timezone.now(),
-                        month=current_month,
-                        novel=new_novel  # 保存済みのnovelを使用
-                    )
-                    messages.success(request, 'やったね！あんたが今月の一番槍や！')
 
                 # 正しいURL名を使用してリダイレクト
                 return redirect(reverse('game_same_title:post_or_edit_same_title_with_id', kwargs={'novel_id': new_novel.id}))
@@ -498,30 +505,29 @@ def post_or_edit_same_title(request, novel_id=None):
                 novel.published_date = timezone.now()
                 novel.save()
                 
-                # その小説のsame_title_event_monthの月の一番槍情報があるかチェック
-                target_month = novel.same_title_event_month
-                existing_entry = MonthlySameTitleInfo.objects.filter(
-                    month=target_month,
-                    novel__status='published'  # 公開済みの小説のみをチェック
-                ).exists()
-                
-                # 一番槍の処理（その月最初の公開時のみ）
-                if not existing_entry and novel.is_same_title_game:
-                    title_proposal = TitleProposal.objects.filter(
-                        title=novel.title,
-                        proposal_month=target_month
-                    ).first()
-                    proposer_instance = title_proposal.proposer if title_proposal else request.user
+                # 一番槍の処理（公開時のみ）
+                if novel.is_same_title_game:
+                    target_month = novel.same_title_event_month
+                    existing_entry = MonthlySameTitleInfo.objects.filter(month=target_month).exists()
                     
-                    MonthlySameTitleInfo.objects.create(
-                        title=novel.title,
-                        author=request.user,
-                        proposer=proposer_instance,
-                        published_date=timezone.now(),
-                        month=target_month,
-                        novel=novel
-                    )
-                    messages.success(request, 'やったね！あんたが今月の一番槍や！')
+                    if not existing_entry:
+                        title_proposal = TitleProposal.objects.filter(
+                            title=novel.title,
+                            proposal_month=target_month
+                        ).first()
+                        proposer_instance = title_proposal.proposer if title_proposal else request.user
+                        
+                        logger.info("🔴 公開時の一番槍作成！")
+
+                        MonthlySameTitleInfo.objects.create(
+                            title=novel.title,
+                            author=request.user,
+                            proposer=proposer_instance,
+                            published_date=timezone.now(),
+                            month=target_month,
+                            novel=novel
+                        )
+                        messages.success(request, 'やったね！あんたが今月の一番槍や！')
                 return redirect('game_same_title:same_title')
 
             elif action == 'rest':
@@ -573,6 +579,9 @@ def post_or_edit_same_title(request, novel_id=None):
     logger.debug(f"くぅうううううううううううううううううううううんForm title value: {form['title'].value()}")
 
     return render(request, 'game_same_title/same_title_post_or_edit.html', context)
+
+
+
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
