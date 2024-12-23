@@ -108,6 +108,29 @@
             padding: 1rem !important;
         }
     }
+
+    /* テキストエリアとその親要素の余白を調整 */
+    .form-group {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        margin-left: 15px !important;
+        margin-right: 15px !important;
+    }
+
+    textarea.content, 
+    textarea.form-control.content {
+        width: calc(100% - 30px) !important;
+        margin-left: 15px !important;
+        margin-right: 15px !important;
+        height: auto !important;
+        min-height: 300px !important;
+        
+        /* スクロール関連 */
+        overflow: auto !important;
+        -webkit-overflow-scrolling: unset !important;
+        overscroll-behavior: none !important;
+        resize: none !important;
+    }
 </style>
 
 <div class="container mt-5">
@@ -346,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
         requiredPhrases.forEach(function(phrase, index) {
             var phraseElement = document.getElementById('phrase-' + (index + 1));
             if (content.includes(phrase.toLowerCase())) {
-                usedPhrases.add(phrase); // Setを使用して重複を自動的に排除
+                usedPhrases.add(phrase); // Setを使用���て重複を自動的に排除
                 phraseElement.style.backgroundColor = 'blue';
                 phraseElement.style.color = 'white';
             } else {

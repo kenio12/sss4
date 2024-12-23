@@ -88,23 +88,27 @@
         </div>
 
         <style>
-            /* テキストエリアを風船のように自由に伸縮 */
-            textarea.content {
-                /* 高さを内容に合わせて自動調整 */
-                height: fit-content !important;
-                min-height: 0 !important;
-                max-height: none !important;
+            /* テキストエリアとその親要素の余白を調整 */
+            .form-group {
+                padding-left: 15px !important;
+                padding-right: 15px !important;
+                margin-left: 15px !important;
+                margin-right: 15px !important;
+            }
+
+            textarea.content, 
+            textarea.form-control.content {
+                width: calc(100% - 30px) !important;
+                margin-left: 15px !important;
+                margin-right: 15px !important;
+                height: auto !important;
+                min-height: 300px !important;
                 
-                /* 内容に合わせて自動的に広がる */
-                overflow: hidden !important;
-                
-                /* 基本設定 */
-                width: 100% !important;
-                line-height: 1.5 !important;
-                padding: 1rem !important;
-                
-                /* サイズ変更は縦方向のみ許可 */
-                resize: vertical !important;
+                /* スクロール関連 */
+                overflow: auto !important;
+                -webkit-overflow-scrolling: unset !important;
+                overscroll-behavior: none !important;
+                resize: none !important;
             }
         </style>
 
