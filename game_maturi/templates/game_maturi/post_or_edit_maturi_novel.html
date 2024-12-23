@@ -92,22 +92,39 @@
         line-height: 1.5 !important;    /* 行間を調整 */
     }
 
-    /* モバイル向けの調整を修正 */
+    /* モバイル向けの調整をさらに修正 */
     @media (max-width: 768px) {
         textarea.content {
-            position: relative !important;  /* static から relative に変更 */
+            position: relative !important;
             width: 100% !important;
-            min-height: 50vh !important;   /* 最小の高さを画面の半分に */
-            height: auto !important;       /* 高さを自動調整に変更 */
+            min-height: 50vh !important;
+            height: auto !important;
             margin: 0.5rem 0 !important;
             padding: 1rem !important;
             border: 2px solid #666 !important;
             border-radius: 8px !important;
-            overflow-y: visible !important;  /* スクロール制限を解除 */
+            
+            /* スクロール関連の設定を強化 */
+            overflow: auto !important;  /* visible から auto に変更 */
+            -webkit-overflow-scrolling: touch !important;
+            overscroll-behavior: auto !important;  /* バウンス効果を許可 */
+            touch-action: pan-y pinch-zoom !important;  /* 垂直スクロールとズームを許可 */
+            
+            /* パフォーマンス改善 */
+            will-change: transform !important;  /* スクロールのパフォーマンスを改善 */
+            transform: translateZ(0) !important;  /* GPUアクセラレーションを有効化 */
+            
+            /* フォント設定 */
             font-size: 20px !important;
             line-height: 1.8 !important;
-            -webkit-overflow-scrolling: touch !important;
-            touch-action: manipulation !important;  /* タッチ操作を改善 */
+            
+            /* 下部の余白を確保 */
+            margin-bottom: 100px !important;  /* フッターのワードカウントに被らないように */
+        }
+        
+        /* コンテナにも余白を追加 */
+        .container {
+            padding-bottom: 120px !important;  /* フッターに余裕を持たせる */
         }
     }
 </style>
@@ -177,7 +194,7 @@
                 </div>
             {% endif %}
             <small class="form-text text-muted">
-                ※ タイ��ルの頭文字のふりがなは必須です。入力してださい。
+                ※ タイトルの頭文字のふりがなは必須です。入力してださい。
             </small>
         </div>
 
@@ -231,7 +248,7 @@
                 </div>
             {% endif %}
         {% else %}
-            <!-- 下書きの���合の処理 -->
+            <!-- 下書きの場合の処理 -->
             {% if is_writing_period %}
                 {% if novel.status == 'scheduled' %}
                     <!-- 予約公開中の場合 -->
@@ -275,7 +292,7 @@
                                     class="btn btn-primary" 
                                     style="margin:5px !important;" 
                                     onclick="return confirmPublish()"
-                                    title="即時公開しま��">
+                                    title="即時公開します">
                                     公開する
                             </button>
                         {% else %}
@@ -410,7 +427,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
         return confirm(
-            '小説を予約公開します。\n\n' +
+            '小説を予約公開し���す。\n\n' +
             '予約すると、{{ current_game.prediction_start_date|date:"Y年m月d日" }}に自動的に公開されます。\n' +
             '予約後も公開日まではいつでも編集可能です。\n\n' +
             'よろしいですか？'
