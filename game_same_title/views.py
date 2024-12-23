@@ -309,7 +309,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 from .models import TitleProposal, SameTitleEntry
-from .forms import NovelForm  # 必要なフォームをインポート
+from .forms import NovelForm  # 必要なフォームをイ��ポート
 from django.shortcuts import render, redirect
 from django.http import HttpResponseForbidden
 import datetime
@@ -432,7 +432,26 @@ def post_or_edit_same_title(request, novel_id=None):
                 if new_novel.is_same_title_game:
                     new_novel.genre = '同タイトル'
                     print("Genre set to 同タイトル")
-                new_novel.save()
+                new_novel.save()  # ここで先にnovelを保存
+
+                # 一番槍の処理（必要な場合）
+                current_month = timezone.now().strftime('%Y-%m')
+                existing_entry = MonthlySameTitleInfo.objects.filter(month=current_month).first()
+                
+                if not existing_entry and new_novel.is_same_title_game:
+                    title_proposal = TitleProposal.objects.filter(title=new_novel.title).first()
+                    proposer_instance = title_proposal.proposer if title_proposal else request.user
+                    
+                    MonthlySameTitleInfo.objects.create(
+                        title=new_novel.title,
+                        author=request.user,
+                        proposer=proposer_instance,
+                        published_date=timezone.now(),
+                        month=current_month,
+                        novel=new_novel  # 保存済みのnovelを使用
+                    )
+                    messages.success(request, 'やったね！あんたが今月の一番槍や！')
+
                 # 正しいURL名を使用してリダイレクト
                 return redirect(reverse('game_same_title:post_or_edit_same_title_with_id', kwargs={'novel_id': new_novel.id}))
             else:
@@ -463,7 +482,7 @@ def post_or_edit_same_title(request, novel_id=None):
                     if action == 'draft':
                         return redirect('game_same_title:post_or_edit_same_title_with_id', novel_id=novel.id)
                     elif action == 'rest':
-                        return redirect('game_same_title:same_title')
+                        return redirect('accounts:view_profile')
                 elif action == 'publish':
                     if form.is_valid():
                         novel.content = form.cleaned_data['content']
