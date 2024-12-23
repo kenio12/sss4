@@ -19,7 +19,7 @@ class NovelForm(ModelForm):
         initial=True,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
-    status = forms.CharField(widget=forms.HiddenInput(), required=False, initial='published')
+    status = forms.CharField(widget=forms.HiddenInput(), required=False, initial='draft')
 
     def clean(self):
         """バリデーション時に同タイトル設定を強制"""
