@@ -39,9 +39,12 @@ class NovelForm(ModelForm):
         # 新規作成時のみ月を設定（既存の月は変更しない）
         if not novel.pk and not novel.same_title_event_month:
             novel.same_title_event_month = timezone.now().strftime('%Y-%m')
+        
+        if commit:
+            novel.save()
             
-            # 一番槍の場合はMonthlySameTitleInfoも作成
-            if not MonthlySameTitleInfo.objects.filter(month=novel.same_title_event_month).exists():
+            # 一番槍の処理は、novelが保存された後に行う
+            if not novel.pk and not MonthlySameTitleInfo.objects.filter(month=novel.same_title_event_month).exists():
                 MonthlySameTitleInfo.objects.create(
                     novel=novel,
                     title=novel.title,
@@ -50,9 +53,6 @@ class NovelForm(ModelForm):
                     published_date=timezone.now().date(),
                     month=novel.same_title_event_month
                 )
-        
-        if commit:
-            novel.save()
         
         return novel
 
