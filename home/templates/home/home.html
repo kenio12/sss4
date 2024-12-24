@@ -190,8 +190,10 @@ document.addEventListener('DOMContentLoaded', function() {
         {% endif %}
 
         <!-- 同タイトル小説ボタン -->
-        <div class="home-btn home-btn-list home-btn-list-blue" title="同タイトル小説" onclick="showMaintenanceDialog()">
-            <img src="{% static 'home/images/dou_game.svg' %}" alt="Icon" style="width: 100%; height: auto;">
+        <div class="home-btn home-btn-list home-btn-list-blue" title="同タイトル小説">
+            <a href="{% url 'game_same_title:same_title' %}">
+                <img src="{% static 'home/images/dou_game.svg' %}" alt="Icon" style="width: 100%; height: auto;">
+            </a>
         </div>
 
         <div class="home-btn home-btn-list home-btn-list-purple" title="このサイトについて">
@@ -255,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="novels-list-container">
     <div class="sss-novels-list">
         {% for novel in latest_novels|slice:":4" %}
-            <!-- PC表示�� -->
+            <!-- PC表示 -->
             <div class="sss-novel-row pc-view">
                 <div class="sss-date">{{ novel.published_date|date:"Y/m/d" }}</div>
                 <div class="sss-genre">{{ novel.genre }}</div>
@@ -313,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
         width: 100%; /* 画像の幅を100%に設定 */
         height: auto; /* 高さは自動で調整 */
         max-height: 430px; /* 最大の高さを500pxに設定 */
-        object-fit: cover; /* コンテナのサイズに合わせて画像をトリミ���グ */
+        object-fit: cover; /* コンテナのサイズに合わせて画像をトリミング */
     }
     .image-container {
         position: relative; /* 相対位置 */
@@ -350,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 .responsive-image {
-    max-width: 100%; /* コンテナの幅に合わせ��調整 */
+    max-width: 100%; /* コンテナの幅に合わせて調整 */
     height: auto; /* 高さは自動で調整 */
 }
     .home-btn {
