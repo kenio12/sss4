@@ -349,7 +349,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class CustomPasswordResetView(PasswordResetView):
-    template_name = 'accounts/password_reset_form.html'  # パスワードリセットフォームのテンプレート
+    template_name = 'accounts/password_reset_form.html'  # パスワードリセットフォームのテンプ���ート
     email_template_name = 'accounts/password_reset_email.html'  # パスワードリセットメールのテンプレート
     subject_template_name = 'accounts/password_reset_subject.txt'  # メールの件名のテンプレート
     success_url = reverse_lazy('accounts:password_reset_done')  # パスワードリセット完了後のリダイレクト先
@@ -412,4 +412,35 @@ class CustomPasswordChangeView(PasswordChangeView):
     def get_success_url(self):
         # 念のため、ここでも設定（動的なURLが必要な場合用）
         return reverse('accounts:view_profile')
+    
+
+def resend_activation(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email, is_active=False)
+            
+            # 認証メールを再送信
+            current_site = get_current_site(request)
+            mail_subject = 'アカウントを有効化してください'
+            message = render_to_string('accounts/activation_email.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+            
+            # メール送信
+            send_mail(mail_subject, message, 'noreply@example.com', [email])
+            
+            # ログを残す
+            logger.info(f"Activation email resent to {email}")
+            messages.success(request, '認証メールを再送信しました。')
+            
+        except User.DoesNotExist:
+            messages.error(request, 'このメールアドレスは登録されていないか、既に認証済みです。')
+        
+        return redirect('accounts:login')
+    
+    return render(request, 'accounts/resend_activation.html')
     
