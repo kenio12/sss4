@@ -14,12 +14,8 @@ from utils.constants import INITIAL_CHOICES
 
 class NovelForm(ModelForm):
     initial = forms.ChoiceField(choices=INITIAL_CHOICES, label='イニシャル', required=False)
-    is_same_title_game = forms.BooleanField(
-        required=False,
-        initial=True,
-        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
-    )
-    status = forms.CharField(widget=forms.HiddenInput(), required=False, initial='draft')
+    is_same_title_game = forms.BooleanField(label='同タイトル', required=False, initial=True)
+    status = forms.CharField(widget=forms.HiddenInput(), required=False, initial='published')
 
     def clean(self):
         """バリデーション時に同タイトル設定を強制"""
@@ -39,6 +35,18 @@ class NovelForm(ModelForm):
         # 新規作成時のみ月を設定（既存の月は変更しない）
         if not novel.pk and not novel.same_title_event_month:
             novel.same_title_event_month = timezone.now().strftime('%Y-%m')
+            
+            # 公開状態かつ一番槍の場合はMonthlySameTitleInfoも作成
+            if novel.status == 'published' and not MonthlySameTitleInfo.objects.filter(month=novel.same_title_event_month).exists():
+                novel.save()  # 先にnovelを保存
+                MonthlySameTitleInfo.objects.create(
+                    novel=novel,
+                    title=novel.title,
+                    author=novel.author,
+                    proposer=novel.author,  # 一番槍の場合は作者が提案者
+                    published_date=timezone.now().date(),
+                    month=novel.same_title_event_month
+                )
         
         if commit:
             novel.save()
@@ -48,13 +56,6 @@ class NovelForm(ModelForm):
     class Meta:
         model = Novel
         fields = ['title', 'content', 'is_same_title_game', 'initial', 'status']
-        widgets = {
-            'content': forms.Textarea(attrs={
-                'class': 'form-control content',
-                'placeholder': 'ここに小説の中身をお書きどす。ここは自動保存がないので、こまめに保存してや！',
-                'maxlength': '10000'
-            }),
-        }
 
 
 class CommentForm(forms.ModelForm):
