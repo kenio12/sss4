@@ -120,33 +120,35 @@ def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-
-    if user is not None and default_token_generator.check_token(user, token):
-        if not user.is_active:
+        
+        # デバッグログを追加
+        logger.info(f"Activation attempt for user {user.email}")
+        logger.info(f"Token valid: {default_token_generator.check_token(user, token)}")
+        
+        if user is not None and default_token_generator.check_token(user, token):
+            # 確実にアクティブ化
             user.is_active = True
             user.save()
-            # ユーザーをログインさせる
-            # ログイン前のセッションID
-            print("ログイン前のセッションID:", request.session.session_key)
-    
-            # ログイン処理
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    
-            # ログイン後のセッションID
-            print("ログイン後のセッションID:", request.session.session_key)
-            # プロフィールページにリダイレクト
-            return redirect('accounts:view_profile')  # ここを変更
+            
+            # ログを残す
+            logger.info(f"User {user.email} activated successfully. is_active: {user.is_active}")
+            
+            # ユーザーにメッセージを表示
+            messages.success(request, 'メール認証が完了しました！ログインしてください。')
+            
+            return redirect('accounts:login')
         else:
-            # ユーザーが既にアクティブな場合、ログインしてプロフィールページにリダイレクト
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            return redirect('accounts:view_profile')  # ここも変更
-    else:
-        # 無効なリンクの場合の処理
-        messages.error(request, 'メール確認リンクが無効です。')
-        return redirect('home:home')
-    
+            # 認証失敗時のログ
+            logger.error(f"Activation failed for user {user.email} with token {token}")
+            messages.error(request, '認証リンクが無効です。')
+            return redirect('accounts:login')
+            
+    except Exception as e:
+        # エラー時のログ
+        logger.error(f"Activation error: {str(e)}")
+        messages.error(request, '認証処理中にエラーが発生しました。')
+        return redirect('accounts:login')
+
 def email_confirmation_sent(request):
     # ユーザーに表示するメッセージ
     message = "確認メールを送信しました。メール内のリンクをクリックして登録を完了してください。もし受信ボックスにない場合、迷惑メールのボックスを見てください！"

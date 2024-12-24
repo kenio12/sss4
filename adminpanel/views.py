@@ -23,8 +23,12 @@ def is_admin(user):
 @user_passes_test(is_admin)
 def maturi_game_setup(request):
     User = get_user_model()
-    game = None  # 新規作成時はNoneを設定
+    game = None  # 新規作成時はNone
     entrants = []  # 新規作成時は空のリスト
+    
+    # titlesの初期化をif-else文の外に移動
+    selected_year = datetime.datetime.now().year
+    titles = MonthlySameTitleInfo.objects.filter(month__startswith=str(selected_year)).values_list('title', flat=True)
     
     if request.method == 'POST':
         form = MaturiGameForm(request.POST)
@@ -52,13 +56,10 @@ def maturi_game_setup(request):
                 logger.error(f"Error in maturi_game_setup: {str(e)}")
                 messages.error(request, f'エラーが発生しました: {str(e)}')
         else:
-            # フォームのエラーをユーザーに表示
             messages.error(request, 'フォームの入力内容に問題があります。')
             logger.error(f"Form errors: {form.errors}")
     else:
         form = MaturiGameForm()
-        selected_year = datetime.datetime.now().year
-        titles = MonthlySameTitleInfo.objects.filter(month__startswith=str(selected_year)).values_list('title', flat=True)
 
     context = {
         'form': form,
@@ -66,7 +67,7 @@ def maturi_game_setup(request):
         'errors': form.errors if hasattr(form, 'errors') else None,
         'all_users': User.objects.all(),
         'game': game,
-        'entrants': entrants,  # ここでentrantsをコンテキストに追加
+        'entrants': entrants,
     }
     return render(request, 'adminpanel/maturi_game_setup.html', context)
 
