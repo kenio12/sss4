@@ -57,7 +57,7 @@ def game_maturi_top(request, game_id):
     # novel_predictionsをここで初期化
     novel_predictions = {}
     
-    # ユーザーがゲームに参加して���るかチェック
+    # ユーザーがゲームに参加しているかチェック
     is_user_entered = False
     novel_predictions = {}  # ここで初期化
     
@@ -362,7 +362,7 @@ def post_or_edit_maturi_novel(request, novel_id=None):
             try:
                 maturi_writer = User.objects.get(nickname='祭り作家')
             except User.DoesNotExist:
-                # 祭り作家が存在しない場合は作���
+                # 祭り作家が存在しない場合は作成
                 maturi_writer, _ = User.objects.get_or_create(
                     username='maturi_writer',
                     defaults={
@@ -533,10 +533,15 @@ logger = logging.getLogger(__name__)
 # @freeze_time("2024-12-20")
 @login_required
 def entry_action(request, game_id):
+    # 既存のコードをチェック
+    if not request.user.is_authenticated:  # 念のための追加チェック
+        messages.error(request, '祭りにエントリーするには、ログインが必要です。')
+        return redirect('accounts:login')  # ログインページにリダイレクト
+    
     game = get_object_or_404(MaturiGame, pk=game_id)
     user_entered = game.is_user_entered(request.user)
     
-    # デバッグ出力��追加
+    # デバッグ出力を追加
     now = timezone.now()
     logger.debug(f"=== Entry Period Debug ===")
     logger.debug(f"Current time: {now}")
@@ -837,7 +842,7 @@ def maturi_list(request):
 #     for novel in novels:
 #         print(f"Processing novel {novel.id}: {novel.title}")  # デバッグ出力
         
-#         # この作品に対する全予想を取��
+#         # この作品に対する全予想を取得
 #         novel_predictions = all_predictions.filter(novel=novel)  # ここを修正：predictions -> all_predictions
 #         total = novel_predictions.count()
         
@@ -935,7 +940,7 @@ def maturi_list(request):
     return render(request, 'game_maturi/game_maturi_top.html', context)
 
 # 進捗計算用の関数
-# @freeze_time("2024-12-20")  # 12月16日に��定
+# @freeze_time("2024-12-20")  # 12月16日に固定
 def calculate_progress(game, today):
     start_date = game.maturi_start_date
     end_date = game.maturi_end_date
@@ -1077,7 +1082,7 @@ def cancel_prediction(request):
         else:
             return JsonResponse({
                 'success': False,
-                'message': '予想が見つかりま��ん'
+                'message': '予想が見つかりません'
             }, status=404)
             
     except Exception as e:

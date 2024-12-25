@@ -596,12 +596,19 @@
 
                 <section>
                     <h2>エントリー</h2>
-                    <form action="{% url 'game_maturi:entry_action' game_id=game.id %}" method="post" style="text-align: left; margin: 20px 0;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success btn-lg">
-                            エントリーする！
-                        </button>
-                    </form>
+                    {% if user.is_authenticated %}
+                        <form action="{% url 'game_maturi:entry_action' game_id=game.id %}" method="post" style="text-align: left; margin: 20px 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-lg">
+                                エントリーする！
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <h4>ログインが必要です</h4>
+                            <p>祭りにエントリーするには、ログインが必要です。右上のログインまたはサインアップからログインをお願いします。</p>
+                        </div>
+                    {% endif %}
                 </section>
             {% endif %}
 
