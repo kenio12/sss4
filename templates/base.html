@@ -219,41 +219,95 @@
     <div class="fixed-header navbar navbar-expand-lg navbar-light bg-light d-flex justify-content-between">
         <span>
             {% include 'side_panel.html' %}
-
             <a href="{% url 'home:home' %}" id="brand-name" style="color: inherit; text-decoration: none;">超短編小説会 Ⅳ</a>
-            <script>
-                // ページ読み込み時に即座に実行
-                (function() {
-                    function updateBrandName() {
-                        if (window.innerWidth <= 768) {
-                            document.getElementById('brand-name').textContent = 'S4';
-                        } else {
-                            document.getElementById('brand-name').textContent = '超短編小説会 Ⅳ';
-                        }
-                    }
-                    
-                    // 初回実行
-                    updateBrandName();
-                    
-                    // ウィンドウサイズが変更されたときにも実行
-                    window.addEventListener('resize', updateBrandName);
-                })();
-            </script>
-
-{% if user.is_authenticated %}
-    <div id="unread-comments">
-        {% for novel in latest_unread_novels %}
-            <script>
-                console.log('Base.html - Novel ID:', {{ novel.id }}, 'Color:', {{ novel.color_index }});
-            </script>
-            <a href="{% url 'novels:novel_detail' novel.id %}" class="comment-link" title="未読コメント">
-                <div class="comment-icon-container color-{{ novel.color_index }}">
-                    <span class="unread-count">{{ novel.unread_count }}</span>
+            
+            <!-- 管理者向け非アクティブユーザー通知を改善 -->
+            {% if user.is_superuser %}
+                <div class="inactive-users-alert" style="display: inline-block; margin-left: 10px;">
+                    {% if inactive_users %}
+                        <div class="inactive-users-summary" style="
+                            background-color: #ff4444;
+                            color: white;
+                            padding: 2px 8px;
+                            border-radius: 12px;
+                            font-size: 0.8em;
+                            cursor: pointer;
+                            display: inline-flex;
+                            align-items: center;
+                        ">
+                            <i class="fas fa-user-clock" style="margin-right: 4px;"></i>
+                            <span>非{{ inactive_users|length }}名</span>
+                        </div>
+                        
+                        <!-- ポップアップで詳細表示 -->
+                        <div class="inactive-users-details" style="
+                            display: none;
+                            position: absolute;
+                            background: white;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                            padding: 10px;
+                            z-index: 1000;
+                            margin-top: 5px;
+                            min-width: 200px;
+                        ">
+                            <div style="
+                                border-bottom: 2px solid #ff4444;
+                                padding-bottom: 5px;
+                                margin-bottom: 8px;
+                                font-weight: bold;
+                                color: #ff4444;
+                            ">
+                                <i class="fas fa-user-clock"></i> 非アクティブユーザー
+                            </div>
+                            {% for inactive_user in inactive_users %}
+                                <a href="{% url 'admin:accounts_user_change' inactive_user.id %}" 
+                                   style="
+                                       display: block;
+                                       padding: 5px;
+                                       color: #333;
+                                       text-decoration: none;
+                                       border-bottom: 1px solid #eee;
+                                   ">
+                                    <i class="fas fa-user" style="margin-right: 4px;"></i>
+                                    {{ inactive_user.nickname }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
-            </a>
-        {% endfor %}
-    </div>
-{% endif %}
+
+                <script>
+                    document.querySelector('.inactive-users-summary').addEventListener('click', function(e) {
+                        const details = document.querySelector('.inactive-users-details');
+                        details.style.display = details.style.display === 'none' ? 'block' : 'none';
+                        e.stopPropagation();
+                    });
+
+                    document.addEventListener('click', function(e) {
+                        if (!e.target.closest('.inactive-users-alert')) {
+                            document.querySelector('.inactive-users-details').style.display = 'none';
+                        }
+                    });
+                </script>
+            {% endif %}
+
+            <!-- 未読コメント表示は既存のまま -->
+            {% if user.is_authenticated %}
+                <div id="unread-comments">
+                    {% for novel in latest_unread_novels %}
+                        <script>
+                            console.log('Base.html - Novel ID:', {{ novel.id }}, 'Color:', {{ novel.color_index }});
+                        </script>
+                        <a href="{% url 'novels:novel_detail' novel.id %}" class="comment-link" title="未読コメント">
+                            <div class="comment-icon-container color-{{ novel.color_index }}">
+                                <span class="unread-count">{{ novel.unread_count }}</span>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </span>
 
         <div class="d-flex align-items-center">

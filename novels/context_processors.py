@@ -1,5 +1,6 @@
 from django.core.cache import cache
 from django.db.models import Count, Q, Max
+from django.contrib.auth import get_user_model
 from .models import Novel, Comment
 
 # 現在使用されていない？ 要確認
@@ -67,5 +68,22 @@ def latest_unread_novels(request):
         }
     return {
         'latest_unread_novels': []
+    }
+
+# 管理者向けの非アクティブユーザー通知
+def inactive_users_processor(request):
+    """管理者向けに非アクティブユーザーの情報を提供"""
+    if request.user.is_authenticated and request.user.is_superuser:
+        User = get_user_model()
+        inactive_users = User.objects.filter(
+            is_active=False,
+            email__isnull=False  # メールアドレスが設定されているユーザーのみ
+        ).order_by('-date_joined')[:5]  # 最新5件まで表示
+        
+        return {
+            'inactive_users': inactive_users
+        }
+    return {
+        'inactive_users': []
     }
 

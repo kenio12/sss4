@@ -99,8 +99,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'novels.context_processors.latest_unread_novels',  # これ1つだけ残す
-                # 'novels.context_processors.unread_comments_count_processor',
-                
+                'novels.context_processors.inactive_users_processor',  # これを追加
             ],
         },
     },
