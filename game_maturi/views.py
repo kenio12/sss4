@@ -1019,6 +1019,12 @@ def add_prediction_results_to_context(current_game, context):
 
 @require_http_methods(["POST"])
 def predict_author(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': '作者予想をするには、ログインが必要です。'
+        }, status=403)
+        
     try:
         data = json.loads(request.body)
         novel_id = data.get('novel_id')
@@ -1036,6 +1042,8 @@ def predict_author(request):
         if not maturi_game:
             raise ValueError("小説に関連する祭りが見つかりません")
 
+        # エントリーチェックを削除
+        
         # 予想を保存
         prediction, created = GamePrediction.objects.update_or_create(
             novel_id=novel_id,

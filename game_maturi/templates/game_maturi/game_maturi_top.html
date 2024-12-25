@@ -969,78 +969,19 @@
 
     {% if game.is_prediction_period %}
         <section>
-            <h2>あなたの予想フォーム</h2>
-            {% if request.user.is_authenticated %}
-                {% if novels %}
-                    <form method="post" action="{% url 'game_maturi:submit_prediction' %}" id="prediction-form">
-                        {% csrf_token %}
-                        <table class="schedule-table">
-                            <thead>
-                                <tr>
-                                    <th>作品タイトル</th>
-                                    <th>作者予想</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for novel in novels|dictsort:"title" %}
-                                    <tr>
-                                        <td>
-                                            <a href="{% url 'novels:novel_detail' novel_id=novel.id %}">{{ novel.title }}</a>
-                                        </td>
-                                        <td>
-                                            <select name="prediction_{{ novel.id }}" 
-                                                    class="prediction-select" 
-                                                    data-novel-id="{{ novel.id }}">
-                                                <option value="">作者を選択</option>
-                                                {% for author in active_authors %}
-                                                    <option value="{{ author.id }}"
-                                                        {% with pred_author=novel_predictions|get_item:novel.id|get_item:"predicted_author" %}
-                                                        {% if novel_predictions and novel.id in novel_predictions and pred_author.id == author.id %}
-                                                            selected
-                                                        {% endif %}
-                                                        {% endwith %}>
-                                                        {{ author.nickname }}
-                                                    </option>
-                                                {% endfor %}
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <!-- デバッグ表示 -->
-                                    {% if debug %}
-                                    <div style="display:none;">
-                                        <p>Novel ID: {{ novel.id }}</p>
-                                        <p>Predictions: {{ novel_predictions|json_script:"predictions-data" }}</p>
-                                        {% if novel.id in novel_predictions %}
-                                            <p>Found prediction for this novel</p>
-                                            <p>Predicted author: {{ novel_predictions|get_item:novel.id|get_item:"predicted_author"|get_item:"nickname" }}</p>
-                                        {% endif %}
-                                    </div>
-                                    {% endif %}
-                                {% endfor %}
-                            </tbody>
+            <h2>作者予想</h2>
+            {% if user.is_authenticated %}
+                <form id="prediction-form" method="post">
+                    {% csrf_token %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <!-- 予想フォームの内容 -->
                         </table>
-                        <div style="margin-top: 20px; text-align: left;">
-
-                            <div class="mt-2">
-                                <small>予想は結果発表まで他の参加者には見えません。</small>
-                            </div>
-                        </div>
-                    </form>
-                {% else %}
-                    {% if game.has_scheduled_novels %}
-                        <div class="alert alert-info">
-                            <p>小説はまもなく公開されます。しばらくお待ちください。</p>
-                            <p>公開予定日時: {{ game.novel_publish_start_date|date:"Y年m月d日 H:i" }}</p>
-                        </div>
-                    {% else %}
-                        <div class="alert alert-warning">
-                            <p>まだ祭り小説の予約投稿がありません。</p>
-                        </div>
-                    {% endif %}
-                {% endif %}
+                    </div>
+                </form>
             {% else %}
                 <div class="alert alert-info">
-                    <p>予想するにはログインが必要です。</p>
+                    <p>作者予想をするには、ログインが必要です。右上のログインまたはサインアップからログインをお願いします。</p>
                 </div>
             {% endif %}
         </section>
