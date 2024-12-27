@@ -71,35 +71,3 @@ def latest_unread_novels(request):
         'latest_unread_novels': []
     }
 
-# 管理者向けの非アクティブユーザー通知
-def inactive_users_processor(request):
-    """管理者向けに非アクティブユーザーの情報を提供"""
-    if request.user.is_authenticated and request.user.is_superuser:
-        User = get_user_model()
-        inactive_users = User.objects.filter(
-            is_active=False,
-            email__isnull=False  # メールアドレスが設定されているユーザーのみ
-        ).order_by('-date_joined')[:5]  # 最新5件まで表示
-        
-        return {
-            'inactive_users': inactive_users
-        }
-    return {
-        'inactive_users': []
-    }
-
-# 管理者向けのお問い合わせ通知を追加
-def pending_contacts_processor(request):
-    """管理者向けに未対応のお問い合わせ情報を提供"""
-    if request.user.is_authenticated and request.user.is_staff:
-        pending_contacts = Contact.objects.filter(
-            status='pending'  # is_resolvedの代わりにstatusを使用
-        ).order_by('-created_at')
-        
-        return {
-            'pending_contacts': pending_contacts
-        }
-    return {
-        'pending_contacts': []
-    }
-

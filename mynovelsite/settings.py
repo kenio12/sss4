@@ -88,10 +88,7 @@ ROOT_URLCONF = 'mynovelsite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),
-            os.path.join(BASE_DIR, 'game_maturi', 'templates'),  # これを追加
-        ],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -99,9 +96,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'novels.context_processors.latest_unread_novels',  # これ1つだけ残す
-                'novels.context_processors.inactive_users_processor',  # これを追加
-                'novels.context_processors.pending_contacts_processor',  # これを追加
+                'novels.context_processors.latest_unread_novels',  # これだけ残す
             ],
         },
     },

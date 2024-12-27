@@ -12,41 +12,53 @@ from django.utils import timezone
 from django.views.generic import ListView
 from announcements.models import Announcement
 from game_maturi.models import MaturiGame
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth import get_user_model
+from contacts.models import Contact
 
-class HomePageView(TemplateView):
+class HomePageView(ListView):
+    model = Novel
     template_name = 'home/home.html'
+    context_object_name = 'latest_novels'
+    paginate_by = 10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        novels_list = Novel.objects.all().order_by('-published_date')
+        now = timezone.now()
         
-        # ページネーションの設定
-        paginator = Paginator(novels_list, 5)  # 1ページあたり5項目を表示
-        page_number = self.request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        
-        # コンテキストにページオブジェクトを追加
-        context['page_obj'] = page_obj
-
-        # 現在の月をコンテキストに追加（文字列に変換）
-        context['now'] = str(datetime.now().month)
-        
-        # 最新の公開済み小説を6件に制限
-        context['latest_novels'] = Novel.objects.filter(
-            status='published'
-        ).select_related('author').order_by(
-            '-published_date'
-        )[:2]  # ここを4から2に変更
-        
-        # お知らせを取得（固定表示を優先、最新2件）
+        # 既存のコンテキスト
+        context['now'] = now.strftime('%m')
         context['announcements'] = Announcement.objects.filter(
+            is_pinned=True,
             is_active=True
-        ).order_by('-is_pinned', '-created_at')[:2]
+        ).order_by('-created_at')[:3]
         
-        # 現在開催中の祭りを取得
-        context['current_maturi_game'] = MaturiGame.find_current_game()
-        
+        # 現在開催中の祭りを取得（日付で判定）
+        context['current_maturi_game'] = MaturiGame.objects.filter(
+            start_date__lte=now,
+            end_date__gte=now
+        ).first()
+
+        # 管理者用の追加情報
+        if self.request.user.is_staff:
+            # 未対応のお問い合わせを取得
+            context['pending_contacts'] = Contact.objects.filter(
+                status='pending'
+            ).order_by('-created_at')
+
+            # 非アクティブユーザーを取得
+            User = get_user_model()
+            context['inactive_users'] = User.objects.filter(
+                is_active=False,
+                email__isnull=False
+            ).order_by('-date_joined')[:5]
+
         return context
+
+    def get_queryset(self):
+        return Novel.objects.filter(
+            status='published'
+        ).order_by('-published_date')
 
 
 def novels_list_ajax(request):
@@ -124,4 +136,25 @@ def announcements_list(request):
     return render(request, 'home/announcements_list.html', {
         'announcements': announcements,
     })
+
+@user_passes_test(lambda u: u.is_staff)
+def admin_home(request):
+    # 未対応のお問い合わせを取得
+    pending_contacts = Contact.objects.filter(
+        status='pending'
+    ).order_by('-created_at')
+
+    # 非アクティブユーザーを取得
+    User = get_user_model()
+    inactive_users = User.objects.filter(
+        is_active=False,
+        email__isnull=False
+    ).order_by('-date_joined')[:5]
+
+    context = {
+        'pending_contacts': pending_contacts,
+        'inactive_users': inactive_users,
+    }
+    
+    return render(request, 'home/admin_home.html', context)
 

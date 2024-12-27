@@ -208,13 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </a>
         </div>
 
-        {% if user.is_staff %}
-        <div class="home-btn home-btn-list home-btn-list-silver" title="イベント管理">
-            <a href="{% url 'adminpanel:event_selection' %}">
-                <img src="{% static 'home/images/setting.svg' %}" alt="Icon" style="width: 100%; height: auto;">
-            </a>
-        </div>
-    {% endif %}
+
         
     </div>
 </div>
@@ -309,6 +303,11 @@ document.addEventListener('DOMContentLoaded', function() {
 <footer class="footer">
     <p>Ⓒ超短編小説会</p>
 </footer>
+
+<!-- 管理者用エリア -->
+{% if user.is_staff %}
+    {% include 'home/includes/_admin_area.html' %}
+{% endif %}
 
 <style>
     .responsive-image {
@@ -421,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     .sss-novels-list {
-        margin-bottom: 10px !important;  /* リストと下のボタンの間のマージンも調整 */
+        margin-bottom: 10px !important;  /* リストと下ボタンの間のマージンも調整 */
     }
 
     .button-container-center {
@@ -574,7 +573,7 @@ document.addEventListener('DOMContentLoaded', function() {
         text-decoration: none !important;
     }
 
-    /* スマホ用のボタンスタイル */
+    /* スマホ用ボタンスタイル */
     @media screen and (max-width: 768px) {
         .novels-table + a {
             width: 100% !important;  /* スマホでは幅いっぱい */

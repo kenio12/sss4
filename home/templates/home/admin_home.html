@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- 既存の管理者用コンテンツ -->
+    
+    <!-- 下部に固定表示する通知エリア -->
+    <div class="admin-notifications fixed-bottom mb-4">
+        <div class="container">
+            <!-- お問い合わせ通知 -->
+            {% if pending_contacts %}
+                <div class="alert alert-info notification-card" role="alert">
+                    <a href="{% url 'contacts:contact_list' %}" class="text-decoration-none text-dark">
+                        <div class="notification-item">
+                            <i class="fas fa-envelope"></i>
+                            未対応の問い合わせが {{ pending_contacts.count }} 件あります
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+
+            <!-- 非アクティブユーザー通知 -->
+            {% if inactive_users %}
+                <div class="alert alert-warning notification-card" role="alert">
+                    <div class="notification-item">
+                        <i class="fas fa-user-clock"></i>
+                        非アクティブユーザー（{{ inactive_users|length }}名）
+                        <div class="mt-2">
+                            {% for user in inactive_users %}
+                                <div class="inactive-user-item">
+                                    <a href="{% url 'admin:accounts_user_change' user.id %}" class="text-dark">
+                                        <i class="fas fa-user"></i> {{ user.nickname }}
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-notifications {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.notification-card {
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.notification-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.notification-item {
+    padding: 5px 0;
+}
+
+.inactive-user-item {
+    padding: 3px 0;
+    margin-left: 20px;
+}
+
+.inactive-user-item a {
+    text-decoration: none;
+}
+
+.inactive-user-item a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %} 

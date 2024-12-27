@@ -1,0 +1,121 @@
+<!-- 管理者専用エリア -->
+<div class="admin-area mt-5">
+    <div class="container">
+        <h4 class="mb-4">
+            <i class="fas fa-shield-alt"></i> 管理者用エリア
+        </h4>
+
+        <!-- お問い合わせ通知 -->
+        {% if pending_contacts %}
+            <div class="alert alert-info mb-3" role="alert">
+                <a href="{% url 'contacts:contact_list' %}" class="text-decoration-none text-dark">
+                    <div class="notification-item">
+                        <i class="fas fa-envelope"></i>
+                        未対応のお問い合わせが {{ pending_contacts.count }} 件あります
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- 非アクティブユーザー通知 -->
+        {% if inactive_users %}
+            <div class="alert alert-warning mb-3" role="alert">
+                <div class="notification-item">
+                    <i class="fas fa-user-clock"></i>
+                    非アクティブなままのユーザー {{ inactive_users|length }} 名：
+                    {% for user in inactive_users %}
+                        <a href="{% url 'admin:accounts_user_change' user.id %}" class="text-dark">
+                            {{ user.nickname }}{% if not forloop.last %}、{% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- イベント管理ボタン -->
+        <div class="alert alert-success mb-3" role="alert">
+            <a href="/adminpanel/event-selection/" class="text-decoration-none text-dark">
+                <div class="notification-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    イベント（祭り等）管理
+                </div>
+            </a>
+        </div>
+
+        <!-- 管理者画面ボタン -->
+        <div class="alert alert-danger mb-3" role="alert">
+            <a href="{% url 'admin:index' %}" class="text-decoration-none text-dark">
+                <div class="notification-item">
+                    <i class="fas fa-cog"></i>
+                    総合管理（お知らせ等）
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-area {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .notification-item {
+        display: flex;
+        align-items: center;
+        font-size: 1.1em;
+    }
+
+    .notification-item i {
+        margin-right: 10px;
+        font-size: 1.2em;
+    }
+
+    .alert {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .alert:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .alert-info {
+        background-color: #cce5ff;
+        border-color: #b8daff;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffeeba;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+
+    .alert-primary {
+        background-color: #cce5ff;
+        border-color: #b8daff;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
+    /* リンクのホバー効果 */
+    .alert a:hover {
+        text-decoration: none;
+    }
+
+    /* スマホ対応 */
+    @media screen and (max-width: 768px) {
+        .notification-item {
+            font-size: 1em;
+        }
+    }
+</style> 

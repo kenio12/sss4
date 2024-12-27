@@ -208,6 +208,46 @@
             }
         }
 
+        .notification-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .notification-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .notification-scroll::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        .notification-scroll::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .notification-item {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item {
+            padding: 5px 0;
+        }
+        
+        .alert-info a {
+            color: inherit;
+        }
+        
+        .alert-info:hover {
+            background-color: #b8daff;
+            cursor: pointer;
+        }
+
     </style>
     {% block extra_head %}{% endblock %}
     <!-- Frappe Gantt -->
@@ -223,82 +263,7 @@
                 <span class="d-none d-md-inline">超短編小説会 Ⅳ</span>
                 <span class="d-inline d-md-none">S4</span>
             </a>
-            
-            <!-- 管理者向け非アクティブユーザー通知を改善 -->
-            {% if user.is_superuser %}
-                <div class="inactive-users-alert" style="display: inline-block; margin-left: 10px;">
-                    {% if inactive_users %}
-                        <div class="inactive-users-summary" style="
-                            background-color: #ff4444;
-                            color: white;
-                            padding: 2px 8px;
-                            border-radius: 12px;
-                            font-size: 0.8em;
-                            cursor: pointer;
-                            display: inline-flex;
-                            align-items: center;
-                        ">
-                            <i class="fas fa-user-clock" style="margin-right: 4px;"></i>
-                            <span>非{{ inactive_users|length }}名</span>
-                        </div>
-                        
-                        <!-- ポップアップで詳細表示 -->
-                        <div class="inactive-users-details" style="
-                            display: none;
-                            position: absolute;
-                            background: white;
-                            border: 1px solid #ddd;
-                            border-radius: 4px;
-                            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-                            padding: 10px;
-                            z-index: 1000;
-                            margin-top: 5px;
-                            min-width: 200px;
-                        ">
-                            <div style="
-                                border-bottom: 2px solid #ff4444;
-                                padding-bottom: 5px;
-                                margin-bottom: 8px;
-                                font-weight: bold;
-                                color: #ff4444;
-                            ">
-                                <i class="fas fa-user-clock"></i> 非アクティブユーザー
-                            </div>
-                            {% for inactive_user in inactive_users %}
-                                <div class="inactive-user-item" style="
-                                    padding: 5px; 
-                                    border-bottom: 1px solid #eee;
-                                ">
-                                    <a href="{% url 'admin:accounts_user_change' inactive_user.id %}" 
-                                       style="
-                                           color: #333;
-                                           text-decoration: none;
-                                           display: flex;
-                                           align-items: center;
-                                       ">
-                                        <i class="fas fa-user" style="margin-right: 4px;"></i>
-                                        {{ inactive_user.nickname }}
-                                    </a>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <script>
-                    document.querySelector('.inactive-users-summary').addEventListener('click', function(e) {
-                        const details = document.querySelector('.inactive-users-details');
-                        details.style.display = details.style.display === 'none' ? 'block' : 'none';
-                        e.stopPropagation();
-                    });
-
-                    document.addEventListener('click', function(e) {
-                        if (!e.target.closest('.inactive-users-alert')) {
-                            document.querySelector('.inactive-users-details').style.display = 'none';
-                        }
-                    });
-                </script>
-            {% endif %}
+        
 
             <!-- 未読コメント表示は既存のまま -->
             {% if user.is_authenticated %}
@@ -460,29 +425,6 @@
         }
     });
     </script>
-
-    <div class="notification-area">
-        {% if user.is_staff %}
-            {% with pending_contacts=pending_contacts %}
-                {% if pending_contacts %}
-                    <div class="alert alert-info" role="alert">
-                        {% for contact in pending_contacts|slice:":3" %}  {# 最新3件まで表示 #}
-                            <div class="notification-item">
-                                <a href="{% url 'contacts:contact_detail' contact.pk %}" class="text-decoration-none">
-                                    【未対応】{{ contact.subject }} ({{ contact.created_at|date:"m/d H:i" }})
-                                </a>
-                            </div>
-                        {% endfor %}
-                        {% if pending_contacts.count > 3 %}
-                            <div class="notification-item">
-                                <small>他 {{ pending_contacts.count|add:"-3" }} 件の未対応問い合わせがあります</small>
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endif %}
-            {% endwith %}
-        {% endif %}
-    </div>
 
     <!-- jQuery, Bootstrap等の基本的なスクリプト -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -12,8 +12,7 @@ class Contact(models.Model):
     
     STATUS_CHOICES = [
         ('pending', '未対応'),
-        ('in_progress', '対応中'),
-        ('completed', '対応済み'),
+        ('resolved', '対応済み'),
     ]
 
     email = models.EmailField('メールアドレス')
@@ -30,6 +29,16 @@ class Contact(models.Model):
         null=True,
         blank=True,
         related_name='handled_contacts'
+    )
+    response_text = models.TextField(blank=True, null=True, verbose_name='対応内容')
+    responded_at = models.DateTimeField(null=True, blank=True, verbose_name='対応日時')
+    responded_by = models.ForeignKey(
+        'accounts.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='responded_contacts',
+        verbose_name='対応者'
     )
 
     class Meta:

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="filter-buttons mb-4 text-center">
+        <button class="btn me-2 filter-btn active" onclick="showContacts('pending')" id="pending-btn">
+            <i class="fas fa-clock"></i> 未対応のお問い合わせ
+        </button>
+        <button class="btn filter-btn" onclick="showContacts('completed')" id="completed-btn">
+            <i class="fas fa-check"></i> 対応済みのお問い合わせ
+        </button>
+    </div>
+
+    <div id="pending-contacts">
+        <h4 class="mb-3">未対応のお問い合わせ</h4>
+        <div class="list-group mt-3">
+            {% for contact in pending_contacts %}
+                <a href="{% url 'contacts:contact_detail' contact.pk %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ contact.subject }}</h5>
+                        <small>{{ contact.created_at|date:"Y/m/d H:i" }}</small>
+                    </div>
+                    <p class="mb-1">{{ contact.message|truncatechars:100 }}</p>
+                    <small>送信者: {{ contact.name }}</small>
+                </a>
+            {% empty %}
+                <div class="alert alert-info">
+                    未対応のお問い合わせはありません。
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="completed-contacts" style="display: none;">
+        <h4 class="mb-3">対応済みのお問い合わせ</h4>
+        <div class="list-group mt-3">
+            {% for contact in completed_contacts %}
+                <a href="{% url 'contacts:contact_detail' contact.pk %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ contact.subject }}</h5>
+                        <small>{{ contact.created_at|date:"Y/m/d H:i" }}</small>
+                    </div>
+                    <p class="mb-1">{{ contact.message|truncatechars:100 }}</p>
+                    <small>送信者: {{ contact.name }}</small>
+                </a>
+            {% empty %}
+                <div class="alert alert-info">
+                    対応済みのお問い合わせはありません。
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.filter-btn {
+    transition: all 0.3s ease;
+    border: 2px solid;
+}
+
+/* 未対応ボタンのスタイル */
+#pending-btn {
+    border-color: #007bff;
+    color: #007bff;
+}
+
+#pending-btn.active {
+    background-color: #007bff;
+    color: white;
+    transform: scale(1.05);
+    font-weight: bold;
+}
+
+/* 対応済みボタンのスタイル */
+#completed-btn {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+#completed-btn.active {
+    background-color: #28a745;
+    color: white;
+    transform: scale(1.05);
+    font-weight: bold;
+}
+
+/* ホバー効果 */
+#pending-btn:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+#completed-btn:hover {
+    background-color: rgba(40, 167, 69, 0.1);
+}
+</style>
+
+<script>
+function showContacts(type) {
+    const pendingDiv = document.getElementById('pending-contacts');
+    const completedDiv = document.getElementById('completed-contacts');
+    const pendingBtn = document.getElementById('pending-btn');
+    const completedBtn = document.getElementById('completed-btn');
+
+    if (type === 'pending') {
+        pendingDiv.style.display = 'block';
+        completedDiv.style.display = 'none';
+        pendingBtn.classList.add('active');
+        completedBtn.classList.remove('active');
+    } else {
+        pendingDiv.style.display = 'none';
+        completedDiv.style.display = 'block';
+        pendingBtn.classList.remove('active');
+        completedBtn.classList.add('active');
+    }
+}
+</script>
+{% endblock %} 
