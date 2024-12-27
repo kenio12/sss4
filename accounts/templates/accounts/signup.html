@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 
+<style>
+    .btn-outline-primary {
+        margin: 20px 0 !important;
+        padding: 8px 16px !important;
+        border-radius: 4px !important;
+    }
+</style>
+
 {% block content %}
 <div class="container mt-5">
     <h2>サインアップ</h2>
@@ -26,11 +34,17 @@
             <div class="alert alert-warning">
                 {% for error in form.email.errors %}
                     <p>{{ error }}</p>
-                    {% if 'already exists' in error|lower %}
+                    {% if '既に使用されています' in error %}
                         <p>
                             <a href="{% url 'accounts:resend_activation' %}?email={{ form.email.value|urlencode }}" 
-                               class="btn btn-link">
+                               class="btn btn-link" style="color: #0056b3; font-size: 20px;">
                                 認証メールを再送信する
+                            </a>
+                        </p>
+                        <p>
+                            <a href="#" onclick="openContactModal('signup')" 
+                               style="color: #0056b3; font-size: 20px;">
+                                　お問い合わせ
                             </a>
                         </p>
                     {% endif %}
@@ -42,5 +56,8 @@
             サインアップ
         </button>
     </form>
+
+
+    {% include 'contacts/contact_modal.html' %}
 </div>
 {% endblock %}

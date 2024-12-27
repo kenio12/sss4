@@ -1,0 +1,74 @@
+<!-- モーダルの構造 -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactModalLabel">お問い合わせ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contactForm" action="{% url 'contacts:contact_create' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" id="id_source" name="source" value="">
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">お名前（ニックネーム可）</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">メールアドレス</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">件名</label>
+                        <input type="text" class="form-control" id="subject" name="subject" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="message" class="form-label">お問い合わせ内容</label>
+                        <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                        <button type="submit" class="btn btn-primary">送信</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // モーダルのインスタンスを取得
+    const $modal = $('#contactModal');
+    const $form = $('#contactForm');
+    
+    // グローバルスコープで関数を定義
+    window.openContactModal = function(source) {
+        $('#id_source').val(source);
+        $form[0].reset();
+        $modal.modal('show');
+    };
+    
+    // 閉じるボタンのイベントハンドラ
+    $('.btn-secondary').on('click', function() {
+        $modal.modal('hide');
+    });
+    
+    // フォーム送信時の処理
+    $form.on('submit', function(e) {
+        e.preventDefault();
+        this.submit();
+        $modal.modal('hide');
+    });
+    
+    // モーダルが閉じられた時の処理
+    $modal.on('hidden.bs.modal', function() {
+        $form[0].reset();
+    });
+});
+</script> 

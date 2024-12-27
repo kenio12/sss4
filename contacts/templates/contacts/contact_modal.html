@@ -1,0 +1,57 @@
+<style>
+    /* モーダル全体のスタイル */
+    #contactModal .modal-dialog {
+        max-width: 500px !important;
+    }
+
+    /* フォームのラベル */
+    #contactModal .form-label {
+        font-weight: bold !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* フォームの入力欄 */
+    #contactModal .form-control {
+        margin-bottom: 1rem !important;
+    }
+
+    /* 送信ボタン */
+    #contactModal .btn-primary {
+        width: 100% !important;
+        margin-top: 1rem !important;
+    }
+</style>
+
+<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactModalLabel">お問い合わせ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contactForm" method="post" action="{% url 'contacts:contact_create' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="source" id="contactSource" value="">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">お名前</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">メールアドレス</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">件名</label>
+                        <input type="text" class="form-control" id="subject" name="subject" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">お問い合わせ内容</label>
+                        <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">送信する</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 

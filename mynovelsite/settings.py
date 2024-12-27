@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'novel_site',  # ← これを追加
     'announcements.apps.AnnouncementsConfig',
     'django_celery_beat',  # これを追加
+    'contacts.apps.ContactsConfig',  # これを追加
 ]
 
 MIDDLEWARE = [
@@ -100,6 +101,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'novels.context_processors.latest_unread_novels',  # これ1つだけ残す
                 'novels.context_processors.inactive_users_processor',  # これを追加
+                'novels.context_processors.pending_contacts_processor',  # これを追加
             ],
         },
     },

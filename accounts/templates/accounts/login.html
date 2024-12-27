@@ -1,6 +1,72 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    /* ログインフォームのコンテナ全体のスタイル */
+    .login-form-container {
+        margin-top: 80px !important;  /* 上部のマージンを大きく */
+        margin-bottom: 40px !important;
+    }
+    
+    /* 問い合わせボタンのスタイル */
+    .btn-outline-primary {
+        margin: 20px 0 !important;
+        padding: 12px 24px !important;  /* パディングを大きく */
+        border-radius: 8px !important;  /* 角をもっと丸く */
+        color: #000 !important;
+        font-size: 18px !important;  /* 文字サイズを大きく */
+        font-weight: bold !important;  /* 文字を太く */
+        border: 2px solid #007bff !important;  /* ボーダーを太く */
+        background-color: #fff !important;  /* 背景を白に */
+        transition: all 0.3s ease !important;  /* ホバーエフェクトをスムーズに */
+    }
+    
+    /* ホバー時のスタイル */
+    .btn-outline-primary:hover {
+        background-color: #007bff !important;
+        color: #fff !important;
+        transform: translateY(-2px) !important;  /* ホバー時に少し浮き上がる */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;  /* 影を付ける */
+    }
+    
+    /* 問い合わせボタンのコンテナ */
+    .contact-button-container {
+        text-align: center !important;
+        margin-top: 10px !important;  /* 上のマージンを少し減らす */
+        margin-bottom: 60px !important;
+        padding: 20px !important;
+    }
+    
+    /* メッセージ用のスタイルを追加 */
+    .alert {
+        margin: 20px auto;
+        max-width: 600px;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffecb5;
+        color: #664d03;
+    }
+    
+    .alert-success {
+        background-color: #d1e7dd;
+        border-color: #badbcc;
+        color: #0f5132;
+    }
+</style>
+
+<!-- メッセージ表示部分を追加 -->
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+{% endif %}
+
 <div class="container login-form-container">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -31,4 +97,20 @@
         </div>
     </div>
 </div>
+
+<!-- 問い合わせボタンのセクション -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="contact-button-container">
+                <button type="button" class="btn btn-outline-primary" 
+                        onclick="openContactModal('login')">
+                    お問い合わせ
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'contacts/contact_modal.html' %}
 {% endblock %}

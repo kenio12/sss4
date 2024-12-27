@@ -12,6 +12,8 @@ urlpatterns = [
     path('adminpanel/', include('adminpanel.urls')),  # adminpanelのURLを追加,
     path('game_maturi/', include('game_maturi.urls', namespace='game_maturi')),   
     path('announcements/', include('announcements.urls')),
+    # 問い合わせ関連のURLを追加
+    path('contacts/', include(('contacts.urls', 'contacts'), namespace='contacts')),
 ]
 # if settings.DEBUG:
 #     import debug_toolbar

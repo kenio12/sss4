@@ -25,6 +25,7 @@ from .forms import UserCreationForm
 from novels.models import Novel  # Novelモデルをインポート
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.contrib.sites.shortcuts import get_current_site
 
 import os
 
@@ -42,6 +43,7 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'default_sender@example.com')
 
 # メール送信機能
 def send_confirmation_email(user, request):
+    
     token = default_token_generator.make_token(user)
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     domain = request.get_host()
@@ -67,15 +69,25 @@ class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
     authentication_form = CustomAuthenticationForm
 
-    def get_success_url(self):
-        return reverse_lazy('home:home')
-
     def form_valid(self, form):
-        # ユーザーをログインさせる
         user = form.get_user()
-        # 明示的に認証バックエンドを指定する
+        
+        # アクティブでないユーザーの場合
+        if not user.is_active:
+            messages.warning(
+                self.request,
+                f'{user.nickname}さんはユーザー登録は済んでいますが、メールでの承認が済んでおらず、'
+                'ログインできません。以下のボタンから認証メールを再送信してください。'
+            )
+            # メール再送信ページにリダイレクト（emailパラメータ付き）
+            return redirect(f"{reverse('accounts:resend_activation')}?email={user.email}")
+        
+        # アクティブなユーザーの場合は通常のログイン処理
         login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
         return redirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse_lazy('home:home')
 
 
 from django.urls import reverse
@@ -84,9 +96,21 @@ class SignUpView(generic.CreateView):
     form_class = UserCreationForm
     template_name = 'accounts/signup.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pending_contacts'] = []  # お問い合わせモーダル用
+        
+        # デバッグ用：フォームのエラーメッセージを確認
+        if self.request.method == 'POST' and 'form' in context:
+            print("Form errors:", context['form'].errors)
+            if context['form'].errors.get('email'):
+                print("Email errors:", context['form'].errors['email'])
+        
+        return context
+
     def dispatch(self, *args, **kwargs):
         if not self.request.session.get('agreed_to_terms', False):
-            # 利用規約への同意がセッションに記録されていない場合は、利用規約ページにリダイレクト
+            # 利用規約への同意がセッションに記録されていい場合は、利用規約ページにリダイレクト
             terms_url = reverse('home:terms')  # 'home:terms'は利用規約ページの名前空間とビュー名
             return redirect(f'{terms_url}?signup=true')  # クエリパラメータをURLに追加
         return super().dispatch(*args, **kwargs)
@@ -349,7 +373,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class CustomPasswordResetView(PasswordResetView):
-    template_name = 'accounts/password_reset_form.html'  # パスワードリセットフォームのテンプ���ート
+    template_name = 'accounts/password_reset_form.html'  # パスワードリセットフォームのテンプレート
     email_template_name = 'accounts/password_reset_email.html'  # パスワードリセットメールのテンプレート
     subject_template_name = 'accounts/password_reset_subject.txt'  # メールの件名のテンプレート
     success_url = reverse_lazy('accounts:password_reset_done')  # パスワードリセット完了後のリダイレクト先
@@ -415,32 +439,29 @@ class CustomPasswordChangeView(PasswordChangeView):
     
 
 def resend_activation(request):
+    # GETパラメータからメールアドレスを取得
+    email = request.GET.get('email')
+    
     if request.method == 'POST':
         email = request.POST.get('email')
         try:
             user = User.objects.get(email=email, is_active=False)
-            
-            # 認証メールを再送信
-            current_site = get_current_site(request)
-            mail_subject = 'アカウントを有効化してください'
-            message = render_to_string('accounts/activation_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': default_token_generator.make_token(user),
-            })
-            
-            # メール送信
-            send_mail(mail_subject, message, 'noreply@example.com', [email])
-            
-            # ログを残す
-            logger.info(f"Activation email resent to {email}")
-            messages.success(request, '認証メールを再送信しました。')
+            send_confirmation_email(user, request)
+            messages.success(
+                request, 
+                f'{user.nickname}さんに認証メールを再送信しました。'
+                'メールをご確認の上、認証を完了してください。'
+            )
+            return redirect('accounts:login')
             
         except User.DoesNotExist:
-            messages.error(request, 'このメールアドレスは登録されていないか、既に認証済みです。')
-        
-        return redirect('accounts:login')
+            messages.error(
+                request, 
+                'このメールアドレスは登録されていないか、既に認証済みです。'
+            )
+            return redirect('accounts:login')
     
-    return render(request, 'accounts/resend_activation.html')
+    # GETリクエストの場合、フォームを表示
+    return render(request, 'accounts/resend_activation.html', {'email': email})
+
     

@@ -5,7 +5,33 @@
 {% block content %}
 <style>
     .terms-container {
-        padding: 20px; /* 上下左右に20pxのパディングを追加 */
+        padding: 20px;
+    }
+    
+    /* 問い合わせボタンのスタイル修正 */
+    .btn-outline-primary {
+        margin: 20px 0 !important;
+        padding: 8px 16px !important;
+        border-radius: 4px !important;
+        background-color: #007bff !important;
+        color: white !important;
+        font-size: 20px !important;
+        font-weight: bold !important;
+    }
+
+    /* ホバー時のスタイル */
+    .btn-outline-primary:hover {
+        background-color: #0056b3 !important;
+        color: white !important;
+    }
+
+    /* 規約同意ボタンのスタイル追加 */
+    .btn-primary {
+        margin: 20px 0 !important;
+        padding: 8px 16px !important;
+        border-radius: 4px !important;
+        font-size: 20px !important;
+        font-weight: bold !important;
     }
 </style>
 <div class="terms-container">
@@ -62,7 +88,60 @@
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">規約に同意する</button>
     </form>
+    {% else %}
+    <!-- サインアップ以外の時だけお問い合わせボタンとモーダルを表示 -->
+    <div class="contact-section">
+        <button type="button" class="btn btn-outline-primary" 
+                onclick="window.openContactModal('terms')">
+            お問い合わせ
+        </button>
+    </div>
+
+    <!-- モーダルを含める -->
+    {% include 'contacts/contact_modal.html' %}
     {% endif %}
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // モーダル関連のスクリプト
+    const $modal = $('#contactModal');
+    const $form = $('#contactForm');
+    
+    window.openContactModal = function(source) {
+        $('#id_source').val(source);
+        $form[0].reset();
+        $modal.modal('show');
+    };
+
+    // ログアウトアイコンのイベントリスナーを条件付きで追加
+    const logoutIcon = document.getElementById('logout-icon');
+    if (logoutIcon) {  // ログアウトアイコンが存在する場合のみベントリスナーを追加
+        logoutIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('ログアウトしますか？')) {
+                fetch(logoutUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/json'
+                    },
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '{% url "home:home" %}';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('ログアウトに失敗しました。');
+                });
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -2,6 +2,7 @@ from django.core.cache import cache
 from django.db.models import Count, Q, Max
 from django.contrib.auth import get_user_model
 from .models import Novel, Comment
+from contacts.models import Contact
 
 # 現在使用されていない？ 要確認
 # 全体の未読コメント数を計算する関数
@@ -35,7 +36,7 @@ from .models import Novel, Comment
 
 # base.htmlで使用中
 # テンプレートで {% for novel in latest_unread_novels %} として使用
-# 小説ごとの未読コメント数とその色を表示するために使用
+# 小説ごとの未読コメント数とその色を表示するために���用
 def latest_unread_novels(request):
     if request.user.is_authenticated:
         novels = Novel.objects.filter(
@@ -85,5 +86,20 @@ def inactive_users_processor(request):
         }
     return {
         'inactive_users': []
+    }
+
+# 管理者向けのお問い合わせ通知を追加
+def pending_contacts_processor(request):
+    """管理者向けに未対応のお問い合わせ情報を提供"""
+    if request.user.is_authenticated and request.user.is_staff:
+        pending_contacts = Contact.objects.filter(
+            status='pending'  # is_resolvedの代わりにstatusを使用
+        ).order_by('-created_at')
+        
+        return {
+            'pending_contacts': pending_contacts
+        }
+    return {
+        'pending_contacts': []
     }
 
