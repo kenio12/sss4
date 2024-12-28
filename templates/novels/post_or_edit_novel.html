@@ -77,6 +77,15 @@
 
     /* スマホ対応 */
     @media (max-width: 768px) {
+        /* コンテナーの余白をリセット */
+        .container {
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: none !important;
+            width: 100vw !important;  /* ビューポート幅いっぱいに */
+            overflow-x: hidden !important;  /* はみ出しを防ぐ */
+        }
+
         /* form-groupの余白をリセット */
         .form-group {
             padding: 0 !important;
@@ -84,12 +93,13 @@
         }
 
         textarea#content {
-            width: calc(100% - 30px) !important;
+            width: calc(100vw - 70px) !important;  /* ビューポート幅から左余白だけ引く */
             margin-left: 30px !important;
             margin-right: 0 !important;
-            min-height: 100vh !important;
-            font-size: 23px !important;     /* 20pxから23pxに変更 */
+            min-height: 80vh !important;
+            font-size: 23px !important;
             padding: 0.5rem !important;
+            padding-right: 0 !important;
             margin-bottom: 1rem !important;
             line-height: 1.8 !important;
         }
