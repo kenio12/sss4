@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <div class="novels-list-container">
     <div class="sss-novels-list">
-        {% for novel in latest_novels|slice:":4" %}
+        {% for novel in latest_novels|slice:":2" %}
             <!-- PC表示 -->
             <div class="sss-novel-row pc-view">
                 <div class="sss-date">{{ novel.published_date|date:"Y/m/d" }}</div>

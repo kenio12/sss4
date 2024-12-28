@@ -59,12 +59,33 @@
 
     /* 内容フィールドの高さを特別に設定 */
     textarea#content {
-        min-height: 500px !important;  /* 最小の高さを設定 */
-        height: auto !important;       /* 高さを自動に */
-        overflow-y: auto !important;   /* スクロールを許可に変更 */
-        resize: none !important;       /* リサイズハンドルを非表示に */
-        box-sizing: border-box !important; /* パディングを含めた高さ計算に */
-        transition: height 0.1s ease-in-out !important; /* スムーズな高さ変更 */
+        width: 100% !important;  /* 他のフィールドと同じ幅に */
+        min-height: 500px !important;
+        padding: 1.5rem !important;
+        font-size: 1.1rem !important;
+        line-height: 1.8 !important;
+        border: 2px solid #e0e0e0 !important;
+        border-radius: 12px !important;
+        background-color: #f8f9fa !important;
+        resize: vertical !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        margin: 0 !important;  /* マージンをリセットして位置を揃える */
+        padding-left: 1rem !important;  /* 左パディングを他のフィールドと揃える */
+        padding-right: 1rem !important; /* 右パディングも揃える */
+    }
+
+    /* スマホ対応 */
+    @media (max-width: 768px) {
+        textarea#content {
+            width: calc(100% - 40px) !important;
+            margin-left: 30px !important;
+            margin-right: 10px !important;
+            min-height: 50vh !important;
+            font-size: 1rem !important;
+            padding: 1rem !important;
+            margin-bottom: 60vh !important;
+        }
     }
 
     /* ホバー効果（PCのみ） */
@@ -707,7 +728,7 @@
                 <!-- 小説の内容入力フィールドの横に既存の文字数カウンターを追加 -->
                 <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
                 <textarea class="form-control content2" id="content" name="{{ field.name }}" rows="20"
-                placeholder="ここに小説の中身をお書きどす。壊れて���ければ自動保存してるはず。。" maxlength="10000">{{ form.content.value|default_if_none:'' }}</textarea>
+                placeholder="ここに小説の中身をお書きどす。壊れてなければ自動保存してるはず。。" maxlength="10000">{{ form.content.value|default_if_none:'' }}</textarea>
             {% elif field.name == 'status' %}
                 <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
                 <input type="text" 
