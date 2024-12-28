@@ -140,12 +140,16 @@
     }
 
     /* テキストエリアのスタイル */
-    textarea.content, 
-    textarea.form-control.content {
-        width: 100% !important;
+    html body textarea.content, 
+    html body textarea.form-control.content {
+        width: calc(100% - 6px) !important;  /* 全体幅から左右マージンを引く */
         height: auto !important;
-        min-height: 300px !important;
+        min-height: 500px !important;
         padding: 0 !important;
+        margin-left: 15px !important;   /* 左の余白を15pxに増やす */
+        margin-right: 1px !important;   /* 右の余白は1px */
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
         
         /* スクロール関連 */
         overflow: auto !important;
@@ -531,9 +535,9 @@ document.addEventListener('DOMContentLoaded', function() {
         textarea.style.cssText = `
             height: ${Math.max(textarea.scrollHeight, minHeight)}px !important;
             min-height: ${minHeight}px !important;
-            margin-left: 3px !important;
-            margin-right: 10px !important;
-            width: calc(100% - 13px) !important;
+            margin-left: 15px !important;    /* 左の余白を15pxに増やす */
+            margin-right: 1px !important;    /* 右の余白は1px */
+            width: calc(100% - 16px) !important;  /* 余白の合計を引く */
         `;
     }
     
