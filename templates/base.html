@@ -360,34 +360,6 @@
         }, { passive: true });
     </script>
 
-    <script type="text/javascript">
-        const logoutIconBase = document.getElementById('logout-icon');
-        if (logoutIconBase) {  // ログアウトアイコンが存在する場合のみイベントリスナーを追加
-            logoutIconBase.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (confirm('ログアウトしますか？')) {
-                    fetch(logoutUrl, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': csrftoken,
-                            'Content-Type': 'application/json'
-                        },
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            // ログアウト成功後、ホームページにリダイレクト
-                            window.location.href = '{% url "home:home" %}';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('ログアウトに失敗しました。');
-                    });
-                }
-            });
-        }
-    </script>
-
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // お問い合わせモーダルを開く関数
