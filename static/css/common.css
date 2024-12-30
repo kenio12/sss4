@@ -602,7 +602,7 @@ a.btn-list-orange {
 }
 
 .toggle-button::before {
-    content: '▼';
+    /* content: '▼'; */
     display: inline-block;
     transition: transform 0.5s ease;
 }
