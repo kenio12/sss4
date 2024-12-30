@@ -401,24 +401,35 @@
                 e.preventDefault();
                 
                 try {
+                    // CSRFトークンを取得
+                    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    
                     const response = await fetch(this.action, {
                         method: 'POST',
                         body: new FormData(this),
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
-                        }
+                            'X-CSRFToken': csrftoken  // CSRFトークンを追加
+                        },
+                        credentials: 'same-origin'  // クッキーを含める
                     });
                     
+                    // レスポンスの詳細をコンソールに出力（デバッグ用）
+                    console.log('Response status:', response.status);
+                    
                     const data = await response.json();
+                    console.log('Response data:', data);  // デバッグ用
+
                     if (data.status === 'success') {
                         alert('お問い合わせありがとうございます。');
                         var modal = bootstrap.Modal.getInstance(document.getElementById('contactModal'));
                         modal.hide();
                         this.reset();
                     } else {
-                        alert('エラーが発生しました。もう一度お試しください。');
+                        alert('エラーが発生しました：' + (data.message || 'もう一度お試しください。'));
                     }
                 } catch (error) {
+                    console.error('Error details:', error);  // デバッグ用
                     alert('エラーが発生しました。もう一度お試しください。');
                 }
             });
