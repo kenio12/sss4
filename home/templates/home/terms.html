@@ -33,8 +33,30 @@
         font-size: 20px !important;
         font-weight: bold !important;
     }
+
+    /* モーダルを最前面に表示するためのスタイル追加 */
+    .modal {
+        z-index: 10000 !important;  /* fixed-headerのz-index: 9999より大きい値 */
+    }
+    
+    .modal-backdrop {
+        z-index: 9999 !important;
+    }
 </style>
 <div class="terms-container">
+    <!-- サインアップ以外の時だけお問い合わせボタンとモーダルを表示 -->
+    {% if not signup %}
+    <div class="contact-section">
+        <button type="button" class="btn btn-outline-primary" 
+                onclick="window.openContactModal('terms')">
+            お問い合わせ
+        </button>
+    </div>
+
+    <!-- モーダルを含める -->
+    {% include 'contacts/contact_modal.html' %}
+    {% endif %}
+
     <h1>利用規約</h1>
     <p>このウェブサイトを利用するには、以下を理解し、お守りのうえ、ご利用ください。</p>
     
@@ -88,17 +110,6 @@
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">規約に同意する</button>
     </form>
-    {% else %}
-    <!-- サインアップ以外の時だけお問い合わせボタンとモーダルを表示 -->
-    <div class="contact-section">
-        <button type="button" class="btn btn-outline-primary" 
-                onclick="window.openContactModal('terms')">
-            お問い合わせ
-        </button>
-    </div>
-
-    <!-- モーダルを含める -->
-    {% include 'contacts/contact_modal.html' %}
     {% endif %}
 </div>
 
