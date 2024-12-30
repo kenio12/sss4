@@ -72,13 +72,12 @@
         <div class="comments-list mt-4">
             <h3 style="font-size: 24px; font-weight: bold">コメント</h3>
             {% for comment in comments_list %}
-                <div class="comment mb-2" 
+                <div class="comment" 
                      style="border: 2px solid #ccc !important; 
                             border-left: 3px solid {% if comment.author %}{{ comment.author.comment_color }}{% else %}#cccccc{% endif %} !important;
                             background-color: #ffffff !important;
                             padding: 15px !important; 
                             border-radius: 8px !important; 
-                            margin-bottom: 15px !important; 
                             box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;">
                     <p class="comment-author">
                         <strong>
@@ -401,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // 新しいdiv要素を作成
                     const newCommentDiv = document.createElement('div');
-                    newCommentDiv.className = 'comment mb-2';
+                    newCommentDiv.className = 'comment';
                     
                     newCommentDiv.style.cssText = `
                         border: 2px solid #ccc !important;

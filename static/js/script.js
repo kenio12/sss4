@@ -317,7 +317,7 @@ function getCookie(name) {
             button.addEventListener('click', function() {
                 if (content.style.maxHeight === '80px') {
                     content.style.maxHeight = 'none';
-                    button.textContent = '縮める';
+                    button.textContent = '▲ 縮める';
                 } else {
                     content.style.maxHeight = '80px';
                     button.textContent = 'もっと見る';
