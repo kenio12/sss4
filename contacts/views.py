@@ -50,7 +50,7 @@ class ContactCreateView(CreateView):
     def form_valid(self, form):
         try:
             form.instance.source = self.request.POST.get('source', 'other')
-            self.object = form.save()
+            contact = form.save()
             
             if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
@@ -59,7 +59,7 @@ class ContactCreateView(CreateView):
                 })
             
             messages.success(self.request, 'お問い合わせを受け付けました。')
-            return super().form_valid(form)
+            return redirect(self.success_url)
             
         except Exception as e:
             # エラーログを出力
@@ -67,13 +67,12 @@ class ContactCreateView(CreateView):
             if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'error',
-                    'message': 'サーバーエラーが発生しました。'
+                    'message': f'エラーが発生しました：{str(e)}'
                 }, status=500)
             raise
     
     def form_invalid(self, form):
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            # フォームのエラーを詳細に返す
             errors = {field: err.get_json_data() for field, err in form.errors.items()}
             return JsonResponse({
                 'status': 'error',
