@@ -47,6 +47,14 @@ class ContactCreateView(CreateView):
     template_name = 'contacts/contact_form.html'
     success_url = reverse_lazy('home:terms')
     
+    def get_initial(self):
+        # フォームの初期値を設定
+        initial = super().get_initial()
+        if self.request.user.is_authenticated:
+            initial['name'] = self.request.user.nickname
+            initial['email'] = self.request.user.email  # メールアドレスも自動入力しとこか
+        return initial
+    
     def form_valid(self, form):
         try:
             form.instance.source = self.request.POST.get('source', 'other')
@@ -112,3 +120,13 @@ class ContactListView(UserPassesTestMixin, ListView):
         ).order_by('-created_at')
         
         return context 
+
+def get_user_info(request):
+    """ログインユーザーの情報を返すAPIエンドポイント"""
+    if request.user.is_authenticated:
+        return JsonResponse({
+            'is_authenticated': True,
+            'nickname': request.user.nickname,
+            'email': request.user.email
+        })
+    return JsonResponse({'is_authenticated': False}) 

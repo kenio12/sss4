@@ -118,14 +118,19 @@
 {% block scripts %}
 <script>
 $(document).ready(function() {
-    // モーダル関連のスクリプト
     const $modal = $('#contactModal');
     const $form = $('#contactForm');
     
+    // モーダルを開く処理（上書きせずに拡張）
+    const originalOpenContactModal = window.openContactModal || function() {};
     window.openContactModal = function(source) {
-        $('#id_source').val(source);
-        $form[0].reset();
-        $modal.modal('show');
+        // 元の処理を呼び出し
+        originalOpenContactModal(source);
+        
+        // モーダルのフォーカス管理を改善
+        $modal.on('shown.bs.modal', function() {
+            $('#name').trigger('focus');
+        });
     };
 
     // ログアウトアイコンのイベントリスナーを条件付きで追加

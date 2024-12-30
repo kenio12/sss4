@@ -1,5 +1,5 @@
 <!-- モーダルの構造 -->
-<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -43,25 +43,50 @@
 
 <script>
 $(document).ready(function() {
-    // モーダルのインスタンスを取得
     const $modal = $('#contactModal');
     const $form = $('#contactForm');
     
-    // グローバルスコープで関数を定義
     window.openContactModal = function(source) {
         $('#id_source').val(source);
-        $form[0].reset();
-        $modal.modal('show');
+        
+        // デバッグ用のログを追加
+        console.log('Modal opened');
+        console.log('Current user info endpoint:', '{% url "contacts:user_info" %}');
+        
+        $.ajax({
+            url: '{% url "contacts:user_info" %}',
+            method: 'GET',
+            success: function(data) {
+                console.log('Success! Data received:', data);
+                if (data.is_authenticated) {
+                    console.log('User is authenticated, nickname:', data.nickname);
+                    $('#name').val(data.nickname);
+                    $('#name').prop('readonly', true);  // 読み取り専用に設定
+                    $('#name').css('background-color', '#e9ecef');  // 背景色を変更して読み取り専用であることを視覚的に示す
+                } else {
+                    console.log('User is not authenticated');
+                    $('#name').prop('readonly', false);  // 編集可能に設定
+                    $('#name').css('background-color', '');  // 背景色をデフォルトに戻す
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error occurred!');
+                console.error('Status:', status);
+                console.error('Error:', error);
+                console.error('Response:', xhr.responseText);
+            },
+            complete: function() {
+                console.log('Ajax request completed');
+                $modal.modal('show');
+            }
+        });
     };
     
-    // 閉じるボタンのイベントハンドラ
-    $('.btn-secondary').on('click', function() {
-        $modal.modal('hide');
-    });
-    
-    // フーダルが閉じられた時の処理
+    // フォームリセットの処理を修正
     $modal.on('hidden.bs.modal', function() {
         $form[0].reset();
+        $('#name').prop('readonly', false);  // モーダルが閉じられたら編集可能に戻す
+        $('#name').css('background-color', '');  // 背景色もリセット
     });
 });
 </script> 
