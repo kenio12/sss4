@@ -247,6 +247,16 @@
     border-radius: 20px !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
+
+/* 3行以下のコメント用 */
+.comment {
+    margin-bottom: 5px;
+}
+
+/* 4行以上のコメントのボタン用 */
+.comment + div {  /* コメントの直後のdiv（ボタンコンテナ） */
+    margin-bottom: 5px;
+}
 </style>
 
 <script>
@@ -462,38 +472,37 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // コメントの高さ制御と「もっと見る」ボタンの処理を追加
+    // コメントの高さ制御
     document.querySelectorAll('.comment').forEach(function(comment) {
         const content = comment.querySelector('.comment-content');
         
-        // 一時的に制限を解除して実際の高さを取得
         content.style.maxHeight = 'none';
         const contentHeight = content.offsetHeight;
         
-        // 80pxより高い場合のみ縮める処理を適用
-        if (contentHeight > 80) {
-            content.style.maxHeight = '80px';
+        if (contentHeight > 120) {  // 4行以上の場合
+            content.style.maxHeight = '120px';
             content.style.overflow = 'hidden';
             
             // ボタンを配置するdivを作成
             const buttonContainer = document.createElement('div');
-            buttonContainer.style.marginTop = '5px';
             
-            // もっと見る/縮めるボタンを作成
             const button = document.createElement('button');
             button.textContent = 'もっと見る';
-            button.classList.add('toggle-button');
+            button.style.cursor = 'pointer';
+            button.style.backgroundColor = 'transparent';
+            button.style.border = 'none';
+            button.style.outline = 'none';
+            button.style.fontSize = '16px';
             
-            // コメント枠の後ろにボタンコンテナを配置
             comment.after(buttonContainer);
             buttonContainer.appendChild(button);
             
             button.addEventListener('click', function() {
-                if (content.style.maxHeight === '80px') {
+                if (content.style.maxHeight === '120px') {
                     content.style.maxHeight = 'none';
                     button.textContent = '▲ 縮める';
                 } else {
-                    content.style.maxHeight = '80px';
+                    content.style.maxHeight = '120px';
                     button.textContent = 'もっと見る';
                 }
             });
