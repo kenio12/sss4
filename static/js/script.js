@@ -294,25 +294,35 @@ function getCookie(name) {
         // コメントの高さを取得するために一時的に展開する
         content.style.maxHeight = 'none';
         const contentHeight = content.offsetHeight;
-        // コメントの内容が折りたたみ表示に収まる場合は、maxHeightを設定
-        content.style.maxHeight = contentHeight > 80 ? '' : contentHeight + 'px';
 
         // コメントの内容が特定の高さを超えている場合のみボタンを追加
         if (contentHeight > 80) { // 80px = 5行分の高さ（おおよその値）
             const button = document.createElement('button');
             button.textContent = 'もっと見る';
             button.classList.add('toggle-button');
-            comment.appendChild(button);
+            
+            // ボタンを内容の後に追加するためのdivを作成
+            const buttonContainer = document.createElement('div');
+            buttonContainer.classList.add('button-container');
+            buttonContainer.style.marginTop = '10px';  // ボタンと内容の間にスペースを追加
+            buttonContainer.appendChild(button);
+            
+            // 内容の後にボタンを配置
+            content.parentNode.insertBefore(buttonContainer, content.nextSibling);
+
+            // 初期状態で折りたたむ
+            content.style.maxHeight = '80px';
+            content.style.overflow = 'hidden';
 
             button.addEventListener('click', function() {
                 if (content.classList.contains('expanded')) {
                     content.classList.remove('expanded');
-                    button.classList.remove('expanded');
-                    button.textContent = 'もっと見る'; // ボタンのテキストを「もっと見る」に変更
+                    content.style.maxHeight = '80px';
+                    button.textContent = 'もっと見る';
                 } else {
                     content.classList.add('expanded');
-                    button.classList.add('expanded');
-                    button.textContent = '縮める'; // ボタンのテキストを「縮める」に変更
+                    content.style.maxHeight = 'none';  // 高さ制限を解除
+                    button.textContent = '▼ 折りたたむ';
                 }
             });
         }
