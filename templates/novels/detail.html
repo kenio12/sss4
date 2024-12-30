@@ -443,13 +443,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     newCommentDiv.appendChild(authorP);
                     newCommentDiv.appendChild(contentP);
                     
-                    // ここから新しいコード追加
-                    // 新しく投稿されたコメントの高さをチェックして必要に応じて「もっと見る」ボタンを追加
+                    // コメントリストの最初に新しいコメントを追加
+                    const commentsContainer = document.querySelector('.comments-list');
+                    const existingComments = commentsContainer.querySelector('.comment');
+                    if (existingComments) {
+                        commentsContainer.insertBefore(newCommentDiv, existingComments);
+                    } else {
+                        // コメントが一つもない場合は「コメントはまだありません」を削除して追加
+                        const noCommentsMessage = commentsContainer.querySelector('p');
+                        if (noCommentsMessage) {
+                            noCommentsMessage.remove();
+                        }
+                        commentsContainer.appendChild(newCommentDiv);
+                    }
+                    
+                    // 4行以上の場合は「もっと見る」ボタンを追加
                     const content = contentP;
                     content.style.maxHeight = 'none';
                     const contentHeight = content.offsetHeight;
                     
-                    if (contentHeight > 120) {  // 4行以上の場合
+                    if (contentHeight > 120) {
                         content.style.maxHeight = '120px';
                         content.style.overflow = 'hidden';
                         
