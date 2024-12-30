@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="{% static 'css/common.css' %}"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- jQueryは1回だけ読み込む -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript">
         var csrftoken = '{{ csrf_token }}';
     </script>
@@ -387,61 +389,59 @@
     </script>
 
     <script>
-    function openContactModal(source) {
-        document.getElementById('contactSource').value = source;
-        var modal = new bootstrap.Modal(document.getElementById('contactModal'));
-        modal.show();
-    }
-
-    // フォーム送信後の処理
     document.addEventListener('DOMContentLoaded', function() {
+        // お問い合わせモーダルを開く関数
+        window.openContactModal = function(source) {
+            document.getElementById('contactSource').value = source;
+            var modal = new bootstrap.Modal(document.getElementById('contactModal'));
+            modal.show();
+        }
+
+        // フォーム送信処理
         const form = document.getElementById('contactForm');
         if (form) {
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
+                console.log('Form submission started');  // デバッグ用
                 
                 try {
-                    // CSRFトークンを取得
-                    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-                    
                     const response = await fetch(this.action, {
                         method: 'POST',
                         body: new FormData(this),
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRFToken': csrftoken  // CSRFトークンを追加
+                            'X-CSRFToken': csrftoken
                         },
-                        credentials: 'same-origin'  // クッキーを含める
+                        credentials: 'same-origin'
                     });
                     
-                    // レスポンスの詳細をコンソールに出力（デバッグ用）
-                    console.log('Response status:', response.status);
+                    console.log('Response status:', response.status);  // デバッグ用
                     
                     const data = await response.json();
                     console.log('Response data:', data);  // デバッグ用
 
                     if (data.status === 'success') {
                         alert('お問い合わせありがとうございます。');
-                        var modal = bootstrap.Modal.getInstance(document.getElementById('contactModal'));
-                        modal.hide();
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('contactModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
                         this.reset();
                     } else {
-                        alert('エラーが発生しました：' + (data.message || 'もう一度お試しください。'));
+                        throw new Error(data.message || 'エラーが発生しました。');
                     }
                 } catch (error) {
-                    console.error('Error details:', error);  // デバッグ用
-                    alert('エラーが発生しました。もう一度お試しください。');
+                    console.error('Error:', error);
+                    alert('エラーが発生しました。もう一度お試しください。\n' + error.message);
                 }
             });
         }
     });
     </script>
 
-    <!-- jQuery, Bootstrap等の基本的なスクリプト -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- 個別ページのスクリプト用ブロック -->
     {% block scripts %}{% endblock %}
 </body>
 </html>
