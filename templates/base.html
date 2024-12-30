@@ -418,14 +418,18 @@
                         body: formData,
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'Accept': 'application/json'  // JSONレスポンスを要求
                         },
                         credentials: 'same-origin'
                     });
                     
+                    // デバッグ用のログ
+                    console.log('Request URL:', this.action);
                     console.log('Request headers:', {
                         'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Accept': 'application/json'
                     });
                     
                     console.log('Response headers:', response.headers);

@@ -36,37 +36,51 @@ from contacts.models import Contact
 
 # base.htmlで使用中
 # テンプレートで {% for novel in latest_unread_novels %} として使用
-# 小説ごとの未読コメント数とその色を表示するために���用
+# 小説ごとの未読コメント数とその色を表示するために用
 def latest_unread_novels(request):
-    if request.user.is_authenticated:
-        novels = Novel.objects.filter(
-            author=request.user,
-            comments__is_read=False,
-            comments__author__isnull=False
-        ).annotate(
-            unread_count=Count(
-                'comments',
-                filter=Q(
-                    comments__is_read=False,
-                    comments__author__isnull=False
-                ) & ~Q(comments__author=request.user)
-            )
-        ).order_by('id').distinct()
+    try:
+        if request.user.is_authenticated:
+            novels = Novel.objects.filter(
+                author=request.user,
+                comments__is_read=False,
+                comments__author__isnull=False
+            ).annotate(
+                unread_count=Count(
+                    'comments',
+                    filter=Q(
+                        comments__is_read=False,
+                        comments__author__isnull=False
+                    ) & ~Q(comments__author=request.user)
+                )
+            ).order_by('id').distinct()
 
-        # unread_countが0のものを除外
-        novels_with_colors = [
-            {
-                'id': novel.id,
-                'unread_count': novel.unread_count,
-                'color_index': novel.id % 10
+            # デバッグ用のログ
+            print(f"Debug - User: {request.user.username}")
+            print(f"Debug - Novels query: {novels.query}")
+
+            novels_with_colors = [
+                {
+                    'id': novel.id,
+                    'unread_count': novel.unread_count,
+                    'color_index': novel.id % 10
+                }
+                for novel in novels
+                if novel.unread_count > 0
+            ]
+
+            # デバッグ用のログ
+            print(f"Debug - Novels with colors: {novels_with_colors}")
+
+            return {
+                'latest_unread_novels': novels_with_colors
             }
-            for novel in novels
-            if novel.unread_count > 0  # ここで未読数0のものを除外
-        ]
-
+    except Exception as e:
+        # エラーが発生した場合でもサイトが動作するように
+        print(f"Error in latest_unread_novels: {str(e)}")
         return {
-            'latest_unread_novels': novels_with_colors
+            'latest_unread_novels': []
         }
+    
     return {
         'latest_unread_novels': []
     }

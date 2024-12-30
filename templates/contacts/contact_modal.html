@@ -59,14 +59,7 @@ $(document).ready(function() {
         $modal.modal('hide');
     });
     
-    // フォーム送信時の処理
-    $form.on('submit', function(e) {
-        e.preventDefault();
-        this.submit();
-        $modal.modal('hide');
-    });
-    
-    // モーダルが閉じられた時の処理
+    // フーダルが閉じられた時の処理
     $modal.on('hidden.bs.modal', function() {
         $form[0].reset();
     });
