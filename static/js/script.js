@@ -86,11 +86,12 @@ document.addEventListener("DOMContentLoaded", function() {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
             },
             credentials: 'same-origin'
         }).then(response => {
             if (response.ok) {
-                window.location.reload();
+                window.location.href = '/';  // ホームページにリダイレクト
             } else {
                 alert('ログアウトに失敗しました。');
             }
@@ -207,11 +208,10 @@ document.querySelectorAll('.toggle-read-status').forEach(function(checkbox) {
     const logoutIcon = document.getElementById('logout-icon');
     if (logoutIcon) {
         logoutIcon.addEventListener('click', function(event) {
-            event.preventDefault(); // デフォルトのアンカー動作をキャンセル
+            event.preventDefault();
             const logoutConfirmed = confirm("ログアウトするっすか？");
             if (logoutConfirmed) {
-                // ログアウト処理を実行
-                logout(); // 既に定義されているlogout関数を呼び出す
+                logout();
             }
         });
     }

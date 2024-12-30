@@ -68,7 +68,7 @@
     {% endif %}
 
     <!-- コメントセクション -->
-    <div class="comments-container" style="overflow-y: auto; height: 100vh; margin: 0 20px;">
+    <div class="comments-container" style="overflow-y: auto; margin: 0 20px;">
         <div class="comments-list mt-4">
             <h3 style="font-size: 24px; font-weight: bold">コメント</h3>
             {% for comment in comments_list %}
@@ -228,6 +228,25 @@
 .author-link:hover {
     color: #0056b3 !important;
     text-decoration: underline !important;
+}
+
+/* コメントコンテナのスタイル修正 */
+.comments-container {
+    max-height: calc(100vh - 200px) !important; /* ヘッダーとマージンの分を引く */
+    padding-bottom: 60px !important; /* 下部に余白を追加 */
+}
+
+/* 折りたたみボタンのスタイル */
+.collapse-button {
+    position: sticky !important;
+    bottom: 10px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 100 !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    padding: 5px 15px !important;
+    border-radius: 20px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 </style>
 
