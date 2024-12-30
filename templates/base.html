@@ -400,22 +400,34 @@
         // フォーム送信処理
         const form = document.getElementById('contactForm');
         if (form) {
+            form.removeEventListener('submit', null);  // 既存のイベントリスナーを削除
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 console.log('Form submission started');  // デバッグ用
                 
                 try {
+                    const formData = new FormData(this);
+                    
+                    // FormDataの内容をデバッグ用に出力
+                    for (let pair of formData.entries()) {
+                        console.log(pair[0] + ': ' + pair[1]);
+                    }
+
                     const response = await fetch(this.action, {
                         method: 'POST',
-                        body: new FormData(this),
+                        body: formData,
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRFToken': csrftoken
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                         },
                         credentials: 'same-origin'
                     });
                     
                     console.log('Response status:', response.status);  // デバッグ用
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                     
                     const data = await response.json();
                     console.log('Response data:', data);  // デバッグ用
@@ -431,7 +443,7 @@
                         throw new Error(data.message || 'エラーが発生しました。');
                     }
                 } catch (error) {
-                    console.error('Error:', error);
+                    console.error('Error details:', error);
                     alert('エラーが発生しました。もう一度お試しください。\n' + error.message);
                 }
             });
@@ -443,5 +455,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
     {% block scripts %}{% endblock %}
+
+    <script>
+    window.onerror = function(msg, url, line) {
+        alert('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + line);
+        return false;
+    };
+    </script>
 </body>
 </html>
