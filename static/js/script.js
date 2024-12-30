@@ -289,42 +289,43 @@ function getCookie(name) {
     return cookieValue;
 }
 
-    document.querySelectorAll('.comment').forEach(function(comment) {
-        const content = comment.querySelector('.comment-content');
+    // document.querySelectorAll('.comment').forEach(function(comment) {
+    //     const content = comment.querySelector('.comment-content');
         
-        // 一時的に制限を解除して実際の高さを取得
-        content.style.maxHeight = 'none';
-        const contentHeight = content.offsetHeight;
+    //     // 一時的に制限を解除して実際の高さを取得
+    //     content.style.maxHeight = 'none';
+    //     const contentHeight = content.offsetHeight;
         
-        // 80pxより高い場合のみ縮める処理を適用
-        if (contentHeight > 80) {
-            content.style.maxHeight = '80px';
-            content.style.overflow = 'hidden';
+    //     // 80pxより高い場合のみ縮める処理を適用
+    //     if (contentHeight > 80) {
+    //         content.style.maxHeight = '80px';
+    //         content.style.overflow = 'hidden';
             
-            // ボタンを配置するdivを作成
-            const buttonContainer = document.createElement('div');
-            buttonContainer.style.marginTop = '5px';
+    //         // ボタンを配置するdivを作成
+    //         const buttonContainer = document.createElement('div');
+    //         buttonContainer.style.marginTop = '5px';
             
-            // もっと見る/縮めるボタンを作成
-            const button = document.createElement('button');
-            button.textContent = 'もっと見る';
-            button.classList.add('toggle-button');
+    //         // もっと見る/縮めるボタンを作成
+    //         const button = document.createElement('button');
+    //         button.textContent = 'もっと見る';
+    //         button.classList.add('toggle-button');
             
-            // コメント枠の後ろにボタンコンテナを配置
-            comment.after(buttonContainer);
-            buttonContainer.appendChild(button);
+    //         // コメント枠の後ろにボタンコンテナを配置
+    //         comment.after(buttonContainer);
+    //         buttonContainer.appendChild(button);
             
-            button.addEventListener('click', function() {
-                if (content.style.maxHeight === '80px') {
-                    content.style.maxHeight = 'none';
-                    button.textContent = '▲ 縮める';
-                } else {
-                    content.style.maxHeight = '80px';
-                    button.textContent = 'もっと見る';
-                }
-            });
-        }
-    });
+    //         button.addEventListener('click', function() {
+    //             if (content.style.maxHeight === '80px') {
+    //                 content.style.maxHeight = 'none';
+    //                 button.textContent = '▲ 縮める';
+    //             } else {
+    //                 content.style.maxHeight = '80px';
+    //                 button.textContent = 'もっと見る';
+    //             }
+    //         });
+    //     }
+    // }
+// );
 
 
 
