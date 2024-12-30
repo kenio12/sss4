@@ -443,19 +443,39 @@ document.addEventListener('DOMContentLoaded', function() {
                     newCommentDiv.appendChild(authorP);
                     newCommentDiv.appendChild(contentP);
                     
-                    // コメントリストの最初に新しいコメントを追加
-                    const commentsContainer = document.querySelector('.comments-list');
-                    const firstComment = commentsContainer.querySelector('div.comment');
+                    // ここから新しいコード追加
+                    // 新しく投稿されたコメントの高さをチェックして必要に応じて「もっと見る」ボタンを追加
+                    const content = contentP;
+                    content.style.maxHeight = 'none';
+                    const contentHeight = content.offsetHeight;
                     
-                    if (firstComment) {
-                        commentsContainer.insertBefore(newCommentDiv, firstComment);
-                    } else {
-                        // 最初のコメントの場合
-                        const emptyMessage = commentsContainer.querySelector('p');
-                        if (emptyMessage) {
-                            emptyMessage.remove();
-                        }
-                        commentsContainer.appendChild(newCommentDiv);
+                    if (contentHeight > 120) {  // 4行以上の場合
+                        content.style.maxHeight = '120px';
+                        content.style.overflow = 'hidden';
+                        
+                        const buttonContainer = document.createElement('div');
+                        const button = document.createElement('button');
+                        button.textContent = 'もっと見る';
+                        button.style.cursor = 'pointer';
+                        button.style.backgroundColor = 'transparent';
+                        button.style.border = 'none';
+                        button.style.outline = 'none';
+                        button.style.fontSize = '16px';
+                        
+                        buttonContainer.appendChild(button);
+                        
+                        button.addEventListener('click', function() {
+                            if (content.style.maxHeight === '120px') {
+                                content.style.maxHeight = 'none';
+                                button.textContent = '▲ 縮める';
+                            } else {
+                                content.style.maxHeight = '120px';
+                                button.textContent = 'もっと見る';
+                            }
+                        });
+                        
+                        // 新しいコメントの後にボタンを追加
+                        newCommentDiv.after(buttonContainer);
                     }
                     
                     console.log('Comment added successfully');
