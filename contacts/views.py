@@ -48,25 +48,38 @@ class ContactCreateView(CreateView):
     success_url = reverse_lazy('home:terms')
     
     def form_valid(self, form):
-        form.instance.source = self.request.POST.get('source', 'other')
-        self.object = form.save()
-        
-        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'status': 'success',
-                'message': 'お問い合わせありがとうございます。'
-            })
-        
-        messages.success(self.request, 'お問い合わせを受け付けました。')
-        return super().form_valid(form)
+        try:
+            form.instance.source = self.request.POST.get('source', 'other')
+            self.object = form.save()
+            
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'お問い合わせありがとうございます。'
+                })
+            
+            messages.success(self.request, 'お問い合わせを受け付けました。')
+            return super().form_valid(form)
+            
+        except Exception as e:
+            # エラーログを出力
+            print(f"Error in form_valid: {str(e)}")
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'サーバーエラーが発生しました。'
+                }, status=500)
+            raise
     
     def form_invalid(self, form):
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # フォームのエラーを詳細に返す
+            errors = {field: err.get_json_data() for field, err in form.errors.items()}
             return JsonResponse({
                 'status': 'error',
-                'errors': form.errors,
+                'errors': errors,
                 'message': '入力内容に問題があります。'
-            })
+            }, status=400)
         
         messages.error(self.request, '入力内容に問題があります。')
         return super().form_invalid(form) 
