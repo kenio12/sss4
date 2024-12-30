@@ -291,38 +291,36 @@ function getCookie(name) {
 
     document.querySelectorAll('.comment').forEach(function(comment) {
         const content = comment.querySelector('.comment-content');
-        // コメントの高さを取得するために一時的に展開する
+        
+        // 一時的に制限を解除して実際の高さを取得
         content.style.maxHeight = 'none';
         const contentHeight = content.offsetHeight;
-
-        // コメントの内容が特定の高さを超えている場合のみボタンを追加
-        if (contentHeight > 80) { // 80px = 5行分の高さ（おおよその値）
+        
+        // 80pxより高い場合のみ縮める処理を適用
+        if (contentHeight > 80) {
+            content.style.maxHeight = '80px';
+            content.style.overflow = 'hidden';
+            
+            // ボタンを配置するdivを作成
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.marginTop = '5px';
+            
+            // もっと見る/縮めるボタンを作成
             const button = document.createElement('button');
             button.textContent = 'もっと見る';
             button.classList.add('toggle-button');
             
-            // ボタンを内容の後に追加するためのdivを作成
-            const buttonContainer = document.createElement('div');
-            buttonContainer.classList.add('button-container');
-            buttonContainer.style.marginTop = '10px';  // ボタンと内容の間にスペースを追加
+            // コメント枠の後ろにボタンコンテナを配置
+            comment.after(buttonContainer);
             buttonContainer.appendChild(button);
             
-            // 内容の後にボタンを配置
-            content.parentNode.insertBefore(buttonContainer, content.nextSibling);
-
-            // 初期状態で折りたたむ
-            content.style.maxHeight = '80px';
-            content.style.overflow = 'hidden';
-
             button.addEventListener('click', function() {
-                if (content.classList.contains('expanded')) {
-                    content.classList.remove('expanded');
+                if (content.style.maxHeight === '80px') {
+                    content.style.maxHeight = 'none';
+                    button.textContent = '縮める';
+                } else {
                     content.style.maxHeight = '80px';
                     button.textContent = 'もっと見る';
-                } else {
-                    content.classList.add('expanded');
-                    content.style.maxHeight = 'none';  // 高さ制限を解除
-                    button.textContent = '▼ 折りたたむ';
                 }
             });
         }
