@@ -319,6 +319,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// コメントの既読/未読切り替え処理
 function toggleCommentReadStatus(commentId, checkbox) {
     fetch(`/novels/comments/${commentId}/toggle-read/`, {
         method: 'POST',
@@ -333,7 +334,7 @@ function toggleCommentReadStatus(commentId, checkbox) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // チェックボックスの親要素（label）の背景色を更新
+            // チェックボックスの親要素の背景色を更新
             const label = checkbox.closest('.mark-as-read');
             if (!checkbox.checked) {
                 label.setAttribute('style', 'background-color: pink !important');
@@ -341,56 +342,8 @@ function toggleCommentReadStatus(commentId, checkbox) {
                 label.setAttribute('style', 'background-color: #f8f9fa !important');
             }
 
-            // 未読コメントアイコンの更新処理
-            const unreadCommentsDiv = document.getElementById('unread-comments');
-            
-            // 現在の色インデックスを保持
-            const currentIcons = unreadCommentsDiv.querySelectorAll('.comment-icon-container');
-            const currentColors = {};
-            currentIcons.forEach(icon => {
-                const novelId = icon.closest('a').href.split('/').slice(-2)[0];
-                const colorClass = Array.from(icon.classList)
-                    .find(cls => cls.startsWith('color-'));
-                if (colorClass) {
-                    const currentColor = colorClass.split('-')[1];
-                    console.log('既存の色 - Novel ID:', novelId, 'Color:', currentColor);
-                    currentColors[novelId] = currentColor;
-                }
-            });
-
-            unreadCommentsDiv.innerHTML = '';
-
-            // 新しいアイコンを追加（既存の色維持）
-            data.novels_with_unread
-                .filter(novel => novel.unread_count > 0)
-                .forEach((novel, index) => {
-                    const colorIndex = currentColors[novel.id] || (index % 10);
-                    console.log('Detail.html - New color for novel', novel.id, ':', colorIndex);
-                    console.log('Detail.html - Using existing color?', !!currentColors[novel.id]);
-
-                    const commentLink = document.createElement('a');
-                    commentLink.href = `/novels/${novel.id}/`;
-                    commentLink.className = 'comment-link';
-                    commentLink.title = '未読コメント';
-
-                    const iconContainer = document.createElement('div');
-                    iconContainer.className = `comment-icon-container color-${colorIndex}`;
-                    iconContainer.style.cssText = `
-                        width: 25px !important;
-                        height: 25px !important;
-                        background-image: url('/static/images/comments-icon.svg') !important;
-                        background-size: cover !important;
-                        position: relative !important;
-                    `;
-
-                    const unreadCount = document.createElement('span');
-                    unreadCount.className = 'unread-count';
-                    unreadCount.textContent = novel.unread_count;
-
-                    iconContainer.appendChild(unreadCount);
-                    commentLink.appendChild(iconContainer);
-                    unreadCommentsDiv.appendChild(commentLink);
-                });
+            // 未読コメントアイコンの更新
+            updateUnreadCommentsIcon(data.novels_with_unread);
         } else {
             checkbox.checked = !checkbox.checked;
             console.error('Error:', data.error);
@@ -400,6 +353,60 @@ function toggleCommentReadStatus(commentId, checkbox) {
         checkbox.checked = !checkbox.checked;
         console.error('Error:', error);
     });
+}
+
+// 未読コメントアイコンの更新処理を分離
+function updateUnreadCommentsIcon(novelsWithUnread) {
+    const unreadCommentsDiv = document.getElementById('unread-comments');
+    const currentIcons = unreadCommentsDiv.querySelectorAll('.comment-icon-container');
+    const currentColors = {};
+    
+    // 既存の色情報を保持
+    currentIcons.forEach(icon => {
+        const novelId = icon.closest('a').href.split('/').slice(-2)[0];
+        const colorClass = Array.from(icon.classList).find(cls => cls.startsWith('color-'));
+        if (colorClass) {
+            currentColors[novelId] = colorClass.split('-')[1];
+        }
+    });
+
+    unreadCommentsDiv.innerHTML = '';
+
+    // 新しいアイコンを追加
+    novelsWithUnread
+        .filter(novel => novel.unread_count > 0)
+        .forEach((novel, index) => {
+            const colorIndex = currentColors[novel.id] || (index % 10);
+            const commentLink = createCommentLink(novel, colorIndex);
+            unreadCommentsDiv.appendChild(commentLink);
+        });
+}
+
+// コメントリンク要素の作成を分離
+function createCommentLink(novel, colorIndex) {
+    const commentLink = document.createElement('a');
+    commentLink.href = `/novels/${novel.id}/`;
+    commentLink.className = 'comment-link';
+    commentLink.title = '未読コメント';
+
+    const iconContainer = document.createElement('div');
+    iconContainer.className = `comment-icon-container color-${colorIndex}`;
+    iconContainer.style.cssText = `
+        width: 25px !important;
+        height: 25px !important;
+        background-image: url('/static/images/comments-icon.svg') !important;
+        background-size: cover !important;
+        position: relative !important;
+    `;
+
+    const unreadCount = document.createElement('span');
+    unreadCount.className = 'unread-count';
+    unreadCount.textContent = novel.unread_count;
+
+    iconContainer.appendChild(unreadCount);
+    commentLink.appendChild(iconContainer);
+    
+    return commentLink;
 }
 
 document.addEventListener('DOMContentLoaded', function() {

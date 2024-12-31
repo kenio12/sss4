@@ -332,103 +332,128 @@
         }
     </script>
 
-    <script type="text/javascript">
-        var logoutUrl = "{% url 'accounts:logout_view' %}";
-    </script>
-
     <script src="{% static 'js/script.js' %}" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-        let lastScrollTop = 0;
+    document.addEventListener('DOMContentLoaded', function() {
+        // ヘッダーのスクロール制御
         const header = document.querySelector('.fixed-header');
-        const scrollThreshold = 5;  // スクロールの閾値
-
+        let lastScrollTop = 0;
+        
         window.addEventListener('scroll', () => {
             const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
             
             if (currentScroll > lastScrollTop && currentScroll > 50) {
-                // 下スクロール時
                 header.classList.add('header-hidden');
             } else {
-                // 上スクロール時
                 header.classList.remove('header-hidden');
             }
             
             lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
         }, { passive: true });
-    </script>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // お問い合わせモーダルを開く関数
-        window.openContactModal = function(source) {
-            document.getElementById('contactSource').value = source;
-            var modal = new bootstrap.Modal(document.getElementById('contactModal'));
-            modal.show();
+        // ヘッダーの高さ設定
+        function setHeaderHeight() {
+            const headerHeight = header.offsetHeight;
+            document.querySelector('.main-content').style.paddingTop = headerHeight + 'px';
         }
 
-        // フォーム送信処理
-        const form = document.getElementById('contactForm');
-        if (form) {
-            form.removeEventListener('submit', null);  // 既存のイベントリスナーを削除
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                console.log('Form submission started');  // デバッグ用
-                
-                try {
-                    const formData = new FormData(this);
-                    
-                    // FormDataの内容をデバッグ用に出力
-                    for (let pair of formData.entries()) {
-                        console.log(pair[0] + ': ' + pair[1]);
-                    }
+        setHeaderHeight();
+        window.addEventListener('resize', setHeaderHeight);
 
-                    const response = await fetch(this.action, {
+        // ドロップダウンメニューの制御
+        const userNickname = document.getElementById('user-nickname');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        if (userNickname && dropdownMenu) {
+            userNickname.addEventListener('click', function(event) {
+                event.preventDefault();
+                dropdownMenu.style.display = dropdownMenu.style.display === 'none' || !dropdownMenu.style.display ? 'block' : 'none';
+            });
+        }
+
+        // ログアウト処理
+        const logoutIcon = document.getElementById('logout-icon');
+        if (logoutIcon) {
+            logoutIcon.addEventListener('click', function(e) {
+                e.preventDefault();
+                const logoutConfirmed = confirm("ログアウトするっすか？");
+                if (logoutConfirmed) {
+                    fetch("{% url 'accounts:logout_view' %}", {
                         method: 'POST',
-                        body: formData,
                         headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                            'Accept': 'application/json'  // JSONレスポンスを要求
+                            'X-CSRFToken': csrftoken,
+                            'Content-Type': 'application/json'
                         },
                         credentials: 'same-origin'
-                    });
-                    
-                    // デバッグ用のログ
-                    console.log('Request URL:', this.action);
-                    console.log('Request headers:', {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                        'Accept': 'application/json'
-                    });
-                    
-                    console.log('Response headers:', response.headers);
-                    console.log('Response status:', response.status);
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    console.log('Response data:', data);  // デバッグ用
-
-                    if (data.status === 'success') {
-                        alert('お問い合わせありがとうございます。');
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('contactModal'));
-                        if (modal) {
-                            modal.hide();
+                    }).then(response => {
+                        if (response.ok) {
+                            window.location.href = '/';
+                        } else {
+                            alert('ログアウトに失敗しました。');
                         }
-                        this.reset();
-                    } else {
-                        throw new Error(data.message || 'エラーが発生しました。');
-                    }
-                } catch (error) {
-                    console.error('Error details:', error);
-                    alert('エラーが発生しました。もう一度お試しください。\n' + error.message);
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        alert('ログアウト処理中にエラーが発生しました。');
+                    });
                 }
             });
+        }
+    });
+    </script>
+
+    <!-- 未読コメントアイコン関連のスクリプトをまとめる -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const unreadCommentsDiv = document.getElementById('unread-comments');
+        if (!unreadCommentsDiv) return;
+
+        // 未読コメントアイコンの更新
+        window.updateUnreadCommentsIcon = function(novelsWithUnread) {
+            const currentColors = getCurrentColors();
+            updateIcons(novelsWithUnread, currentColors);
+        };
+
+        function getCurrentColors() {
+            const colors = {};
+            unreadCommentsDiv.querySelectorAll('.comment-icon-container').forEach(icon => {
+                const novelId = icon.closest('a').href.split('/').slice(-2)[0];
+                const colorClass = Array.from(icon.classList).find(cls => cls.startsWith('color-'));
+                if (colorClass) {
+                    colors[novelId] = colorClass.split('-')[1];
+                }
+            });
+            return colors;
+        }
+
+        function updateIcons(novels, currentColors) {
+            unreadCommentsDiv.innerHTML = '';
+            novels
+                .filter(novel => novel.unread_count > 0)
+                .forEach((novel, index) => {
+                    const colorIndex = currentColors[novel.id] || (index % 10);
+                    unreadCommentsDiv.appendChild(createCommentLink(novel, colorIndex));
+                });
+        }
+
+        function createCommentLink(novel, colorIndex) {
+            const link = document.createElement('a');
+            link.href = `/novels/${novel.id}/`;
+            link.className = 'comment-link';
+            link.title = '未読コメント';
+
+            const iconContainer = document.createElement('div');
+            iconContainer.className = `comment-icon-container color-${colorIndex}`;
+
+            const unreadCount = document.createElement('span');
+            unreadCount.className = 'unread-count';
+            unreadCount.textContent = novel.unread_count;
+
+            iconContainer.appendChild(unreadCount);
+            link.appendChild(iconContainer);
+            
+            return link;
         }
     });
     </script>
@@ -444,5 +469,7 @@
         return false;
     };
     </script>
+
+
 </body>
 </html>

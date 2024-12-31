@@ -81,22 +81,22 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    function logout() {
-        fetch(logoutUrl, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin'
-        }).then(response => {
-            if (response.ok) {
-                window.location.href = '/';  // ホームページにリダイレクト
-            } else {
-                alert('ログアウトに失敗しました。');
-            }
-        });
-    }
+    // function logout() {
+    //     fetch(logoutUrl, {
+    //         method: 'POST',
+    //         headers: {
+    //             'X-CSRFToken': getCookie('csrftoken'),
+    //             'Content-Type': 'application/json'
+    //         },
+    //         credentials: 'same-origin'
+    //     }).then(response => {
+    //         if (response.ok) {
+    //             window.location.href = '/';  // ホームページにリダイレクト
+    //         } else {
+    //             alert('ログアウトに失敗しました。');
+    //         }
+    //     });
+    // }
 
     const logoutLink = document.getElementById('logout-link');
     if (logoutLink) {
@@ -204,17 +204,17 @@ document.querySelectorAll('.toggle-read-status').forEach(function(checkbox) {
         setInitialTextareaHeight();
     }
 
-    // ログアウトアイコンのクリックイベントを処理
-    const logoutIcon = document.getElementById('logout-icon');
-    if (logoutIcon) {
-        logoutIcon.addEventListener('click', function(event) {
-            event.preventDefault();
-            const logoutConfirmed = confirm("ログアウトするっすか？");
-            if (logoutConfirmed) {
-                logout();
-            }
-        });
-    }
+    // // ログアウトアイコンのクリックイベントを処理
+    // const logoutIcon = document.getElementById('logout-icon');
+    // if (logoutIcon) {
+    //     logoutIcon.addEventListener('click', function(event) {
+    //         event.preventDefault();
+    //         const logoutConfirmed = confirm("ログアウトするっすか？");
+    //         if (logoutConfirmed) {
+    //             logout();
+    //         }
+    //     });
+    // }
 
     // コメントテキストエリアの文字数カウントと警告メッセージの表示
     const commentTextarea = document.querySelector('.comment-textarea');

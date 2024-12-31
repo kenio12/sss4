@@ -1,22 +1,22 @@
 document.addEventListener("DOMContentLoaded", function() {
-    var lastScrollTop = 0;
-    var header = document.querySelector(".fixed-header");
+    // var lastScrollTop = 0;
+    // var header = document.querySelector(".fixed-header");
 
-    window.addEventListener("scroll", function() {
-        var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+    // window.addEventListener("scroll", function() {
+    //     var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
         
-        // 上にスクロールした場合、ヘッダーを表示
-        if (currentScroll < lastScrollTop) {
-            header.style.top = "0";
-        } 
-        // 下にスクロールした場合、ヘッダーを非表示
-        else if (currentScroll > lastScrollTop) {
-            header.style.top = "-100px"; // ヘッダーの高さに合わせて調整してください
-        }
+    //     // 上にスクロールした場合、ヘッダーを表示
+    //     if (currentScroll < lastScrollTop) {
+    //         header.style.top = "0";
+    //     } 
+    //     // 下にスクロールした場合、ヘッダーを非表示
+    //     else if (currentScroll > lastScrollTop) {
+    //         header.style.top = "-100px"; // ヘッダーの高さに合わせて調整してください
+    //     }
         
-        // 0以下にならないようにする
-        lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
-    }, false);
+    //     // 0以下にならないようにする
+    //     lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+    // }, false);
 
     var scrollPosition = localStorage.getItem('scrollPosition');
     if (scrollPosition) {
@@ -71,71 +71,46 @@ document.addEventListener("DOMContentLoaded", function() {
     //     });
     // });
 
-    const userNickname = document.getElementById('user-nickname');
-    const dropdownMenu = document.getElementById('dropdown-menu');
-    if (userNickname && dropdownMenu) {
-        userNickname.addEventListener('click', function(event) {
-            console.log("ニックネームがクリックされました。"); // この行を追加
-            event.preventDefault();
-            dropdownMenu.style.display = dropdownMenu.style.display === "none" || !dropdownMenu.style.display ? "block" : "none";
-        });
-    }
-
-    function logout() {
-        fetch(logoutUrl, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin'
-        }).then(response => {
-            if (response.ok) {
-                window.location.href = '/';  // ホームページにリダイレクト
-            } else {
-                alert('ログアウトに失敗しました。');
-            }
-        });
-    }
-
-    const logoutLink = document.getElementById('logout-link');
-    if (logoutLink) {
-        logoutLink.addEventListener('click', function(event) {
-            event.preventDefault();
-            logout();
-        });
-    }
+    // const userNickname = document.getElementById('user-nickname');
+    // const dropdownMenu = document.getElementById('dropdown-menu');
+    // if (userNickname && dropdownMenu) {
+    //     userNickname.addEventListener('click', function(event) {
+    //         console.log("ニックネームがクリックされました。"); // この行を追加
+    //         event.preventDefault();
+    //         dropdownMenu.style.display = dropdownMenu.style.display === "none" || !dropdownMenu.style.display ? "block" : "none";
+    //     });
+    // }
 
     // 以下ヘッダーをスクロールで出したり引っ込めたりの部分
     // ヘッダーの高さを設定する関数
-    function setHeaderHeight() {
-        var headerHeight = document.querySelector(".fixed-header").offsetHeight;
-        document.querySelector(".main-content").style.paddingTop = headerHeight + "px";
-    }
+    // function setHeaderHeight() {
+    //     var headerHeight = document.querySelector(".fixed-header").offsetHeight;
+    //     document.querySelector(".main-content").style.paddingTop = headerHeight + "px";
+    // }
 
-    // 初期ロード時にヘッダーの高さを設定
-    setHeaderHeight();
+    // // 初期ロード時にヘッダーの高さを設定
+    // setHeaderHeight();
 
-    // ウィンドウのサイズが変更された時にヘッダーの高さを再設定
-    window.addEventListener('resize', setHeaderHeight);
+    // // ウィンドウのサイズが変更された時にヘッダーの高さを再設定
+    // window.addEventListener('resize', setHeaderHeight);
 
-    // ヘッダーの高さに基づいてメインコンテンツのpadding-topを設定
-    var headerHeight = document.querySelector(".fixed-header").offsetHeight;
-    document.querySelector(".main-content").style.paddingTop = headerHeight + "px";
+    // // ヘッダーの高さに基づいてメインコンテンツのpadding-topを設定
+    // var headerHeight = document.querySelector(".fixed-header").offsetHeight;
+    // document.querySelector(".main-content").style.paddingTop = headerHeight + "px";
 
 // コメントの既読・未読を切り替えるボタンにイベントリスナーを追加
-document.querySelectorAll('.toggle-read-status').forEach(function(checkbox) {
-    checkbox.addEventListener('change', function() {
-        console.log('Dataset:', this.dataset); // datasetの内容を確認
-        const commentId = this.dataset.commentId;
-        const novelId = this.dataset.novelId; // 小説のIDを取得
-        console.log('Novel ID:', novelId); // novelIdの値を確認
-        const isRead = this.checked;
+// document.querySelectorAll('.toggle-read-status').forEach(function(checkbox) {
+//     checkbox.addEventListener('change', function() {
+//         console.log('Dataset:', this.dataset); // datasetの内容を確認
+//         const commentId = this.dataset.commentId;
+//         const novelId = this.dataset.novelId; // 小説のIDを取得
+//         console.log('Novel ID:', novelId); // novelIdの値を確認
+//         const isRead = this.checked;
 
-        // toggleReadStatus 関数を呼び出して、コメントの既読状態を切り替える
-        toggleReadStatus(commentId, isRead, novelId);
-    });
-});
+//         // toggleReadStatus 関数を呼び出して、コメントの既読状態を切り替える
+//         toggleReadStatus(commentId, isRead, novelId);
+//     });
+// });
 
 // ページ読み込み時と定期的に未読コメント数を更新
 // updateUnreadCommentsCount();
@@ -205,16 +180,16 @@ document.querySelectorAll('.toggle-read-status').forEach(function(checkbox) {
     }
 
     // ログアウトアイコンのクリックイベントを処理
-    const logoutIcon = document.getElementById('logout-icon');
-    if (logoutIcon) {
-        logoutIcon.addEventListener('click', function(event) {
-            event.preventDefault();
-            const logoutConfirmed = confirm("ログアウトするっすか？");
-            if (logoutConfirmed) {
-                logout();
-            }
-        });
-    }
+    // const logoutIcon = document.getElementById('logout-icon');
+    // if (logoutIcon) {
+    //     logoutIcon.addEventListener('click', function(event) {
+    //         event.preventDefault();
+    //         const logoutConfirmed = confirm("ログアウトするっすか？");
+    //         if (logoutConfirmed) {
+    //             logout();
+    //         }
+    //     });
+    // }
 
     // コメントテキストエリアの文字数カウントと警告メッセージの表示
     const commentTextarea = document.querySelector('.comment-textarea');
@@ -332,35 +307,35 @@ function getCookie(name) {
 
 
 
-// コメントフォームの送信をハンドルする関数
-function handleCommentSubmit(event) {
-    event.preventDefault();
-    const form = event.target;
-    const formData = new FormData(form);
+// // コメントフォームの送信をハンドルする関数
+// function handleCommentSubmit(event) {
+//     event.preventDefault();
+//     const form = event.target;
+//     const formData = new FormData(form);
 
-    fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // コメントリストを更新
-            loadComments();
-            // フォームをリセット
-            form.reset();
-        }
-    })
-    .catch(error => console.error('Error:', error));
-}
+//     fetch(form.action, {
+//         method: 'POST',
+//         body: formData,
+//         headers: {
+//             'X-Requested-With': 'XMLHttpRequest'
+//         }
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             // コメントリストを更新
+//             loadComments();
+//             // フォームをリセット
+//             form.reset();
+//         }
+//     })
+//     .catch(error => console.error('Error:', error));
+// }
 
-    // コメントフォームにイベントリスナーを追加
-    document.addEventListener('DOMContentLoaded', function() {
-        const commentForm = document.getElementById('comment-form');
-        if (commentForm) {
-            commentForm.addEventListener('submit', handleCommentSubmit);
-        }
-    });
+//     // コメントフォームにイベントリスナーを追加
+//     document.addEventListener('DOMContentLoaded', function() {
+//         const commentForm = document.getElementById('comment-form');
+//         if (commentForm) {
+//             commentForm.addEventListener('submit', handleCommentSubmit);
+//         }
+//     });
