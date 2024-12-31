@@ -26,8 +26,8 @@ class HomePageView(ListView):
         context = super().get_context_data(**kwargs)
         now = timezone.now()
         
-        # 既存のコンテキスト
-        context['now'] = now.strftime('%m')
+        # 先頭の0を取り除いた月を設定
+        context['now'] = str(now.month)  # strftime('%m') から変更
         context['announcements'] = Announcement.objects.filter(
             is_pinned=True,
             is_active=True

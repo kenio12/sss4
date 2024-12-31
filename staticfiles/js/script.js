@@ -1,23 +1,37 @@
 document.addEventListener("DOMContentLoaded", function() {
-    var lastScrollTop = 0;
-    var header = document.querySelector(".fixed-header");
+    // var lastScrollTop = 0;
+    // var header = document.querySelector(".fixed-header");
 
-    window.addEventListener("scroll", function() {
-        var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+    // window.addEventListener("scroll", function() {
+    //     var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
         
-        // 上にスクロールした場合、ヘッダーを表示
-        if (currentScroll < lastScrollTop) {
-            header.style.top = "0";
-        } 
-        // 下にスクロールした場合、ヘッダーを非表示
-        else if (currentScroll > lastScrollTop) {
-            header.style.top = "-100px"; // ヘッダーの高さに合わせて調整してください
-        }
+    //     // 上にスクロールした場合、ヘッダーを表示
+    //     if (currentScroll < lastScrollTop) {
+    //         header.style.top = "0";
+    //     } 
+    //     // 下にスクロールした場合、ヘッダーを非表示
+    //     else if (currentScroll > lastScrollTop) {
+    //         header.style.top = "-100px"; // ヘッダーの高さに合わせて調整してください
+    //     }
         
-        // 0以下にならないようにする
-        lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
-    }, false);
+    //     // 0以下にならないようにする
+    //     lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+    // }, false);
 
+    /**
+     * グローバルスクロール位置管理
+     * 
+     * このコードは意図的にscript.jsに配置しています。
+     * 理由：
+     * 1. アプリケーション全体で使用される基本機能
+     * 2. フレームワークに依存しない汎用的な実装
+     * 3. ページ間のスクロール位置の一貫性を保つため
+     * 
+     * 使用例：
+     * - ページネーション間の移動
+     * - 詳細ページから一覧への戻り
+     * - 検索結果ページでの位置保持
+     */
     var scrollPosition = localStorage.getItem('scrollPosition');
     if (scrollPosition) {
         window.scrollTo(0, parseInt(scrollPosition));
@@ -71,122 +85,97 @@ document.addEventListener("DOMContentLoaded", function() {
     //     });
     // });
 
-    const userNickname = document.getElementById('user-nickname');
-    const dropdownMenu = document.getElementById('dropdown-menu');
-    if (userNickname && dropdownMenu) {
-        userNickname.addEventListener('click', function(event) {
-            console.log("ニックネームがクリックされました。"); // この行を追加
-            event.preventDefault();
-            dropdownMenu.style.display = dropdownMenu.style.display === "none" || !dropdownMenu.style.display ? "block" : "none";
-        });
-    }
-
-    // function logout() {
-    //     fetch(logoutUrl, {
-    //         method: 'POST',
-    //         headers: {
-    //             'X-CSRFToken': getCookie('csrftoken'),
-    //             'Content-Type': 'application/json'
-    //         },
-    //         credentials: 'same-origin'
-    //     }).then(response => {
-    //         if (response.ok) {
-    //             window.location.href = '/';  // ホームページにリダイレクト
-    //         } else {
-    //             alert('ログアウトに失敗しました。');
-    //         }
+    // const userNickname = document.getElementById('user-nickname');
+    // const dropdownMenu = document.getElementById('dropdown-menu');
+    // if (userNickname && dropdownMenu) {
+    //     userNickname.addEventListener('click', function(event) {
+    //         console.log("ニックネームがクリックされました。"); // この行を追加
+    //         event.preventDefault();
+    //         dropdownMenu.style.display = dropdownMenu.style.display === "none" || !dropdownMenu.style.display ? "block" : "none";
     //     });
     // }
 
-    const logoutLink = document.getElementById('logout-link');
-    if (logoutLink) {
-        logoutLink.addEventListener('click', function(event) {
-            event.preventDefault();
-            logout();
-        });
-    }
-
     // 以下ヘッダーをスクロールで出したり引っ込めたりの部分
     // ヘッダーの高さを設定する関数
-    function setHeaderHeight() {
-        var headerHeight = document.querySelector(".fixed-header").offsetHeight;
-        document.querySelector(".main-content").style.paddingTop = headerHeight + "px";
-    }
+    // function setHeaderHeight() {
+    //     var headerHeight = document.querySelector(".fixed-header").offsetHeight;
+    //     document.querySelector(".main-content").style.paddingTop = headerHeight + "px";
+    // }
 
-    // 初期ロード時にヘッダーの高さを設定
-    setHeaderHeight();
+    // // 初期ロード時にヘッダーの高さを設定
+    // setHeaderHeight();
 
-    // ウィンドウのサイズが変更された時にヘッダーの高さを再設定
-    window.addEventListener('resize', setHeaderHeight);
+    // // ウィンドウのサイズが変更された時にヘッダーの高さを再設定
+    // window.addEventListener('resize', setHeaderHeight);
 
-    // ヘッダーの高さに基づいてメインコンテンツのpadding-topを設定
-    var headerHeight = document.querySelector(".fixed-header").offsetHeight;
-    document.querySelector(".main-content").style.paddingTop = headerHeight + "px";
+    // // ヘッダーの高さに基づいてメインコンテンツのpadding-topを設定
+    // var headerHeight = document.querySelector(".fixed-header").offsetHeight;
+    // document.querySelector(".main-content").style.paddingTop = headerHeight + "px";
 
 // コメントの既読・未読を切り替えるボタンにイベントリスナーを追加
-document.querySelectorAll('.toggle-read-status').forEach(function(checkbox) {
-    checkbox.addEventListener('change', function() {
-        console.log('Dataset:', this.dataset); // datasetの内容を確認
-        const commentId = this.dataset.commentId;
-        const novelId = this.dataset.novelId; // 小説のIDを取得
-        console.log('Novel ID:', novelId); // novelIdの値を確認
-        const isRead = this.checked;
+// document.querySelectorAll('.toggle-read-status').forEach(function(checkbox) {
+//     checkbox.addEventListener('change', function() {
+//         console.log('Dataset:', this.dataset); // datasetの内容を確認
+//         const commentId = this.dataset.commentId;
+//         const novelId = this.dataset.novelId; // 小説のIDを取得
+//         console.log('Novel ID:', novelId); // novelIdの値を確認
+//         const isRead = this.checked;
 
-        // toggleReadStatus 関数を呼び出して、コメントの既読状態を切り替える
-        toggleReadStatus(commentId, isRead, novelId);
-    });
-});
+//         // toggleReadStatus 関数を呼び出して、コメントの既読状態を切り替える
+//         toggleReadStatus(commentId, isRead, novelId);
+//     });
+// });
 
 // ページ読み込み時と定期的に未読コメント数を更新
 // updateUnreadCommentsCount();
 // setInterval(updateUnreadCommentsCount, 60000); // 1分ごとに更新
 
 
-    // タイトルの文字数を更新する関数
-    function updateTitleWordCount() {
-        const titleField = document.querySelector('.title');
-        const titleWordCountDisplay = document.getElementById('titleWordCount');
-        if (titleField && titleWordCountDisplay) {
-            const titleWordCount = titleField.value.length;
-            titleWordCountDisplay.textContent = `${titleWordCount} / 30文字`;
-        }
-    }
+    // // タイトルの文字数を更新する関数
+    // function updateTitleWordCount() {
+    //     const titleField = document.querySelector('.title');
+    //     const titleWordCountDisplay = document.getElementById('titleWordCount');
+    //     if (titleField && titleWordCountDisplay) {
+    //         const titleWordCount = titleField.value.length;
+    //         titleWordCountDisplay.textContent = `${titleWordCount} / 30文字`;
+    //     }
+    // }
 
-    // タイトル入力フィールドにイベントリスナーを追加
-    const titleField = document.querySelector('.title');
-    if (titleField) {
-        titleField.addEventListener('input', updateTitleWordCount);
-        updateTitleWordCount(); // ページ読み込み時にタイトルの文字数を更新
-    }
+    // // タイトル入力フィールドにイベントリスナーを追加
+    // const titleField = document.querySelector('.title');
+    // if (titleField) {
+    //     titleField.addEventListener('input', updateTitleWordCount);
+    //     updateTitleWordCount(); // ページ読み込み時にタイトルの文字数を更新
+    // }
 
-    // 小説の内容入力フィールドを取得し、以前の宣言を削除またはコメントアウト
-    const contentInput = document.querySelector('.content'); // この行は残す
-
-
+    // // 小説の内容入力フィールドを取得し、以前の宣言を削除またはコメントアウト
+    // const contentInput = document.querySelector('.content'); // この行は残す
 
 
-    // 文字数を表示する要素を取得
-    const wordCountDisplay = document.getElementById('wordCount');
 
-    // フッターの文字数カウンターを表示する要素を取得
-    const footerWordCountDisplay = document.getElementById('footerWordCount');
 
-    // 文字数を更新する関数
-    function updateFooterWordCount() {
-        if (contentInput && footerWordCountDisplay) {
-            const count = contentInput.value.length;
-            const formattedCount = count.toLocaleString();
-            const formattedMax = (10000).toLocaleString(); // 最大文字数もフォーマット
-            footerWordCountDisplay.textContent = `${formattedCount} / ${formattedMax}文字`;
-        }
-    }
+    // // 文字数を表示する要素を取得
+    // const wordCountDisplay = document.getElementById('wordCount');
 
-    // コンテンツ入力フィールドに 'click' と 'input' イベントリスナーを追加
-    if (contentInput) {
-        // コンテンツ入力フィールドに 'click' と 'input' イベントリスナーを追加
-        contentInput.addEventListener('click', updateFooterWordCount);
-        contentInput.addEventListener('input', updateFooterWordCount);
-    }
+    // // フッターの文字数カウンターを表示する要素を取得
+    // const footerWordCountDisplay = document.getElementById('footerWordCount');
+
+    // // 文字数を更新する関数
+    // function updateFooterWordCount() {
+    //     if (contentInput && footerWordCountDisplay) {
+    //         const count = contentInput.value.length;
+    //         const formattedCount = count.toLocaleString();
+    //         const formattedMax = (10000).toLocaleString(); // 最大文字数もフォーマット
+    //         footerWordCountDisplay.textContent = `${formattedCount} / ${formattedMax}文字`;
+    //     }
+    // }
+
+    // // コンテンツ入力フィールドに 'click' と 'input' イベントリスナーを追加
+    // if (contentInput) {
+    //     // コンテンツ入力フィールドに 'click' と 'input' イベントリスナーを追加
+    //     contentInput.addEventListener('click', updateFooterWordCount);
+    //     contentInput.addEventListener('input', updateFooterWordCount);
+    // }
     
     // テキストエリアの高さを計算して、高さ８５％のテキストエリアにする。
     const contentTextarea = document.querySelector('.content');
@@ -204,7 +193,7 @@ document.querySelectorAll('.toggle-read-status').forEach(function(checkbox) {
         setInitialTextareaHeight();
     }
 
-    // // ログアウトアイコンのクリックイベントを処理
+    // ログアウトアイコンのクリックイベントを処理
     // const logoutIcon = document.getElementById('logout-icon');
     // if (logoutIcon) {
     //     logoutIcon.addEventListener('click', function(event) {
@@ -217,26 +206,41 @@ document.querySelectorAll('.toggle-read-status').forEach(function(checkbox) {
     // }
 
     // コメントテキストエリアの文字数カウントと警告メッセージの表示
-    const commentTextarea = document.querySelector('.comment-textarea');
-    if (commentTextarea) { // コメントテキストエリアが存在する場合のみ実行
-        const feedback = document.createElement('div');
-        feedback.id = 'comment-feedback';
-        commentTextarea.parentNode.insertBefore(feedback, commentTextarea.nextSibling);
+    // const commentTextarea = document.querySelector('.comment-textarea');
+    // if (commentTextarea) { // コメントテキストエリアが存在する場合のみ実行
+    //     const feedback = document.createElement('div');
+    //     feedback.id = 'comment-feedback';
+    //     commentTextarea.parentNode.insertBefore(feedback, commentTextarea.nextSibling);
 
-        commentTextarea.addEventListener('input', function () {
-            const remaining = 1000 - this.value.length;
-            if (remaining < 0) {
-                feedback.innerHTML = '<span style="color: red;">コメントは1000文字までです！</span>';
-            } else {
-                feedback.innerHTML = '残り ' + remaining + ' 文字';
-            }
-        });
-    }
+    //     commentTextarea.addEventListener('input', function () {
+    //         const remaining = 1000 - this.value.length;
+    //         if (remaining < 0) {
+    //             feedback.innerHTML = '<span style="color: red;">コメントは1000文字までです！</span>';
+    //         } else {
+    //             feedback.innerHTML = '残り ' + remaining + ' 文字';
+    //         }
+    //     });
+    // }
 
 
 
-// post+edit画面内のメッセージ非表示関連
-// メッセージの表示/非表示を切り替える共通の関数
+/**
+ * メッセージの表示/非表示を制御する共通機能
+ * 
+ * この機能は以下の場所で使用：
+ * 1. 小説編集画面（post_or_edit_novel.html）
+ *    - 編集プレビュー後の説明メッセージ
+ * 2. その他のチュートリアル的なメッセージ
+ * 
+ * 使用方法：
+ * <p class="toggle-message" id="message-warning" style="display:none;">
+ *     メッセージ内容
+ *     <button class="toggle-message-button">非表示</button>
+ * </p>
+ * 
+ * @param {string} messageId - メッセージ要素のID
+ * @param {string} storageKey - localStorage用のキー名
+ */
 function toggleMessageVisibility(messageId, storageKey) {
     const messageShown = localStorage.getItem(storageKey);
     const messageElement = document.getElementById(messageId);
@@ -274,6 +278,24 @@ function toggleMessageVisibility(messageId, storageKey) {
 
 
 
+/**
+ * CSRFトークンを取得するユーティリティ関数
+ * 
+ * このコードは意図的にscript.jsに配置しています。
+ * 理由：
+ * 1. アプリケーション全体でPOSTリクエスト時に必要
+ * 2. セキュリティ関連の処理は統一的に管理すべき
+ * 3. 各ページでの実装の重複を避ける
+ * 
+ * 主な使用場面：
+ * - 小説関連：投稿、編集、削除、いいね
+ * - コメント関連：投稿、既読/未読切り替え
+ * - ユーザー関連：プロフィール更新、設定変更
+ * - その他：フォーム送信全般、APIリクエスト
+ * 
+ * @param {string} name - クッキーの名前（通常は'csrftoken'）
+ * @returns {string|null} 取得したCSRFトークン、または取得できない場合はnull
+ */
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -332,35 +354,35 @@ function getCookie(name) {
 
 
 
-// コメントフォームの送信をハンドルする関数
-function handleCommentSubmit(event) {
-    event.preventDefault();
-    const form = event.target;
-    const formData = new FormData(form);
+// // コメントフォームの送信をハンドルする関数
+// function handleCommentSubmit(event) {
+//     event.preventDefault();
+//     const form = event.target;
+//     const formData = new FormData(form);
 
-    fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // コメントリストを更新
-            loadComments();
-            // フォームをリセット
-            form.reset();
-        }
-    })
-    .catch(error => console.error('Error:', error));
-}
+//     fetch(form.action, {
+//         method: 'POST',
+//         body: formData,
+//         headers: {
+//             'X-Requested-With': 'XMLHttpRequest'
+//         }
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             // コメントリストを更新
+//             loadComments();
+//             // フォームをリセット
+//             form.reset();
+//         }
+//     })
+//     .catch(error => console.error('Error:', error));
+// }
 
-    // コメントフォームにイベントリスナーを追加
-    document.addEventListener('DOMContentLoaded', function() {
-        const commentForm = document.getElementById('comment-form');
-        if (commentForm) {
-            commentForm.addEventListener('submit', handleCommentSubmit);
-        }
-    });
+//     // コメントフォームにイベントリスナーを追加
+//     document.addEventListener('DOMContentLoaded', function() {
+//         const commentForm = document.getElementById('comment-form');
+//         if (commentForm) {
+//             commentForm.addEventListener('submit', handleCommentSubmit);
+//         }
+//     });
