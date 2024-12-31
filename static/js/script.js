@@ -30,46 +30,46 @@ document.addEventListener("DOMContentLoaded", function() {
     //     };
     // });
 
-    const likeButtons = document.querySelectorAll('.like-button');
-    likeButtons.forEach(function(likeButton) {
-        likeButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            const novelId = this.dataset.novelId;
-            const csrftoken = getCookie('csrftoken');
-            fetch(`/novels/${novelId}/like/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrftoken,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 'novel_id': novelId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                const likeIcon = this.querySelector('.like-icon');
-                likeIcon.src = data.is_liked ? this.dataset.likeImg : this.dataset.unlikeImg;
-                const likeCount = this.nextElementSibling;
-                likeCount.textContent = data.likes_count;
-            })
-            .catch(error => console.error('Error:', error));
+    // const likeButtons = document.querySelectorAll('.like-button');
+    // likeButtons.forEach(function(likeButton) {
+    //     likeButton.addEventListener('click', function(e) {
+    //         e.preventDefault();
+    //         const novelId = this.dataset.novelId;
+    //         const csrftoken = getCookie('csrftoken');
+    //         fetch(`/novels/${novelId}/like/`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'X-CSRFToken': csrftoken,
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({ 'novel_id': novelId }),
+    //         })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const likeIcon = this.querySelector('.like-icon');
+    //             likeIcon.src = data.is_liked ? this.dataset.likeImg : this.dataset.unlikeImg;
+    //             const likeCount = this.nextElementSibling;
+    //             likeCount.textContent = data.likes_count;
+    //         })
+    //         .catch(error => console.error('Error:', error));
 
-            const likeIcon = this.querySelector('.like-icon');
-            likeIcon.classList.add('rotate-effect');
+    //         const likeIcon = this.querySelector('.like-icon');
+    //         likeIcon.classList.add('rotate-effect');
 
-            const sparkle = document.createElement('span');
-            sparkle.classList.add('sparkle-effect');
-            sparkle.textContent = '✨';
-            this.appendChild(sparkle);
+    //         const sparkle = document.createElement('span');
+    //         sparkle.classList.add('sparkle-effect');
+    //         sparkle.textContent = '✨';
+    //         this.appendChild(sparkle);
 
-            sparkle.addEventListener('animationend', function() {
-                sparkle.remove();
-            });
+    //         sparkle.addEventListener('animationend', function() {
+    //             sparkle.remove();
+    //         });
 
-            likeIcon.addEventListener('animationend', function() {
-                likeIcon.classList.remove('rotate-effect');
-            });
-        });
-    });
+    //         likeIcon.addEventListener('animationend', function() {
+    //             likeIcon.classList.remove('rotate-effect');
+    //         });
+    //     });
+    // });
 
     const userNickname = document.getElementById('user-nickname');
     const dropdownMenu = document.getElementById('dropdown-menu');

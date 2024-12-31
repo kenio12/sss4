@@ -42,7 +42,7 @@
             <small class="text-muted">（いいねするにはログインが必要です）</small>
         </div>
     {% endif %}
-    <span class="like-count">{{ novel.likes.count }}</span>
+    <span class="like-count" style="font-size: {% if novel.likes.count > 0 %}34px{% else %}24px{% endif %}; margin-left: 5px;">{{ novel.likes.count }}</span>
 </div>
 
 <!-- コメントフォームとコメントセクション全体を公開時のみ表示 -->
@@ -256,6 +256,49 @@
 /* 4行以上のコメントのボタン用 */
 .comment + div {  /* コメントの直後のdiv（ボタンコンテナ） */
     margin-bottom: 5px;
+}
+
+/* いいねボタンのアニメーション用スタイルを追加 */
+.like-icon {
+    transition: transform 0.3s ease;
+    filter: brightness(1);
+}
+
+.rotate-effect {
+    animation: rotate-and-color 0.3s ease;
+}
+
+@keyframes rotate-and-color {
+    0% {
+        transform: rotate(0deg);
+        filter: brightness(1);
+    }
+    50% {
+        transform: rotate(180deg);
+        filter: sepia(100%) saturate(300%) brightness(100%) hue-rotate(350deg); /* オレンジ色に */
+    }
+    100% {
+        transform: rotate(360deg);
+        filter: brightness(1);
+    }
+}
+
+/* キラキラエフェクトのアニメーション */
+.sparkle-effect {
+    position: absolute;
+    animation: sparkle 0.5s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes sparkle {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+    }
 }
 </style>
 
@@ -542,7 +585,50 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 既存の他の処理も維持
+    // いいねボタンの処理
+    const likeButtons = document.querySelectorAll('.like-button');
+    likeButtons.forEach(function(likeButton) {
+        likeButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const novelId = this.dataset.novelId;
+            fetch(`/novels/${novelId}/like/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 'novel_id': novelId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                const likeIcon = this.querySelector('.like-icon');
+                likeIcon.src = data.is_liked ? this.dataset.likeImg : this.dataset.unlikeImg;
+                const likeCount = this.nextElementSibling;
+                likeCount.textContent = data.likes_count;
+                // いいね数に応じてフォントサイズを変更
+                likeCount.style.fontSize = data.likes_count > 0 ? '34px' : '24px';
+            })
+            .catch(error => console.error('Error:', error));
+
+            const likeIcon = this.querySelector('.like-icon');
+            likeIcon.classList.add('rotate-effect');
+
+            const sparkle = document.createElement('span');
+            sparkle.classList.add('sparkle-effect');
+            sparkle.textContent = '✨';
+            this.appendChild(sparkle);
+
+            sparkle.addEventListener('animationend', function() {
+                sparkle.remove();
+            });
+
+            likeIcon.addEventListener('animationend', function() {
+                likeIcon.classList.remove('rotate-effect');
+            });
+        });
+    });
+
+    // 既存のコメント関連の処理は維持
 });
 </script>
 
