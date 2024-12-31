@@ -25,21 +25,21 @@ class ContactUpdateStatusView(UserPassesTestMixin, View):
         return self.request.user.is_staff
     
     def post(self, request, pk):
-        contact = Contact.objects.get(pk=pk)
+        contact = get_object_or_404(Contact, pk=pk)
         response_text = request.POST.get('response_text')
         
-        if response_text:
-            contact.status = 'resolved'
-            contact.response_text = response_text
-            contact.responded_by = request.user
-            contact.responded_at = timezone.now()
-            contact.save()
-            
-            messages.success(request, '対応を完了しました。')
-        else:
+        if not response_text:
             messages.error(request, '対応内容を入力してください。')
+            return redirect('contacts:contact_detail', pk=pk)
             
-        return redirect('contacts:contact_detail', pk=pk) 
+        contact.status = 'resolved'
+        contact.response_text = response_text
+        contact.responded_by = request.user
+        contact.responded_at = timezone.now()
+        contact.save()
+        
+        messages.success(request, '対応を完了しました。')
+        return redirect('contacts:contact_list')  # ここを一覧ページへのリダイレクトに変更
 
 class ContactCreateView(CreateView):
     model = Contact
@@ -90,14 +90,6 @@ class ContactCreateView(CreateView):
         
         messages.error(self.request, '入力内容に問題があります。')
         return super().form_invalid(form) 
-
-@require_POST
-@user_passes_test(lambda u: u.is_staff)
-def update_status(request, pk):
-    contact = get_object_or_404(Contact, pk=pk)
-    contact.status = 'resolved'  # 'pending' から 'resolved' に変更
-    contact.save()
-    return JsonResponse({'status': 'success'}) 
 
 class ContactListView(UserPassesTestMixin, ListView):
     model = Contact

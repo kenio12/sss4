@@ -707,7 +707,7 @@ a.btn-list-orange {
     display: inline-block;
     width: 25px;
     height: 25px;
-    background-image: url('/static/images/comments-icon.svg');
+    background-image: url("/static/images/comments-icon.e87965beda63.svg");
     background-size: cover;
     border: none;
     box-shadow: none;
@@ -839,7 +839,7 @@ a.btn-list-orange {
     top: 50%; /* 画面の縦中央に配置 */
     width: 50px; /* お好みでサイズ調整 */
     height: 50px; /* お好みでサイズ調整 */
-    background-image: url('/static/images/dari.webp'); /* ウェブサーバーの相対パスを使用 */
+    background-image: url("/static/images/dari.abc645f90452.webp"); /* ウェブサーバーの相対パスを使用 */
     background-size: contain; /* 画像がひしゃげないように調整 */
     background-position: center; /* 画像を中央に配置 */
     background-repeat: no-repeat; /* 画像を繰り返さない */
