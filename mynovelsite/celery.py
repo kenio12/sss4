@@ -8,12 +8,12 @@ from django.conf import settings
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 
 # Redisの接続URLを環境変数から取得（一回だけ）
-redis_url = os.environ.get('REDIS_URL')
+redis_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 print(f"[DEBUG] Using Redis URL: {redis_url}")  # デバッグ用（一回だけ）
 
 # URLスキームをrediss://に変更
 if redis_url and redis_url.startswith('redis://'):
-    redis_url = redis_url.replace('redis://', 'rediss://')
+    redis_url = f"{redis_url.replace('redis://', 'rediss://')}?ssl_cert_reqs=CERT_NONE"
 
 # Celeryアプリケーションの初期化
 app = Celery('mynovelsite')
