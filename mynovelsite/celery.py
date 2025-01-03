@@ -49,7 +49,6 @@ app.conf.update(
     beat_max_loop_interval=60,
     beat_scheduler='django_celery_beat.schedulers:DatabaseScheduler',
 )
-
 # SSL設定
 broker_use_ssl = {
     'ssl_cert_reqs': None
