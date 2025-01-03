@@ -786,22 +786,40 @@
 
             // 「一旦取り消す」ボタンのイベントハンドラ
             document.querySelectorAll('.cancel-prediction-btn').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', async function() {
                     const novelId = this.dataset.novelId;
                     const select = document.querySelector(`.prediction-select[data-novel-id="${novelId}"]`);
-                    const currentAuthorId = select.value;
+                    const gameId = document.querySelector('[data-game-id]').dataset.gameId;
 
-                    console.log('Cancel button clicked:', {
-                        novelId,
-                        currentAuthorId
-                    });
+                    try {
+                        // サーバーに予想取り消しのリクエストを送信
+                        const response = await fetch('/game_maturi/submit-prediction/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: JSON.stringify({
+                                predictions: {
+                                    [novelId]: ''  // 空の値を送信して予想を取り消し
+                                },
+                                game_id: gameId
+                            })
+                        });
 
-                    if (currentAuthorId) {
-                        console.log(`Increasing count for author ${currentAuthorId}`); // 予測を解除したので増やす
-                        updateRemainingCounts(parseInt(currentAuthorId), 1); // 予測を解除したので増やす
-                        select.value = '';
-                        select.setAttribute('data-current-value', '');
-                        this.style.display = 'none';
+                        const data = await response.json();
+                        if (data.success) {
+                            // セレクトボックスをリセット
+                            select.value = '';
+                            // 取り消しボタンを非表示
+                            this.style.display = 'none';
+                            showMessage('予想を取り消しました', 'success');
+                        } else {
+                            showMessage(`エラー: ${data.message}`, 'danger');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showMessage('通信エラーが発生しました', 'danger');
                     }
                 });
             });
