@@ -26,7 +26,14 @@ app.conf.beat_schedule = {
     },
 }
 
+# Redisの接続URLを環境変数から取得
+broker_url = os.environ.get('REDIS_URL')
+print(f"Debug: Redis URL is: {broker_url}")  # デバッグ用
+
+# Celeryの設定を更新
 app.conf.update(
+    broker_url=broker_url,
+    result_backend=broker_url,
     task_track_started=True,
     task_serializer='json',
     accept_content=['json'],
