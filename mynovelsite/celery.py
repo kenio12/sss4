@@ -7,7 +7,10 @@ from django.conf import settings
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 
-app = Celery('mynovelsite')
+app = Celery('mynovelsite',
+             broker=os.environ.get('REDIS_URL'),
+             backend=os.environ.get('REDIS_URL'))
+
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
@@ -28,7 +31,7 @@ app.conf.beat_schedule = {
 
 # Redisの接続URLを環境変数から取得
 broker_url = os.environ.get('REDIS_URL')
-print(f"Debug: Redis URL is: {broker_url}")  # デバッグ用
+print(f"[DEBUG] Using Redis URL: {broker_url}")  # デバッグ用
 
 # Celeryの設定を更新
 app.conf.update(
@@ -46,5 +49,12 @@ app.conf.update(
     beat_max_loop_interval=60,
     beat_scheduler='django_celery_beat.schedulers:DatabaseScheduler',
 )
+
+# SSL設定
+broker_use_ssl = {
+    'ssl_cert_reqs': None
+}
+app.conf.broker_use_ssl = broker_use_ssl
+app.conf.redis_backend_use_ssl = broker_use_ssl
 
 celery = app
