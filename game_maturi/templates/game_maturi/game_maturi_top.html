@@ -540,9 +540,7 @@
                                                 data-current-value="">
                                             <option value="">作者を選択</option>
                                             {% for author in active_authors %}
-                                                <option value="{{ author.id }}"
-                                                    data-total-novels="{{ author.novels.count }}"
-                                                    data-predicted-count="0">
+                                                <option value="{{ author.id }}">
                                                     {{ author.nickname }}
                                                 </option>
                                             {% endfor %}
@@ -754,111 +752,12 @@
                 console.groupEnd();
             }
 
-            // カウンター更新の関数を修正
-            function updateRemainingCounts(authorId, change) {
-                console.log('=== Debug: updateRemainingCounts ===');
-                console.log(`Author ID: ${authorId}, Change: ${change}`);
-                
-                document.querySelectorAll('.prediction-select').forEach(select => {
-                    const option = select.querySelector(`option[value="${authorId}"]`);
-                    if (option) {
-                        // デバッグ情報を追加
-                        console.log('Before update:', {
-                            authorId: authorId,
-                            totalNovels: option.dataset.totalNovels,
-                            predictedCount: option.dataset.predictedCount,
-                            isDisabled: option.disabled
-                        });
-
-                        const currentTotal = parseInt(option.dataset.totalNovels) || 0;
-                        let currentPredicted = parseInt(option.dataset.predictedCount) || 0;
-                        
-                        // 予測数を更新
-                        currentPredicted = Math.max(0, currentPredicted - change);
-                        const remaining = currentTotal - currentPredicted;
-                        
-                        // データを更新
-                        option.dataset.predictedCount = currentPredicted;
-                        
-                        // 選択の有効/無効を制御（条件を緩和）
-                        option.disabled = false;  // 基本的に全て選択可能に
-                        
-                        // 表示テキストを更新
-                        const authorName = option.textContent.split('(')[0].trim();
-                        option.textContent = `${authorName} (残り: ${remaining}回)`;
-
-                        // デバッグ情報を追加
-                        console.log('After update:', {
-                            authorId: authorId,
-                            totalNovels: currentTotal,
-                            predictedCount: currentPredicted,
-                            remaining: remaining,
-                            isDisabled: option.disabled
-                        });
-                    }
-                });
-            }
-
-            // DOMContentLoadedイベンリスナーを修正
-            document.addEventListener('DOMContentLoaded', function() {
-                // 初期値の設定
-                document.querySelectorAll('.prediction-select').forEach(select => {
-                    const novelId = select.dataset.novelId;
-                    const currentValue = novel_predictions[novelId]?.predicted_author?.id || '';
-                    
-                    // 初期値をセット
-                    select.value = currentValue;
-                    select.setAttribute('data-current-value', currentValue);
-                    
-                    // 取り消しボタンの表示/非表示
-                    const cancelBtn = document.querySelector(`.cancel-prediction-btn[data-novel-id="${novelId}"]`);
-                    if (cancelBtn) {
-                        cancelBtn.style.display = currentValue ? 'inline-block' : 'none';
-                    }
-                });
-
-                // タイムラインのオプション修正
-                if (typeof Timeline !== 'undefined' && document.getElementById('timeline')) {
-                    const container = document.getElementById('timeline');
-                    const options = {
-                        showCurrentTime: true,
-                        start: new Date(container.dataset.startDate),
-                        end: new Date(container.dataset.endDate)
-                    };
-                    
-                    const timeline = new Timeline(container, [], options);
-                }
-            });
-
-            // プダウンの変更イベントハンドラを修正
+            // カレクトの変更イベントハンドラを簡略化
             document.querySelectorAll('.prediction-select').forEach(select => {
                 select.addEventListener('change', function(event) {
-                    const oldValue = select.getAttribute('data-current-value');
+                    const novelId = this.dataset.novelId;
                     const newAuthorId = this.value;
-                    const cancelBtn = document.querySelector(`.cancel-prediction-btn[data-novel-id="${this.dataset.novelId}"]`);
                     
-                    console.log('Select changed:', {
-                        oldValue,
-                        newAuthorId,
-                        novelId: this.dataset.novelId
-                    });
-
-                    // 「作者を選択」に戻した場合
-                    if (!newAuthorId && oldValue) {
-                        console.log(`Increasing count for old author ${oldValue}`);
-                        updateRemainingCounts(parseInt(oldValue), 1); // 予想数を増やす
-                        cancelBtn.style.display = 'none';
-                    } else if (newAuthorId) {
-                        // 新しい作者を選択した場合
-                        if (oldValue) {
-                            console.log(`Increasing count for old author ${oldValue}`);
-                            updateRemainingCounts(parseInt(oldValue), 1); // 古い予想を増やす
-                        }
-                        console.log(`Decreasing count for new author ${newAuthorId}`);
-                        updateRemainingCounts(parseInt(newAuthorId), -1); // 新しい予想を減す
-                        cancelBtn.style.display = 'inline-block';
-                    }
-
                     // 現在の選択を保存
                     select.setAttribute('data-current-value', newAuthorId);
                 });

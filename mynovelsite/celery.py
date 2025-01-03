@@ -56,11 +56,11 @@ app.conf.beat_schedule = {
     },
     'publish-scheduled-novels': {
         'task': 'game_maturi.tasks.publish_scheduled_novels',
-        'schedule': 60.0,  # 10秒ごとに実行（テスト用）
+        'schedule': crontab(hour='0', minute='0'),  # 毎日0時0分
     },
     'reveal-maturi-authors': {
         'task': 'game_maturi.tasks.publish_scheduled_novels',  # 同じタスクを使用
-        'schedule': 60.0,  # 10秒ごとに実行
+        'schedule': crontab(hour='0', minute='0'),  # 毎日0時0分
     },
 }
 
