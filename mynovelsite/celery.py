@@ -11,6 +11,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 redis_url = os.environ.get('REDIS_URL')
 print(f"[DEBUG] Using Redis URL: {redis_url}")  # デバッグ用（一回だけ）
 
+# URLスキームをrediss://に変更
+if redis_url and redis_url.startswith('redis://'):
+    redis_url = redis_url.replace('redis://', 'rediss://')
+
 # Celeryアプリケーションの初期化
 app = Celery('mynovelsite')
 
