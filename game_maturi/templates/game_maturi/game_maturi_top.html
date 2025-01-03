@@ -754,13 +754,15 @@
                 });
 
                 // タイムラインのオプション修正
-                if (typeof Timeline !== 'undefined') {
-                    const timelineOptions = {
-                        showCurrentTime: true,  // currentTimeをshowCurrentTimeに変更
-                        // 他のオプションはそのまま
+                if (typeof Timeline !== 'undefined' && document.getElementById('timeline')) {
+                    const container = document.getElementById('timeline');
+                    const options = {
+                        showCurrentTime: true,
+                        start: new Date(container.dataset.startDate),
+                        end: new Date(container.dataset.endDate)
                     };
-                    // タイムラインの初期化
-                    // ...
+                    
+                    const timeline = new Timeline(container, [], options);
                 }
             });
 
@@ -988,7 +990,8 @@
                                                 <option value="">作者を選択</option>
                                                 {% for author in active_authors %}
                                                     <option value="{{ author.id }}"
-                                                        {% if novel.original_author == author %}disabled{% endif %}>
+                                                        data-total-novels="{{ author.novels.count }}"
+                                                        data-predicted-count="0">
                                                         {{ author.nickname }}
                                                     </option>
                                                 {% endfor %}
