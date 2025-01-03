@@ -7,7 +7,7 @@ from django.conf import settings
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 
-app = Celery('sss4-redis',
+app = Celery('mynovelsite',
              broker=os.environ.get('REDIS_URL'),
              backend=os.environ.get('REDIS_URL'))
 
