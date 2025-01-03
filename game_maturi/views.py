@@ -578,47 +578,58 @@ def entry_action(request, game_id):
             logger.debug("GET request on entry action")
             return redirect('game_maturi:game_maturi_top', game_id=game_id)
 
-@login_required
 @require_http_methods(["POST"])
+@login_required
+@csrf_exempt
 def submit_prediction(request):
-    if request.method == 'POST':
-        try:
-            # POSTデータをJSONとしてパース
-            data = json.loads(request.body)
-            predictions = data.get('predictions', {})
-            game_id = data.get('game_id')  # game_idを追加
+    try:
+        # POSTデータをJSONとしてパース
+        data = json.loads(request.body)
+        predictions = data.get('predictions', {})
+        game_id = data.get('game_id')
+        game = get_object_or_404(MaturiGame, id=game_id)
 
-            # ここでクエリを修正
-            game = get_object_or_404(MaturiGame, id=game_id)
-            
-            # エントリーチェックを削除
-            # 予想期間のチェックだ残す
-            if not game.is_prediction_period():
-                return JsonResponse({
-                    'success': False,
-                    'message': '予想期間外です。'
-                }, status=400)
-
-            for novel_id, author_id in predictions.items():
-                prediction, created = GamePrediction.objects.update_or_create(
-                    novel_id=novel_id,
-                    maturi_game=game,
-                    predictor=request.user,  # 予想者
-                    defaults={'predicted_author_id': author_id}
-                )
-            
-            return JsonResponse({'success': True, 'message': '予想が保存されました'})
-
-        except Exception as e:
+        # 予想期間のチェック
+        if not game.is_prediction_period():
             return JsonResponse({
                 'success': False,
-                'message': f'エラーが発生しました: {str(e)}'
-            }, status=500)
+                'message': '予想期間外です。'
+            }, status=400)
 
-    return JsonResponse({
-        'success': False,
-        'message': '不正なリクエストです。'
-    }, status=400)
+        # 既存の予想を取得
+        existing_predictions = GamePrediction.objects.filter(
+            maturi_game=game,
+            predictor=request.user
+        )
+
+        for novel_id, author_id in predictions.items():
+            if author_id == '':  # 予想取り消しの場合
+                # 既存の予想を削除
+                GamePrediction.objects.filter(
+                    novel_id=novel_id,
+                    predictor=request.user,
+                    maturi_game=game
+                ).delete()
+            else:
+                # 予想を更新または作成
+                GamePrediction.objects.update_or_create(
+                    novel_id=novel_id,
+                    predictor=request.user,
+                    maturi_game=game,
+                    defaults={'predicted_author_id': author_id}
+                )
+
+        return JsonResponse({
+            'success': True,
+            'message': '予想を保存しました'
+        })
+
+    except Exception as e:
+        print(f"予想処理エラー: {str(e)}")  # エラーログ追加
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
 
 # @freeze_time("2024-12-20")  # 12月16日に固定
 def prediction_period_finished_required(view_func):
