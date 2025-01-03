@@ -699,38 +699,45 @@
 
             // カウンター更新の関数を修正
             function updateRemainingCounts(authorId, change) {
-                console.log(`updateRemainingCounts called for author ${authorId} with change ${change}`);
+                console.log('=== Debug: updateRemainingCounts ===');
+                console.log(`Author ID: ${authorId}, Change: ${change}`);
                 
                 document.querySelectorAll('.prediction-select').forEach(select => {
                     const option = select.querySelector(`option[value="${authorId}"]`);
                     if (option) {
-                        const currentTotal = parseInt(option.dataset.totalNovels);
-                        let currentPredicted = parseInt(option.dataset.predictedCount) || 0;
-                        
-                        // 新しい予測数を計算
-                        currentPredicted = Math.max(0, currentPredicted - change); // changeの符号を反転
-                        const remaining = currentTotal - currentPredicted;
-                        
-                        console.log(`Author ${authorId}:`, {
-                            currentTotal,
-                            currentPredicted,
-                            remaining,
-                            change
+                        // デバッグ情報を追加
+                        console.log('Before update:', {
+                            authorId: authorId,
+                            totalNovels: option.dataset.totalNovels,
+                            predictedCount: option.dataset.predictedCount,
+                            isDisabled: option.disabled
                         });
 
+                        const currentTotal = parseInt(option.dataset.totalNovels) || 0;
+                        let currentPredicted = parseInt(option.dataset.predictedCount) || 0;
+                        
+                        // 予測数を更新
+                        currentPredicted = Math.max(0, currentPredicted - change);
+                        const remaining = currentTotal - currentPredicted;
+                        
                         // データを更新
                         option.dataset.predictedCount = currentPredicted;
                         
-                        // 選択可能かどうかを更新
-                        if (remaining <= 0 && !select.value.includes(authorId.toString())) {
-                            option.disabled = true;
-                        } else {
-                            option.disabled = false;
-                        }
+                        // 選択の有効/無効を制御（条件を緩和）
+                        option.disabled = false;  // 基本的に全て選択可能に
                         
                         // 表示テキストを更新
                         const authorName = option.textContent.split('(')[0].trim();
                         option.textContent = `${authorName} (残り: ${remaining}回)`;
+
+                        // デバッグ情報を追加
+                        console.log('After update:', {
+                            authorId: authorId,
+                            totalNovels: currentTotal,
+                            predictedCount: currentPredicted,
+                            remaining: remaining,
+                            isDisabled: option.disabled
+                        });
                     }
                 });
             }
