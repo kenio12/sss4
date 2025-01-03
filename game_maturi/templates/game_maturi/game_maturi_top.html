@@ -737,16 +737,30 @@
 
             // DOMContentLoadedイベンリスナーを修正
             document.addEventListener('DOMContentLoaded', function() {
-                // novel_predictionsから初期値を設定
-                for (const novelId in novel_predictions) {
-                    const prediction = novel_predictions[novelId];
-                    const select = document.querySelector(`.prediction-select[data-novel-id="${novelId}"]`);
+                // 初期値の設定
+                document.querySelectorAll('.prediction-select').forEach(select => {
+                    const novelId = select.dataset.novelId;
+                    const currentValue = novel_predictions[novelId]?.predicted_author?.id || '';
                     
-                    if (select && prediction.predicted_author) {
-                        select.value = prediction.predicted_author.id;
-                        select.setAttribute('data-current-value', prediction.predicted_author.id);
-                        console.log(`Set initial value for novel ${novelId}:`, prediction.predicted_author.id);
+                    // 初期値をセット
+                    select.value = currentValue;
+                    select.setAttribute('data-current-value', currentValue);
+                    
+                    // 取り消しボタンの表示/非表示
+                    const cancelBtn = document.querySelector(`.cancel-prediction-btn[data-novel-id="${novelId}"]`);
+                    if (cancelBtn) {
+                        cancelBtn.style.display = currentValue ? 'inline-block' : 'none';
                     }
+                });
+
+                // タイムラインのオプション修正
+                if (typeof Timeline !== 'undefined') {
+                    const timelineOptions = {
+                        showCurrentTime: true,  // currentTimeをshowCurrentTimeに変更
+                        // 他のオプションはそのまま
+                    };
+                    // タイムラインの初期化
+                    // ...
                 }
             });
 
