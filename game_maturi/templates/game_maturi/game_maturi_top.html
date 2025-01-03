@@ -790,6 +790,7 @@
                     const novelId = this.dataset.novelId;
                     const select = document.querySelector(`.prediction-select[data-novel-id="${novelId}"]`);
                     const gameId = document.querySelector('[data-game-id]').dataset.gameId;
+                    const currentAuthorId = select.value;
 
                     try {
                         // サーバーに予想取り消しのリクエストを送信
@@ -811,8 +812,16 @@
                         if (data.success) {
                             // セレクトボックスをリセット
                             select.value = '';
+                            select.setAttribute('data-current-value', '');
+                            
+                            // 予想カウントを更新
+                            if (currentAuthorId) {
+                                updateRemainingCounts(parseInt(currentAuthorId), 1);
+                            }
+                            
                             // 取り消しボタンを非表示
                             this.style.display = 'none';
+                            
                             showMessage('予想を取り消しました', 'success');
                         } else {
                             showMessage(`エラー: ${data.message}`, 'danger');
