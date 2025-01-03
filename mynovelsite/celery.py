@@ -4,6 +4,7 @@ import os
 from celery import Celery
 from celery.schedules import crontab
 from django.conf import settings
+from ssl import CERT_NONE, CERT_REQUIRED, CERT_OPTIONAL
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 
@@ -11,15 +12,20 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 redis_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 print(f"[DEBUG] Using Redis URL: {redis_url}")  # デバッグ用（一回だけ）
 
-# URLスキームをrediss://に変更
+# Redis SSL設定
 if redis_url and redis_url.startswith('redis://'):
-    redis_url = f"{redis_url.replace('redis://', 'rediss://')}?ssl_cert_reqs=CERT_NONE"
-
-# Celeryアプリケーションの初期化
-app = Celery('mynovelsite')
+    redis_url = f"rediss://{redis_url[8:]}"  # redis:// -> rediss://
 
 # SSL設定
-ssl_config = {'ssl_cert_reqs': None}
+ssl_config = {
+    'ssl_cert_reqs': CERT_NONE,
+    'ssl_ca_certs': None,
+}
+
+# Celeryアプリケーションの初期化
+app = Celery('mynovelsite',
+             broker=f"{redis_url}?ssl_cert_reqs=CERT_NONE",
+             backend=f"{redis_url}?ssl_cert_reqs=CERT_NONE")
 
 # Celeryの設定を一括で更新
 app.conf.update(
