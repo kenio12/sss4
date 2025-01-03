@@ -975,7 +975,45 @@
                     {% csrf_token %}
                     <div class="table-responsive">
                         <table class="table table-bordered">
-                            <!-- 予想フォームの内容 -->
+                            <thead>
+                                <tr>
+                                    <th>小説タイトル</th>
+                                    <th>作者予想</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for novel in novels %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'novels:novel_detail' novel_id=novel.id %}">
+                                                {{ novel.title }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <select class="prediction-select form-control" 
+                                                    data-novel-id="{{ novel.id }}"
+                                                    data-current-value="">
+                                                <option value="">作者を選択</option>
+                                                {% for author in active_authors %}
+                                                    <option value="{{ author.id }}"
+                                                        {% if novel.original_author == author %}disabled{% endif %}>
+                                                        {{ author.nickname }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <button type="button" 
+                                                    class="btn btn-warning btn-sm cancel-prediction-btn" 
+                                                    data-novel-id="{{ novel.id }}"
+                                                    style="display: none;">
+                                                一旦取り消す
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
                         </table>
                     </div>
                 </form>

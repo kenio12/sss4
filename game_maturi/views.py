@@ -92,6 +92,16 @@ def game_maturi_top(request, game_id):
         ).order_by('created_at')
         print(f"Found {user_novels.count()} novels for user {request.user.nickname}")  # デバッグ用
 
+    # 予想期間中の場合、公開済みの小説のみを取得
+    if game.is_prediction_period():
+        novels = game.maturi_novels.filter(
+            models.Q(status='published') |
+            models.Q(
+                status='scheduled',
+                scheduled_at__lte=timezone.now()
+            )
+        ).select_related('author', 'original_author')
+
     # 基本のコンテキストを作成
     context = {
         'game': game,
