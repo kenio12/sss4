@@ -15,11 +15,20 @@ def publish_scheduled_novels():
     revealed_count = 0
     
     try:
+        # 予約公開の小説を探す前にクエリの内容を確認
+        all_scheduled = Novel.objects.filter(status='scheduled')
+        print(f"[Debug] All scheduled novels: {all_scheduled.count()}")
+        for novel in all_scheduled:
+            print(f"[Debug] Novel {novel.id}: scheduled_at={novel.scheduled_at}, status={novel.status}")
+
+        # 実際のクエリ結果を確認
         scheduled_novels = Novel.objects.filter(
             status='scheduled',
             scheduled_at__lte=now
         )
-        print(f"[Debug] Found {scheduled_novels.count()} scheduled novels")
+        print(f"[Debug] Filtered scheduled novels: {scheduled_novels.count()}")
+        for novel in scheduled_novels:
+            print(f"[Debug] Will publish: {novel.id} (scheduled_at={novel.scheduled_at})")
         
         # 予約済み小説の詳細なデバッグ情報
         for novel in scheduled_novels:
