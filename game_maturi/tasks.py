@@ -5,10 +5,10 @@ from game_maturi.models import MaturiGame
 
 @shared_task
 def publish_scheduled_novels():
-    # 実際のシステム時間を使用
+    # タイムゾーン情報を含むデバッグ出力を追加
     now = timezone.now()
     print(f"[Debug] Current time: {now}")
-    print(f"[Debug] Current time type: {type(now)}")
+    print(f"[Debug] Current timezone: {timezone.get_current_timezone()}")
     
     # カウンターを try 文の外で初期化
     published_count = 0
@@ -21,10 +21,11 @@ def publish_scheduled_novels():
         )
         print(f"[Debug] Found {scheduled_novels.count()} scheduled novels")
         
-        # 予約公開の処理
+        # 予約済み小説の詳細なデバッグ情報
         for novel in scheduled_novels:
-            print(f"[Debug] Novel: {novel.title}")
-            print(f"[Debug] Scheduled at: {novel.scheduled_at}")
+            print(f"[Debug] Novel ID: {novel.id}")
+            print(f"[Debug] Novel scheduled_at: {novel.scheduled_at}")
+            print(f"[Debug] Novel scheduled_at timezone: {novel.scheduled_at.tzinfo}")
             print(f"[Debug] Publishing novel: {novel.title}")
             novel.status = 'published'
             novel.published_date = now
