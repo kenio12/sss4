@@ -7,9 +7,20 @@ from django.conf import settings
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 
-app = Celery('mynovelsite',
-             broker=os.environ.get('REDIS_URL'),
-             backend=os.environ.get('REDIS_URL'))
+# Redisの接続URLを環境変数から取得
+redis_url = os.environ.get('REDIS_URL')
+print(f"[DEBUG] Using Redis URL: {redis_url}")  # デバッグ用
+
+# Celeryアプリケーションの初期化
+app = Celery('mynovelsite')
+
+# 明示的にbrokerとbackendを設定
+app.conf.update(
+    broker_url=redis_url,
+    result_backend=redis_url,
+    broker_use_ssl={'ssl_cert_reqs': None},
+    redis_backend_use_ssl={'ssl_cert_reqs': None}
+)
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
