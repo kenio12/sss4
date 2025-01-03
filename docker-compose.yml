@@ -78,9 +78,10 @@ services:
       - .:/code
     depends_on:
       - web
-      - redis
     networks:
       - novel_site_network
+    env_file:
+      - .env
     environment:
       - ENVIRONMENT=development
       - TZ=Asia/Tokyo
@@ -90,12 +91,13 @@ services:
     command: celery -A mynovelsite beat -l debug
     volumes:
       - .:/code
+    env_file:
+      - .env
     environment:
       - ENVIRONMENT=development
       - TZ=Asia/Tokyo
     depends_on:
       - web
-      - redis
     networks:
       - novel_site_network
 
