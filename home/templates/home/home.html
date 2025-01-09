@@ -213,6 +213,11 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
+<!-- 管理者用エリアをここに移動 -->
+{% if user.is_staff %}
+    {% include 'home/includes/_admin_area.html' %}
+{% endif %}
+
 <!-- 重要なお知らせのみを表示 -->
 {% if announcements %}
 <div class="announcements-container">
@@ -250,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <div class="novels-list-container">
     <div class="sss-novels-list">
-        {% for novel in latest_novels|slice:":2" %}
+        {% for novel in latest_novels %}
             <!-- PC表示 -->
             <div class="sss-novel-row pc-view">
                 <div class="sss-date">{{ novel.published_date|date:"Y/m/d" }}</div>
@@ -303,11 +308,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <footer class="footer">
     <p>Ⓒ超短編小説会</p>
 </footer>
-
-<!-- 管理者用エリア -->
-{% if user.is_staff %}
-    {% include 'home/includes/_admin_area.html' %}
-{% endif %}
 
 <style>
     .responsive-image {

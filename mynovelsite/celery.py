@@ -4,49 +4,38 @@ import os
 from celery import Celery
 from celery.schedules import crontab
 from django.conf import settings
-from ssl import CERT_NONE, CERT_REQUIRED, CERT_OPTIONAL
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 
-# Redisの接続URLを環境変数から取得（一回だけ）
-redis_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
-print(f"[DEBUG] Using Redis URL: {redis_url}")  # デバッグ用（一回だけ）
-
-# Redis SSL設定
-if redis_url and redis_url.startswith('redis://'):
-    redis_url = f"rediss://{redis_url[8:]}"  # redis:// -> rediss://
-
-# SSL設定
-ssl_config = {
-    'ssl_cert_reqs': CERT_NONE,
-    'ssl_ca_certs': None,
-}
+# 開発環境では強制的にローカルのRedisを使用
+if os.environ.get('ENVIRONMENT') != 'production':
+    # 環境変数を完全にクリア
+    for key in ['REDIS_URL', 'CELERY_BROKER_URL', 'CELERY_RESULT_BACKEND']:
+        if key in os.environ:
+            del os.environ[key]
+    
+    # Django設定を上書き
+    from django.conf import settings
+    settings.CELERY_BROKER_URL = 'redis://redis:6379/0'
+    settings.CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+    print(f"[DEBUG] Forced local Redis in development")
 
 # Celeryアプリケーションの初期化
-app = Celery('mynovelsite',
-             broker=f"{redis_url}?ssl_cert_reqs=CERT_NONE",
-             backend=f"{redis_url}?ssl_cert_reqs=CERT_NONE")
+app = Celery('mynovelsite')
 
-# Celeryの設定を一括で更新
-app.conf.update(
-    broker_url=redis_url,
-    result_backend=redis_url,
-    broker_use_ssl=ssl_config,
-    redis_backend_use_ssl=ssl_config,
-    task_track_started=True,
-    task_serializer='json',
-    accept_content=['json'],
-    result_serializer='json',
-    timezone='Asia/Tokyo',
-    enable_utc=True,
-    worker_log_level='DEBUG',
-    beat_log_level='DEBUG',
-    broker_connection_retry_on_startup=True,
-    beat_max_loop_interval=60,
-    beat_scheduler='django_celery_beat.schedulers:DatabaseScheduler',
-)
-
+# Django設定モジュールを指定
 app.config_from_object('django.conf:settings', namespace='CELERY')
+
+# 開発環境の場合は設定を強制
+if os.environ.get('ENVIRONMENT') != 'production':
+    app.conf.broker_url = 'redis://redis:6379/0'
+    app.conf.result_backend = 'redis://redis:6379/0'
+    app.conf.broker_transport_options = {}
+    app.conf.redis_backend_transport_options = {}
+
+print(f"[DEBUG] Final broker_url: {app.conf.broker_url}")
+print(f"[DEBUG] Final result_backend: {app.conf.result_backend}")
+
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
@@ -59,7 +48,7 @@ app.conf.beat_schedule = {
         'schedule': crontab(hour='0', minute='0'),  # 毎日0時0分
     },
     'reveal-maturi-authors': {
-        'task': 'game_maturi.tasks.publish_scheduled_novels',  # 同じタスクを使用
+        'task': 'game_maturi.tasks.reveal_maturi_authors',  # 新しい分離したタスク
         'schedule': crontab(hour='0', minute='0'),  # 毎日0時0分
     },
 }

@@ -791,7 +791,7 @@ def index(request):
 # 真リスト
 from django.shortcuts import render
 from django.core.paginator import Paginator
-from django.db.models import Count  # ここを��正！
+from django.db.models import Count  # ここを正！
 from django.contrib.auth import get_user_model
 from .models import Novel, GENRE_CHOICES
 from django.db.models import Count, F, Q 
@@ -987,14 +987,14 @@ def toggle_comment_read(request, comment_id):
     })
 
 def home(request):
-    # 公開済の小説を4つだけ取得するように変更
+    # 公開済の小説を10件取得するように変更
     latest_novels = Novel.objects.filter(
         status='published'
     ).select_related(
         'author'
     ).order_by(
         '-published_date'
-    )[:4]  # 6から4に変更
+    )[:10]  # 4から10に変更
 
     context = {
         'latest_novels': latest_novels,

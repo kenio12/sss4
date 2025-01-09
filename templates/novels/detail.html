@@ -114,6 +114,67 @@
 {% endif %}
 
 <style>
+/* 共通の余白設定 */
+.novel-content,
+.novel-header,
+.comments-container,
+.author-info,        /* 作者情報 */
+.genre-info,         /* ジャンル情報 */
+.like-button-container, /* いいねボタン */
+.novel-metadata,     /* その他のメタ情報 */
+.novel-title,        /* タイトル */
+.novel-author,       /* 作者名 */
+.novel-genre {       /* ジャンル */
+    line-height: 1.8 !important;
+    padding: 0 0.3rem !important;
+    margin: 1.5rem auto !important;
+    max-width: 95% !important;
+}
+
+/* タイトル、作者名、ジャンルの特別な調整 */
+.novel-title h1,
+.novel-author p,
+.novel-genre p,
+.novel-author span,
+.novel-genre span,
+.word-count,
+.author-name,       /* 作者名リンク */
+.genre,            /* ジャンル表示 */
+a.author-name {    /* 作者名リンクをより具体的に */
+    padding-left: 0.3rem !important;
+}
+
+/* 作者名リンクとジャンル表示の特別な調整 */
+.author-name,
+.genre {
+    display: inline-block !important;
+    margin-left: 0.3rem !important;
+    padding-left: 0.3rem !important;
+}
+
+/* いいねボタンコンテナの特別な調整 */
+.like-button-container {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+}
+
+/* 作者情報とジャンル情報の調整 */
+.author-info,
+.genre-info {
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* 既存のスタイルはそのまま維持 */
+.novel-content {
+    line-height: 1.8 !important;
+}
+
+/* コメントセクションのスタイルも維持 */
+.comments-container {
+    padding-bottom: 3.75rem !important;
+}
+
 /* コメントリスト用のスタイル */
 .comments-container .mark-as-read {
     margin-left: 10px !important;
@@ -299,6 +360,28 @@
         transform: translate(-50%, -50%) scale(2);
         opacity: 0;
     }
+}
+
+/* 小説本文のスタイルを改善 */
+.novel-content {
+    line-height: 1.8 !important;     /* 行間は1.8倍のまま */
+    padding: 0 5px !important;       /* 左右の余白を5pxに */
+    margin: 1.5rem auto !important;  /* 上下のマージンは維持 */
+    max-width: 95% !important;       /* 画面幅の95%に変更 */
+}
+
+/* 小説タイトルと作者情報のスタイルも調整 */
+.novel-header {
+    padding: 0 5px !important;       /* 左右の余白を5pxに */
+    margin: 1.5rem auto !important;  /* 上下のマージンは維持 */
+    max-width: 95% !important;       /* 画面幅の95%に変更 */
+}
+
+/* コメントセクションも同じ余白を維持 */
+.comments-container {
+    padding: 0 5px !important;       /* 左右の余白を5pxに */
+    margin: 1.5rem auto !important;  /* 上下のマージンは維持 */
+    max-width: 95% !important;       /* 画面幅の95%に変更 */
 }
 </style>
 

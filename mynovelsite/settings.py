@@ -228,11 +228,44 @@ INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
 # INTERNAL_IPS = ['127.0.0.1', '192.168.10.1']  # 192.168.10.1はDockerホストのIPアドレスの例
 
 # Celery Configuration
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
-CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
-CELERY_ACCEPT_CONTENT = ['application/json']
+if ENVIRONMENT == 'production':
+    # 本番環境設定
+    CELERY_BROKER_URL = os.environ.get('REDIS_URL')
+    CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL')
+    
+    # Upstash用のSSL設定
+    if 'rediss://' in os.environ.get('REDIS_URL', ''):
+        CELERY_BROKER_USE_SSL = {
+            'ssl_cert_reqs': None,
+            'ssl_ca_certs': None
+        }
+        CELERY_REDIS_BACKEND_USE_SSL = {
+            'ssl_cert_reqs': None,
+            'ssl_ca_certs': None
+        }
+else:
+    # 開発環境設定
+    # 環境変数をクリア（開発環境では使用しない）
+    for key in ['REDIS_URL', 'CELERY_BROKER_URL', 'CELERY_RESULT_BACKEND']:
+        if key in os.environ:
+            del os.environ[key]
+    
+    # ローカルRedisを強制的に使用
+    CELERY_BROKER_URL = 'redis://redis:6379/0'
+    CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+
+# 共通のCelery設定
+CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Tokyo'
+CELERY_ENABLE_UTC = True
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+# デバッグ用の設定
+print(f"[DEBUG] Environment: {ENVIRONMENT}")
+print(f"[DEBUG] CELERY_BROKER_URL: {CELERY_BROKER_URL}")
+print(f"[DEBUG] CELERY_RESULT_BACKEND: {CELERY_RESULT_BACKEND}")
 
 LOGGING = {
     "version": 1,
