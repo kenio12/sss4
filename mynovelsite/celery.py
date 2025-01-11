@@ -1,6 +1,7 @@
 import os
 from celery import Celery
 from celery.schedules import crontab
+from urllib.parse import urlparse
 
 # Django設定モジュールを指定
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
@@ -8,9 +9,19 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 # Celeryアプリケーションの初期化
 app = Celery('mynovelsite')
 
+# DATABASE_URLからPostgreSQLの接続情報を取得
+db_url = os.environ.get('DATABASE_URL', '')
+if db_url:
+    # HerokuのPostgreSQL URLをSQLAlchemy形式に変換
+    parsed = urlparse(db_url)
+    broker_url = f'sqla+postgresql://{parsed.username}:{parsed.password}@{parsed.hostname}:{parsed.port}{parsed.path}'
+else:
+    broker_url = 'sqla+sqlite:///celery.db'  # 開発環境用
+
 # Celery設定
 app.conf.update(
-    broker_url='django://',
+    broker_url=broker_url,
+    broker_transport_options={'visibility_timeout': 3600},
     result_backend='django-db',
     timezone='Asia/Tokyo',
     enable_utc=True,
