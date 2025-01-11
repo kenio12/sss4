@@ -2,6 +2,7 @@ import os
 import ssl
 from celery import Celery
 from celery.schedules import crontab
+from urllib.parse import urlparse
 
 # Django設定モジュールを指定
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
