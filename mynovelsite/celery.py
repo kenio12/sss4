@@ -5,6 +5,7 @@ from celery import Celery
 from celery.schedules import crontab
 from django.conf import settings
 from ssl import CERT_NONE  # これを追加
+from celery.beat import PersistentScheduler
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 
@@ -76,5 +77,9 @@ if 'rediss://' in app.conf.broker_url:
 # タイムゾーン設定を追加
 app.conf.timezone = 'Asia/Tokyo'
 app.conf.enable_utc = True
+
+# Beatのスケジューラー設定を追加
+app.conf.beat_scheduler = 'celery.beat.PersistentScheduler'
+app.conf.beat_schedule_filename = '/tmp/celerybeat-schedule'  # Herokuの一時ディレクトリを使用
 
 celery = app
