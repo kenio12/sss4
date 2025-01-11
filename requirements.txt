@@ -14,5 +14,5 @@ whitenoise
 pytz
 gunicorn==20.1.0
 django-widget-tweaks
-django-celery-beat==2.4.0
+django-celery-beat==2.3.0
 tzdata
