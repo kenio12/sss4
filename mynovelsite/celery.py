@@ -5,6 +5,11 @@ from celery.schedules import crontab
 # Django設定モジュールを指定
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 
+# Redis接続URLにssl_cert_reqsパラメータを追加
+redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379')
+if redis_url.startswith('rediss://'):
+    redis_url += '?ssl_cert_reqs=CERT_NONE'
+
 # Celeryアプリケーションの初期化
 app = Celery('mynovelsite')
 
