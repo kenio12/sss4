@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'announcements.apps.AnnouncementsConfig',
     'django_celery_beat',  # これを追加
     'contacts.apps.ContactsConfig',  # これを追加
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -351,5 +352,3 @@ else:
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
     SESSION_COOKIE_HTTPONLY = True  # これは開発環境でも有効にしておく
-
-
