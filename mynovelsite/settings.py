@@ -80,7 +80,7 @@ MIDDLEWARE = [
     'middleware.RedirectMiddleware',  # しいスで追加
 ]
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 
 ROOT_URLCONF = 'mynovelsite.urls'
@@ -187,10 +187,23 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# WhiteNoiseの設定を変更
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'  # ここを変更
+
+# WhiteNoiseのミドルウェア設定
+if not DEBUG:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
+# 静的ファイルのディレクトリ設定
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',
+    os.path.join(BASE_DIR, 'static'),
 ]
+
+# staticfilesディレクトリが存在することを確認
+os.makedirs(os.path.join(BASE_DIR, 'static'), exist_ok=True)
+os.makedirs(os.path.join(BASE_DIR, 'staticfiles'), exist_ok=True)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
