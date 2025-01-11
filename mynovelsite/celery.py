@@ -68,4 +68,8 @@ if 'rediss://' in app.conf.broker_url:
         'ssl_ca_certs': None
     }
 
+# タイムゾーン設定を追加
+app.conf.timezone = 'Asia/Tokyo'
+app.conf.enable_utc = True
+
 celery = app
