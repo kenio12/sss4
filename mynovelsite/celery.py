@@ -57,7 +57,7 @@ app.conf.beat_schedule = {
 app.conf.broker_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 app.conf.result_backend = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 
-# SSL設定を修正
+# Upstash Redis用のSSL設定
 if 'rediss://' in app.conf.broker_url:
     from ssl import CERT_NONE
     ssl_settings = {
