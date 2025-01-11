@@ -53,14 +53,19 @@ app.conf.beat_schedule = {
     },
 }
 
-# Redis接続設定を追加
+# Redis接続設定を修正
 app.conf.broker_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 app.conf.result_backend = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
-app.conf.redis_backend_use_ssl = {
-    'ssl_cert_reqs': None  # または 'CERT_NONE'
-}
-app.conf.broker_use_ssl = {
-    'ssl_cert_reqs': None  # または 'CERT_NONE'
-}
+
+# SSL設定を修正
+if 'rediss://' in app.conf.broker_url:
+    app.conf.broker_use_ssl = {
+        'ssl_cert_reqs': None,
+        'ssl_ca_certs': None
+    }
+    app.conf.redis_backend_use_ssl = {
+        'ssl_cert_reqs': None,
+        'ssl_ca_certs': None
+    }
 
 celery = app
