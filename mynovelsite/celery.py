@@ -1,13 +1,26 @@
 import os
+import ssl
 from celery import Celery
 from celery.schedules import crontab
-from urllib.parse import urlparse
 
 # Django設定モジュールを指定
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 
 # Celeryアプリケーションの初期化
-app = Celery('mynovelsite')
+app = Celery('mynovelsite',
+    broker_use_ssl={
+        'ssl_cert_reqs': ssl.CERT_REQUIRED,
+        'ssl_ca_certs': '/path/to/ca.pem',
+        'ssl_certfile': '/path/to/client-cert.pem',
+        'ssl_keyfile': '/path/to/client-key.pem'
+    },
+    redis_backend_use_ssl={
+        'ssl_cert_reqs': ssl.CERT_REQUIRED,
+        'ssl_ca_certs': '/path/to/ca.pem',
+        'ssl_certfile': '/path/to/client-cert.pem',
+        'ssl_keyfile': '/path/to/client-key.pem'
+    }
+)
 
 # Django設定モジュールから設定を読み込む
 app.config_from_object('django.conf:settings', namespace='CELERY')
