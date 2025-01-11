@@ -1,48 +1,16 @@
 import os
-import ssl
 from celery import Celery
 from celery.schedules import crontab
-from urllib.parse import urlparse
+from redis.connection import SSLConnection
 
 # Django設定モジュールを指定
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 
 # Celeryアプリケーションの初期化
-app = Celery('mynovelsite',
-    broker_use_ssl={
-        'ssl_cert_reqs': ssl.CERT_REQUIRED,
-        'ssl_ca_certs': '/path/to/ca.pem',
-        'ssl_certfile': '/path/to/client-cert.pem',
-        'ssl_keyfile': '/path/to/client-key.pem'
-    },
-    redis_backend_use_ssl={
-        'ssl_cert_reqs': ssl.CERT_REQUIRED,
-        'ssl_ca_certs': '/path/to/ca.pem',
-        'ssl_certfile': '/path/to/client-cert.pem',
-        'ssl_keyfile': '/path/to/client-key.pem'
-    }
-)
+app = Celery('mynovelsite')
 
-# Django設定モジュールから設定を読み込む
-app.config_from_object('django.conf:settings', namespace='CELERY')
-
-# タスクの自動検出
-app.autodiscover_tasks()
-
-# Redis URL設定（SSL対応）
-redis_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
-if redis_url.startswith('rediss://'):
-    # URLをパースしてホスト、ポート、パスワードを取得
-    parsed = urlparse(redis_url)
-    redis_url = f"redis://{parsed.hostname}:{parsed.port}"
-    app.conf.broker_transport_options = {
-        'ssl': True,
-        'password': parsed.password
-    }
-    app.conf.redis_backend_transport_options = {
-        'ssl': True,
-        'password': parsed.password
-    }
+# Redis URL設定
+redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 
 # Celery設定
 app.conf.update(
@@ -65,6 +33,19 @@ app.conf.update(
         },
     }
 )
+
+# Django設定モジュールから設定を読み込む
+app.config_from_object('django.conf:settings', namespace='CELERY')
+
+# タスクの自動検出
+app.autodiscover_tasks()
+
+# SSLの設定
+if app.conf.broker_url.startswith('rediss://'):
+    app.backend.connparams.update({
+        'ssl_cert_reqs': None,
+        'connection_class': SSLConnection
+    })
 
 # アプリケーションのエクスポート
 celery = app
