@@ -59,14 +59,14 @@ app.conf.result_backend = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 
 # SSL設定を修正
 if 'rediss://' in app.conf.broker_url:
-    app.conf.broker_use_ssl = {
+    ssl_settings = {
         'ssl_cert_reqs': None,
-        'ssl_ca_certs': None
+        'ssl_ca_certs': None,
+        'ssl_certfile': None,
+        'ssl_keyfile': None
     }
-    app.conf.redis_backend_use_ssl = {
-        'ssl_cert_reqs': None,
-        'ssl_ca_certs': None
-    }
+    app.conf.broker_use_ssl = ssl_settings
+    app.conf.redis_backend_use_ssl = ssl_settings
 
 # タイムゾーン設定を追加
 app.conf.timezone = 'Asia/Tokyo'
