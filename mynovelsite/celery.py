@@ -59,8 +59,9 @@ app.conf.result_backend = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 
 # SSL設定を修正
 if 'rediss://' in app.conf.broker_url:
+    from ssl import CERT_NONE
     ssl_settings = {
-        'ssl_cert_reqs': None,
+        'ssl_cert_reqs': CERT_NONE,
         'ssl_ca_certs': None,
         'ssl_certfile': None,
         'ssl_keyfile': None
