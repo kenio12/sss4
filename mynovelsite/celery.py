@@ -59,15 +59,14 @@ app.conf.result_backend = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 
 # Upstash Redis用のSSL設定
 if 'rediss://' in app.conf.broker_url:
-    from ssl import CERT_NONE
-    ssl_settings = {
-        'ssl_cert_reqs': CERT_NONE,
-        'ssl_ca_certs': None,
-        'ssl_certfile': None,
-        'ssl_keyfile': None
+    app.conf.broker_transport_options = {
+        'ssl_cert_reqs': None,
+        'ssl_ca_certs': None
     }
-    app.conf.broker_use_ssl = ssl_settings
-    app.conf.redis_backend_use_ssl = ssl_settings
+    app.conf.redis_backend_transport_options = {
+        'ssl_cert_reqs': None,
+        'ssl_ca_certs': None
+    }
 
 # タイムゾーン設定を追加
 app.conf.timezone = 'Asia/Tokyo'
