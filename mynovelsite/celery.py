@@ -4,6 +4,7 @@ import os
 from celery import Celery
 from celery.schedules import crontab
 from django.conf import settings
+from ssl import CERT_NONE  # これを追加
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 
@@ -60,11 +61,11 @@ app.conf.result_backend = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 # Upstash Redis用のSSL設定
 if 'rediss://' in app.conf.broker_url:
     app.conf.broker_transport_options = {
-        'ssl_cert_reqs': None,
+        'ssl_cert_reqs': CERT_NONE,  # Noneではなく、CERT_NONEを使用
         'ssl_ca_certs': None
     }
     app.conf.redis_backend_transport_options = {
-        'ssl_cert_reqs': None,
+        'ssl_cert_reqs': CERT_NONE,  # Noneではなく、CERT_NONEを使用
         'ssl_ca_certs': None
     }
 
