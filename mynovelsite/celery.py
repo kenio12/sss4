@@ -1,6 +1,7 @@
 import os
 from celery import Celery
 from celery.schedules import crontab
+from ssl import CERT_NONE
 
 # Django設定モジュールを指定
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
@@ -16,8 +17,6 @@ app.autodiscover_tasks()
 
 # Redis URL設定（SSL対応）
 redis_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
-if redis_url.startswith('rediss://'):
-    redis_url = f"{redis_url}?ssl_cert_reqs=none"
 
 # Celery設定
 app.conf.update(
@@ -25,6 +24,12 @@ app.conf.update(
     result_backend=redis_url,
     timezone='Asia/Tokyo',
     enable_utc=True,
+    redis_backend_transport_options={
+        'ssl_cert_reqs': CERT_NONE,
+    },
+    broker_transport_options={
+        'ssl_cert_reqs': CERT_NONE,
+    },
     beat_schedule={
         'propose_titles_every_minute': {
             'task': 'game_same_title.tasks.propose_titles_task',
