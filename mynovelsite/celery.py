@@ -5,18 +5,13 @@ from celery.schedules import crontab
 # Django設定モジュールを指定
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 
-# Redis接続URLの設定
-redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379')
-if redis_url.startswith('rediss://'):
-    redis_url += '?ssl_cert_reqs=CERT_NONE'
-
 # Celeryアプリケーションの初期化
 app = Celery('mynovelsite')
 
 # Celery設定
 app.conf.update(
-    broker_url=redis_url,           # Redisをブローカーとして使用
-    result_backend=redis_url,       # Redisを結果バックエンドとして使用
+    broker_url='django://',
+    result_backend='django-db',
     timezone='Asia/Tokyo',
     enable_utc=True,
     beat_schedule={

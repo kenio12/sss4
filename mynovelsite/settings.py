@@ -244,29 +244,18 @@ INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
 # Celery Configuration
 if ENVIRONMENT == 'production':
     # 本番環境設定
-    CELERY_BROKER_URL = os.environ.get('REDIS_URL')
-    CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL')
-    
-    # Upstash用のSSL設定
-    if 'rediss://' in os.environ.get('REDIS_URL', ''):
-        CELERY_BROKER_USE_SSL = {
-            'ssl_cert_reqs': None,
-            'ssl_ca_certs': None
-        }
-        CELERY_REDIS_BACKEND_USE_SSL = {
-            'ssl_cert_reqs': None,
-            'ssl_ca_certs': None
-        }
+    CELERY_BROKER_URL = 'django://'
+    CELERY_RESULT_BACKEND = 'django-db'
 else:
     # 開発環境設定
-    # 環境変数をクリア（開発環境では使用しない）
+    # Redis関連の環境変数をクリア
     for key in ['REDIS_URL', 'CELERY_BROKER_URL', 'CELERY_RESULT_BACKEND']:
         if key in os.environ:
             del os.environ[key]
     
-    # ローカルRedisを強制的に使用
-    CELERY_BROKER_URL = 'redis://redis:6379/0'
-    CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+    # PostgreSQLを使用
+    CELERY_BROKER_URL = 'django://'
+    CELERY_RESULT_BACKEND = 'django-db'
 
 # 共通のCelery設定
 CELERY_ACCEPT_CONTENT = ['json']
