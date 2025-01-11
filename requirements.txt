@@ -16,5 +16,4 @@ gunicorn==20.1.0
 django-widget-tweaks
 django-celery-beat==2.3.0
 tzdata==2024.1
-backports.zoneinfo;python_version<"3.9"
 django-celery-results
