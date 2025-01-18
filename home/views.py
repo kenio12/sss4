@@ -56,8 +56,11 @@ class HomePageView(ListView):
         return context
 
     def get_queryset(self):
+        # published_dateが存在し、statusが'published'の小説のみを取得
+        # '-published_date'でソート（マイナスは降順を意味する）
         return Novel.objects.filter(
-            status='published'
+            status='published',
+            published_date__isnull=False  # published_dateがNullでないものを取得
         ).order_by('-published_date')
 
 
@@ -95,12 +98,14 @@ def home(request):
     # お知らせを取得（固定表示を優先、最新2件）
     announcements = Announcement.objects.filter(
         is_active=True
-    ).order_by('-created_at')[:2]  # 最新2件に変更
+    ).order_by('-created_at')[:2]
     
+    # 公開済みの小説を公開日の降順で取得
     latest_novels = Novel.objects.filter(
-        status='published'
+        status='published',
+        published_date__isnull=False  # published_dateがNullでないものを取得
     ).select_related(
-        'author'  # authorを事前に取得
+        'author'
     ).order_by('-published_date')[:6]
     
     print("\n=== デバッグ情報 ===")

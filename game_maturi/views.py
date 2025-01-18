@@ -83,22 +83,22 @@ def game_maturi_top(request, game_id):
             }
             print(f"Novel {pred.novel.id}: Predicted author = {pred.predicted_author.nickname}")
     
-    # ユーザーの小説を取得（既存のコードの直前に追加）
+    # 予想期間中の場合、公開済みの小説のみを取得（予約公開は除外）
+    if game.is_prediction_period():
+        novels = game.maturi_novels.filter(
+            status='published'  # 公開済みの小説のみに限定
+        ).select_related('author', 'original_author').order_by('-published_date')  # 公開日の降順で並び替え
+    else:
+        novels = []
+
+    # ユーザーの小説を取得（既存のコードを修正）
     user_novels = []
     if request.user.is_authenticated and is_user_entered:
         user_novels = game.maturi_novels.filter(
             models.Q(author=request.user) | 
             models.Q(original_author=request.user)
-        ).order_by('created_at')
+        ).order_by('-published_date')  # 公開日の降順で並び替え
         print(f"Found {user_novels.count()} novels for user {request.user.nickname}")  # デバッグ用
-
-    # 予想期間中の場合、公開済みの小説のみを取得（予約公開は除外）
-    if game.is_prediction_period():
-        novels = game.maturi_novels.filter(
-            status='published'  # 公開済みの小説のみに限定
-        ).select_related('author', 'original_author')
-    else:
-        novels = []
 
     # 基本のコンテキストを作成
     context = {

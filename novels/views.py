@@ -18,6 +18,7 @@ import json
 from django.http import HttpResponseForbidden
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.views.generic import ListView
 
 # from .context_processors import get_unread_comments_count  # これを追加
 
@@ -1000,3 +1001,63 @@ def home(request):
         'latest_novels': latest_novels,
     }
     return render(request, 'home/home.html', context)
+
+class NovelListView(ListView):
+    model = Novel
+    template_name = 'novels/novels_list.html'
+    context_object_name = 'novels'
+
+    def get_queryset(self):
+        # デフォルトで公開日の降順（新しい順）
+        queryset = Novel.objects.filter(
+            status='published',
+            published_date__isnull=False
+        ).select_related('author').order_by('-published_date')
+
+        # GETパラメータからソート条件を取得
+        sort_by = self.request.GET.get('sort_by', 'published_date')
+        order = self.request.GET.get('order', 'desc')
+
+        # ソート順の設定
+        if order == 'asc':
+            sort_by = sort_by
+        else:
+            sort_by = f'-{sort_by}'
+
+        # ソート条件に応じてクエリを変更
+        if sort_by:
+            queryset = queryset.order_by(sort_by)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sort_by'] = self.request.GET.get('sort_by', 'published_date')
+        context['order'] = self.request.GET.get('order', 'desc')
+        return context
+
+class NovelPaginatedView(ListView):
+    model = Novel
+    template_name = 'novels/novels_paginated.html'
+    context_object_name = 'novels'
+    paginate_by = 10
+
+    def get_queryset(self):
+        # デフォルトで公開日の降順（新しい順）
+        queryset = Novel.objects.filter(
+            status='published',
+            published_date__isnull=False
+        ).select_related('author')
+
+        # フィルタリング条件の適用
+        author_search = self.request.GET.get('author_search')
+        if author_search:
+            queryset = queryset.filter(author__nickname__icontains=author_search)
+
+        # その他のフィルタリング条件も同様に適用...
+
+        # ソート条件の適用
+        sort_by = self.request.GET.get('sort', '-published_date')
+        queryset = queryset.order_by(sort_by)
+
+        return queryset
