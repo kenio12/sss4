@@ -663,6 +663,27 @@
         overscroll-behavior: none !important;
         resize: none !important;
     }
+
+    /* テキストエリアの基本スタイル */
+    html body textarea.content, 
+    html body textarea.form-control.content,
+    html body textarea.content2, 
+    html body textarea.form-control.content2 {
+        width: calc(100% - 13px) !important;
+        height: 70vh !important;  /* ビューポートの70%で固定 */
+        min-height: 500px !important;
+        padding: 15px !important;
+        margin: 3px !important;
+        
+        /* スクロール設定 */
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        resize: vertical !important;
+        
+        /* その他の設定 */
+        line-height: 1.5 !important;
+        font-size: 20px !important;
+    }
 </style>
 
 <div class="container mt-5">
