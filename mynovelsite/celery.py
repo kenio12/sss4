@@ -18,10 +18,6 @@ app.conf.update(
     timezone='Asia/Tokyo',
     enable_utc=True,
     beat_schedule={
-        'propose_titles_every_minute': {
-            'task': 'game_same_title.tasks.propose_titles_task',
-            'schedule': crontab(hour='0', minute='0'),
-        },
         'publish-scheduled-novels': {
             'task': 'game_maturi.tasks.publish_scheduled_novels',
             'schedule': crontab(hour='0', minute='0'),
