@@ -156,53 +156,31 @@
         resize: none !important;
     }
 
-    /* form-groupのパディングを確実に削除し、左右マージンを追加 */
+    /* form-groupのパディングを確実に削除し、左右マージンのみ残す */
     html body .container .form-group,
     html body .form-group,
     .form-group {
         padding: 0 !important;
-        margin: 0 !important;
+        margin: 0 3px !important;
         border: none !important;
         background: none !important;
-        position: relative !important;
-        width: calc(100% - 6px) !important;  /* 全体幅からマージンを引く */
-        left: 3px !important;  /* 左から3px */
-        right: 3px !important;  /* 右から3px */
-    }
-
-    /* タイトル入力フィールドのスタイル調整 */
-    .form-control.title2 {
-        font-size: 20px !important;
-        padding: 10px !important;
-        height: auto !important;
-        width: 100% !important;  /* 親要素いっぱいに広げる */
     }
 
     /* テキストエリアのスタイル */
     html body textarea.content, 
     html body textarea.form-control.content {
-        width: calc(100% - 6px) !important;
-        height: 70vh !important;  /* ビューポートの70%の高さに固定 */
+        width: calc(100% - 13px) !important;
+        height: auto !important;
         min-height: 500px !important;
-        padding: 15px !important;
-        margin: 3px !important;
+        padding: 0 !important;
+        margin-left: 3px !important;
+        margin-right: 10px !important;
         
-        /* スクロール設定 */
-        overflow-y: auto !important;  /* 垂直スクロールを許可 */
-        overflow-x: hidden !important;  /* 水平スクロールを無効化 */
-        resize: vertical !important;  /* 垂直リサイズのみ許可 */
-        
-        /* その他の設定 */
-        line-height: 1.5 !important;
-        font-size: 20px !important;
-    }
-
-    /* モバイル向けの調整は残す */
-    @media (max-width: 768px) {
-        textarea.content {
-            min-height: 50vh !important;
-            font-size: 23px !important;
-        }
+        /* スクロール関連 */
+        overflow: auto !important;
+        -webkit-overflow-scrolling: unset !important;
+        overscroll-behavior: none !important;
+        resize: none !important;
     }
 </style>
 
@@ -418,116 +396,32 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    var titleInput = document.querySelector('.title2');
-    var contentInput = document.querySelector('.content');
-    var titleWordCount = document.getElementById('titleWordCount');
-    var contentWordCount = document.getElementById('footerWordCount');
-    var phraseCount = document.getElementById('phraseCount');
-    var requiredPhrases = [{% for phrase in current_game.phrases.all %}'{{ phrase.text }}',{% endfor %}];
-
-    titleInput.addEventListener('input', function() {
-        var count = titleInput.value.length;
-        titleWordCount.textContent = count + ' / 100文字';
-    });
-
-    contentInput.addEventListener('input', function() {
-        var count = contentInput.value.length;
-        contentWordCount.textContent = count + ' / 10,000文字';
-
-        // 語句のカウント（重を排除）
-        var usedPhrases = new Set(); // 使用された異なる語句を追跡するためのSet
-        var content = contentInput.value.toLowerCase();
+    const textarea = document.querySelector('.content');
+    
+    function adjustHeight() {
+        // 最小の高さを設定
+        const minHeight = Math.max(500, window.innerHeight * 0.7);
         
-        // 各語句をチェック
-        requiredPhrases.forEach(function(phrase, index) {
-            var phraseElement = document.getElementById('phrase-' + (index + 1));
-            if (content.includes(phrase.toLowerCase())) {
-                usedPhrases.add(phrase); // Setを使用して重複を自動的に排除
-                phraseElement.style.backgroundColor = 'blue';
-                phraseElement.style.color = 'white';
-            } else {
-                phraseElement.style.backgroundColor = '';
-                phraseElement.style.color = '';
-            }
-        });
-
-        var uniqueCount = usedPhrases.size; // 異なる語句の数
-        var remainingCount = 5 - uniqueCount; // 残りの必要な語句数
-
-        // カウント表示の更（より詳細な情報を表示）
-        if (uniqueCount >= 5) {
-            phraseCount.textContent = `${uniqueCount}/5 語句 (達成！)`;
-            phraseCount.style.color = 'blue';
-        } else {
-            phraseCount.textContent = `${uniqueCount}/5 語句 (あと${remainingCount}個必要)`;
-            phraseCount.style.color = 'red';
-        }
-
-        // デバグ用のログ出力
-        console.log('使用されている語句:', Array.from(usedPhrases));
-        console.log('使用語句数:', uniqueCount);
-    });
-
-    // 初期表示時にも語句チェックを実行
-    contentInput.dispatchEvent(new Event('input'));
-
-    // ォーム送信時のバデーション
-    document.querySelector('form').addEventListener('submit', function(event) {
-        const initialField = document.querySelector('#{{ form.initial.id_for_label }}');
-        if (!initialField.value.trim()) {
-            event.preventDefault();  // フォーム送信を止める
-            alert('タイトルの頭文字のふりがなを入力してください！');
-            initialField.focus();  // フィールドにフォーカスを当てる
-            return false;
-        }
-    });
-
-    // 予約公開の同意チェックボックス処理
-    const autoPublishConsent = document.getElementById('autoPublishConsent');
-    const schedulePublishBtn = document.getElementById('schedulePublishBtn');
-
-    if (autoPublishConsent && schedulePublishBtn) {
-        // 初期状態の設定
-        schedulePublishBtn.disabled = !autoPublishConsent.checked;
-
-        autoPublishConsent.addEventListener('change', function() {
-            if (schedulePublishBtn.value === 'schedule_publish') {  // 予約公開する場合のみ
-                schedulePublishBtn.disabled = !this.checked;
-            }
-        });
+        // 既存のスタイルを保持しながら高さだけ調整
+        textarea.style.cssText = `
+            height: ${Math.max(textarea.scrollHeight, minHeight)}px !important;
+            min-height: ${minHeight}px !important;
+            margin-left: 3px !important;
+            margin-right: 10px !important;
+            width: calc(100% - 13px) !important;
+        `;
     }
-
-    // confirmSchedulePublish関数を修正
-    window.confirmSchedulePublish = function() {
-        if (!autoPublishConsent.checked) {
-            alert('自動公開への同意が必要です。');
-            return false;
-        }
-        return confirm(
-            '小説を予約公開します。\n\n' +
-            '予約すると、{{ current_game.prediction_start_date|date:"Y年m月d日" }}に自動的に公開されます。\n' +
-            '予約後も公開日まではいつでも編集可能です。\n\n' +
-            'よろしいですか？'
-        );
-    };
+    
+    // 入力時に高さを自動調整
+    textarea.addEventListener('input', adjustHeight);
+    
+    // 初期表示時に確実に高さを調整
+    setTimeout(adjustHeight, 0);
+    setTimeout(adjustHeight, 100);
+    
+    // ウィンドウのリサイズ時にも高さを再調整
+    window.addEventListener('resize', adjustHeight);
 });
-
-function confirmPublish() {
-    return confirm('一旦公開すると、編集はできますが、削除や作成中に戻すことはできません。本当に開しますか？');
-}
-
-function confirmDelete() {
-    return confirm('本当に削除していいですか？');
-}
-
-function confirmSchedulePublish() {
-    return confirm(
-        '小説を予約公開します。\n\n' +
-        '予約すると、{{ current_game.prediction_start_date|date:"Y年m月d日" }}に自動的に公開されます。\n' +
-        '予約後も公開日ではいつでも編集可能です。\n\n' +
-        'よろしいですか？'
-    );
-}
 </script>
 
 {% endblock %}
