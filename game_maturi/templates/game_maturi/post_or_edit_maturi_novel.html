@@ -397,8 +397,36 @@
 </div>
 
 <script>
-// 自動高さ調整のスクリプトは完全に削除
-// 文字数カウントなどの他の機能は残す
+document.addEventListener('DOMContentLoaded', function() {
+    // 語句カウントの初期化と更新
+    const content = document.querySelector('textarea.content');
+    const phraseCountDisplay = document.getElementById('phraseCount');
+    const requiredPhrases = Array.from(document.querySelectorAll('.keyword-option')).map(el => el.textContent.trim().toLowerCase());
+    
+    function updatePhraseCount() {
+        const text = content.value.toLowerCase();
+        const usedPhrases = requiredPhrases.filter(phrase => text.includes(phrase));
+        const count = usedPhrases.length;
+        
+        phraseCountDisplay.textContent = `${count}/5 語句`;
+        phraseCountDisplay.style.color = count >= 5 ? 'green' : 'red';
+        
+        // 使用されている語句をハイライト
+        document.querySelectorAll('.keyword-option').forEach(el => {
+            if (text.includes(el.textContent.trim().toLowerCase())) {
+                el.style.backgroundColor = '#e6ffe6';  // 薄い緑色
+            } else {
+                el.style.backgroundColor = '#f8f9fa';  // デフォルトの背景色
+            }
+        });
+    }
+    
+    // 初期表示時にもカウントを更新
+    if (content) {
+        updatePhraseCount();
+        content.addEventListener('input', updatePhraseCount);
+    }
+});
 </script>
 
 {% endblock %}

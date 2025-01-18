@@ -141,11 +141,14 @@ class MaturiGame(models.Model):
         必要な語句が含まれているかチェックする
         戻り値: (bool, list) - (チェック結果, 不足している語句のリスト)
         """
+        if not content:  # コンテンツが空の場合のチェック
+            return False, list(self.phrases.values_list('text', flat=True))
+            
         # 全ての必要な語句を取得
         required_phrases = set(self.phrases.values_list('text', flat=True))
         content_lower = content.lower()
         
-        # 使用されている語句を確認（複なしで）
+        # 使用されている語句を確認（重複なしで）
         used_phrases = set()
         for phrase in required_phrases:
             if phrase.lower() in content_lower:
@@ -156,11 +159,6 @@ class MaturiGame(models.Model):
         
         # 異なる5つの語句が含まれているかチェック
         is_valid = len(used_phrases) >= 5
-        
-        # デバッグ用のログ出力
-        print(f"使用されている語句: {used_phrases}")
-        print(f"不足している語句: {missing_phrases}")
-        print(f"語句チェック結果: {is_valid}")
         
         return is_valid, list(missing_phrases)
 
