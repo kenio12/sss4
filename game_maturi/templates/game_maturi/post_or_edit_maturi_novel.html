@@ -142,16 +142,18 @@
     /* テキストエリアのスタイル */
     html body textarea.content, 
     html body textarea.form-control.content {
-        width: calc(100% - 6px) !important;
-        height: 70vh !important;  /* ビューポートの70%の高さに固定 */
+        width: calc(100% - 13px) !important;
+        height: auto !important;
         min-height: 500px !important;
-        padding: 15px !important;
-        margin: 3px !important;
+        padding: 0 !important;
+        margin-left: 3px !important;
+        margin-right: 10px !important;
         
-        /* スクロール設定を修正 */
-        overflow-y: auto !important;  /* 垂直スクロールを許可 */
-        overflow-x: hidden !important;  /* 水平スクロールを無効化 */
-        resize: vertical !important;  /* 垂直リサイズのみ許可 */
+        /* スクロール関連 */
+        overflow: auto !important;
+        -webkit-overflow-scrolling: unset !important;
+        overscroll-behavior: none !important;
+        resize: none !important;
     }
 
     /* form-groupのパディングを確実に削除し、左右マージンを追加 */
@@ -185,10 +187,22 @@
         padding: 15px !important;
         margin: 3px !important;
         
-        /* スクロール設定を修正 */
+        /* スクロール設定 */
         overflow-y: auto !important;  /* 垂直スクロールを許可 */
         overflow-x: hidden !important;  /* 水平スクロールを無効化 */
         resize: vertical !important;  /* 垂直リサイズのみ許可 */
+        
+        /* その他の設定 */
+        line-height: 1.5 !important;
+        font-size: 20px !important;
+    }
+
+    /* モバイル向けの調整は残す */
+    @media (max-width: 768px) {
+        textarea.content {
+            min-height: 50vh !important;
+            font-size: 23px !important;
+        }
     }
 </style>
 
@@ -514,14 +528,6 @@ function confirmSchedulePublish() {
         'よろしいですか？'
     );
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    const textarea = document.querySelector('.content');
-    
-    // イベントリスナーも削除
-    // textarea.addEventListener('input', adjustHeight);
-    // window.addEventListener('resize', adjustHeight);
-});
 </script>
 
 {% endblock %}
