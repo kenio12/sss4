@@ -19,6 +19,7 @@ from django.http import HttpResponseForbidden
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.views.generic import ListView
+from game_maturi.models import MaturiGame  # この行を追加
 
 # from .context_processors import get_unread_comments_count  # これを追加
 
@@ -997,10 +998,8 @@ def home(request):
         '-published_date'
     )[:10]
 
-    # 現在アクティブな祭りを取得（終了日が現在より後のもの）
-    current_maturi_game = MaturiGame.objects.filter(
-        maturi_end_date__gt=timezone.now()
-    ).first()
+    # 現在アクティブな祭りを取得（開始日と終了日の間のもの）
+    current_maturi_game = MaturiGame.find_current_games().first()
 
     context = {
         'latest_novels': latest_novels,
