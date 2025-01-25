@@ -33,11 +33,8 @@ class HomePageView(ListView):
             is_active=True
         ).order_by('-created_at')[:3]
         
-        # 現在開催中の祭りを取得（日付で判定）
-        context['current_maturi_game'] = MaturiGame.objects.filter(
-            start_date__lte=now,
-            end_date__gte=now
-        ).first()
+        # 現在開催中の祭りを取得（モデルメソッドを使用）
+        context['current_maturi_game'] = MaturiGame.find_current_games().first()
 
         # 管理者用の追加情報
         if self.request.user.is_staff:
@@ -94,39 +91,39 @@ def terms(request):
 def main_view(request):
     return render(request, 'home/main.html')
 
-def home(request):
-    # お知らせを取得（固定表示を優先、最新2件）
-    announcements = Announcement.objects.filter(
-        is_active=True
-    ).order_by('-created_at')[:2]
+# def home(request):
+#     # お知らせを取得（固定表示を優先、最新2件）
+#     announcements = Announcement.objects.filter(
+#         is_active=True
+#     ).order_by('-created_at')[:2]
     
-    # 公開済みの小説を公開日の降順で取得
-    latest_novels = Novel.objects.filter(
-        status='published',
-        published_date__isnull=False  # published_dateがNullでないものを取得
-    ).select_related(
-        'author'
-    ).order_by('-published_date')[:6]
+#     # 公開済みの小説を公開日の降順で取得
+#     latest_novels = Novel.objects.filter(
+#         status='published',
+#         published_date__isnull=False  # published_dateがNullでないものを取得
+#     ).select_related(
+#         'author'
+#     ).order_by('-published_date')[:6]
     
-    print("\n=== デバッグ情報 ===")
-    for novel in latest_novels:
-        print(f"""
-        小説ID: {novel.id}
-        タイトル: {novel.title}
-        作者ID: {novel.author_id}
-        作者オブジェクト: {novel.author}
-        作者のID: {getattr(novel.author, 'id', 'None')}
-        作者のニックネーム: {getattr(novel.author, 'nickname', 'None')}
-        ステータス: {novel.status}
-        公開日: {novel.published_date}
-        """)
-    print("=== デバッグ終了 ===\n")
+#     print("\n=== デバッグ情報 ===")
+#     for novel in latest_novels:
+#         print(f"""
+#         小説ID: {novel.id}
+#         タイトル: {novel.title}
+#         作者ID: {novel.author_id}
+#         作者オブジェクト: {novel.author}
+#         作者のID: {getattr(novel.author, 'id', 'None')}
+#         作者のニックネーム: {getattr(novel.author, 'nickname', 'None')}
+#         ステータス: {novel.status}
+#         公開日: {novel.published_date}
+#         """)
+#     print("=== デバッグ終了 ===\n")
     
-    context = {
-        'latest_novels': latest_novels,
-        'announcements': announcements,
-    }
-    return render(request, 'home/home.html', context)
+#     context = {
+#         'latest_novels': latest_novels,
+#         'announcements': announcements,
+#     }
+#     return render(request, 'home/home.html', context)
 
 def announcement_detail(request, announcement_id):
     announcement = get_object_or_404(Announcement, id=announcement_id, is_active=True)

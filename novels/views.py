@@ -988,33 +988,25 @@ def toggle_comment_read(request, comment_id):
         'novels_with_unread': novels_with_unread
     })
 
-def home(request):
-    # 公開済の小説を10件取得
-    latest_novels = Novel.objects.filter(
-        status='published'
-    ).select_related(
-        'author'
-    ).order_by(
-        '-published_date'
-    )[:10]
+# def home(request):
+#     # 公開済の小説を10件取得
+#     latest_novels = Novel.objects.filter(
+#         status='published'
+#     ).select_related(
+#         'author'
+#     ).order_by(
+#         '-published_date'
+#     )[:10]
 
-    # デバッグ用のログ追加
-    current_maturi_game = MaturiGame.find_current_games().first()
-    print("==== 祭り情報デバッグ ====")
-    print(f"現在の祭り: {current_maturi_game}")
-    if current_maturi_game:
-        print(f"祭りID: {current_maturi_game.id}")
-        print(f"開始日: {current_maturi_game.maturi_start_date}")
-        print(f"終了日: {current_maturi_game.maturi_end_date}")
-    else:
-        print("現在アクティブな祭りはありません")
-    print("========================")
+#     # デバッグ用のログ追加
+#     current_maturi_game = MaturiGame.find_current_games().first()
 
-    context = {
-        'latest_novels': latest_novels,
-        'current_maturi_game': current_maturi_game,
-    }
-    return render(request, 'home/home.html', context)
+
+#     context = {
+#         'latest_novels': latest_novels,
+#         'current_maturi_game': current_maturi_game,
+#     }
+#     return render(request, 'home/home.html', context)
 
 class NovelListView(ListView):
     model = Novel
