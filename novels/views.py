@@ -995,10 +995,16 @@ def home(request):
         'author'
     ).order_by(
         '-published_date'
-    )[:10]  # 4から10に変更
+    )[:10]
+
+    # 現在アクティブな祭りを取得（終了日が現在より後のもの）
+    current_maturi_game = MaturiGame.objects.filter(
+        maturi_end_date__gt=timezone.now()
+    ).first()
 
     context = {
         'latest_novels': latest_novels,
+        'current_maturi_game': current_maturi_game,
     }
     return render(request, 'home/home.html', context)
 
