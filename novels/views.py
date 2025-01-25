@@ -989,7 +989,7 @@ def toggle_comment_read(request, comment_id):
     })
 
 def home(request):
-    # 公開済の小説を10件取得するように変更
+    # 公開済の小説を10件取得
     latest_novels = Novel.objects.filter(
         status='published'
     ).select_related(
@@ -998,8 +998,17 @@ def home(request):
         '-published_date'
     )[:10]
 
-    # 現在アクティブな祭りを取得（開始日と終了日の間のもの）
+    # デバッグ用のログ追加
     current_maturi_game = MaturiGame.find_current_games().first()
+    print("==== 祭り情報デバッグ ====")
+    print(f"現在の祭り: {current_maturi_game}")
+    if current_maturi_game:
+        print(f"祭りID: {current_maturi_game.id}")
+        print(f"開始日: {current_maturi_game.maturi_start_date}")
+        print(f"終了日: {current_maturi_game.maturi_end_date}")
+    else:
+        print("現在アクティブな祭りはありません")
+    print("========================")
 
     context = {
         'latest_novels': latest_novels,

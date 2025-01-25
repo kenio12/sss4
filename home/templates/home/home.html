@@ -180,6 +180,9 @@ document.addEventListener('DOMContentLoaded', function() {
             </a>
         </div>
 
+        <!-- デバッグ用コメント -->
+        <!-- 祭り情報: {{ current_maturi_game|default:"なし" }} -->
+        
         <!-- 祭り期間中のみ表示 -->
         {% if current_maturi_game %}
         <div class="home-btn home-btn-list home-btn-maturi" title="祭り">
