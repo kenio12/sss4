@@ -11,16 +11,15 @@ app = Celery('mynovelsite')
 # REDIS_URLから接続情報を取得
 redis_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 
-# SSL設定を追加
+# SSL設定を修正
 redis_options = {
-    'ssl_cert_reqs': None,
-    'ssl': True
-}
+    'ssl_cert_reqs': None
+}  # 'ssl': Trueを削除
 
 # Celery設定
 app.conf.update(
     broker_url=os.environ.get('CELERY_BROKER_URL', redis_url),
-    broker_use_ssl=redis_options,  # SSL設定を追加
+    broker_use_ssl=redis_options,  # 修正したSSL設定を使用
     result_backend='django-db',
     timezone='Asia/Tokyo',
     enable_utc=True,
