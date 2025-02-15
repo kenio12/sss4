@@ -28,6 +28,7 @@ def publish_scheduled_novels():
 @shared_task
 def reveal_maturi_authors():
     now = timezone.now()
+    print(f"[Debug] Task started at: {now}")  # デバッグログ追加
     revealed_count = 0
     
     try:
@@ -36,18 +37,24 @@ def reveal_maturi_authors():
             is_author_revealed=False
         )
         
+        print(f"[Debug] Found {finished_games.count()} games to process")  # デバッグログ追加
+        
         for game in finished_games:
+            print(f"[Debug] Processing game: {game.id}")  # デバッグログ追加
             if not game.is_prediction_period_finished():
+                print(f"[Debug] Game {game.id} prediction period not finished")  # デバッグログ追加
                 continue
 
             # 小説の作者を元に戻す
             for novel in game.maturi_novels.all():
+                print(f"[Debug] Restoring author for novel: {novel.id}")  # デバッグログ追加
                 if novel.original_author:
                     novel.author = novel.original_author
                     novel.save()
             
             # コメントの投稿者を元に戻す
             for comment in game.comments.all():
+                print(f"[Debug] Restoring commenter for comment: {comment.id}")  # デバッグログ追加
                 if comment.original_commenter:
                     comment.author = comment.original_commenter
                     comment.save()
@@ -55,6 +62,7 @@ def reveal_maturi_authors():
             game.is_author_revealed = True
             game.save()
             revealed_count += 1
+            print(f"[Debug] Game {game.id} processed successfully")  # デバッグログ追加
         
         return f"{revealed_count}件の祭りの作者を公開しました"
     except Exception as e:
