@@ -9,11 +9,11 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mynovelsite.settings')
 app = Celery('mynovelsite')
 
 # REDIS_URLから接続情報を取得
-redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+redis_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 
 # Celery設定
 app.conf.update(
-    broker_url=redis_url,
+    broker_url=os.environ.get('CELERY_BROKER_URL', redis_url),
     result_backend='django-db',
     timezone='Asia/Tokyo',
     enable_utc=True,
