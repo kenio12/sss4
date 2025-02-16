@@ -1075,19 +1075,19 @@ def novel_choice(request):
     # 作成中の小説を取得
     drafts = Novel.objects.filter(
         author=request.user,
-        status='draft'
+        status='draft'  # 正しいステータス値を使用
     ).order_by('-updated_at')
     
     # 公開予定の小説を取得（祭りの小説など）
     scheduled = Novel.objects.filter(
         author=request.user,
-        status='scheduled'
+        status='scheduled'  # 正しいステータス値を使用
     ).order_by('maturi_games__prediction_start_date')
     
     # 公開済みの小説を取得
     published = Novel.objects.filter(
         author=request.user,
-        status='published'
+        status='published'  # 正しいステータス値を使用
     ).order_by('-published_date')
 
     # 現在開催中の祭りを取得
@@ -1096,18 +1096,17 @@ def novel_choice(request):
     
     # お知らせを取得（固定と通常を分けて取得）
     from announcements.models import Announcement
-    from django.db.models import Q
     
     # 固定のお知らせを取得
     fixed_announcements = Announcement.objects.filter(
-        status='published',
-        is_fixed=True  # 固定のお知らせ
+        is_active=True,
+        is_pinned=True
     ).order_by('-created_at')
     
     # 通常のお知らせを取得（固定以外）
     normal_announcements = Announcement.objects.filter(
-        status='published',
-        is_fixed=False  # 固定以外のお知らせ
+        is_active=True,
+        is_pinned=False
     ).order_by('-created_at')
     
     # 残り表示可能な件数を計算
@@ -1116,14 +1115,6 @@ def novel_choice(request):
     
     # 固定と通常のお知らせを結合
     announcements = list(fixed_announcements) + list(normal_announcements)
-    
-    # デバッグ出力
-    print("=== Announcements ===")
-    print(f"Fixed count: {fixed_announcements.count()}")
-    print(f"Normal count: {normal_announcements.count()}")
-    print(f"Total count: {len(announcements)}")
-    for a in announcements:
-        print(f"ID: {a.id}, Title: {a.title}, Fixed: {a.is_fixed}, Created: {a.created_at}")
     
     return render(request, 'novel_choice.html', {
         'drafts': drafts,
