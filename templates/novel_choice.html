@@ -111,46 +111,6 @@
         {% endfor %}
     </div>
     {% endif %}
-
-    <!-- お知らせ一覧 -->
-    {% if announcements %}
-    <div class="announcements-section">
-        <h3 class="section-title">重要なお知らせ</h3>
-        <div class="announcements-list">
-            {% for announcement in announcements %}
-                <!-- PC表示用 -->
-                <div class="announcement-item pc-view">
-                    <div class="announcement-date">{{ announcement.created_at|date:"Y/m/d" }}</div>
-                    <div class="announcement-title">
-                        <a href="{% url 'announcements:detail' announcement.id %}" style="color: #ff69b4 !important;">
-                            {{ announcement.title }}
-                        </a>
-                    </div>
-                </div>
-
-                <!-- スマホ表示用 -->
-                <div class="announcement-item sp-view">
-                    <div class="announcement-header">
-                        <div class="announcement-title">
-                            <a href="{% url 'announcements:detail' announcement.id %}" style="color: #ff69b4 !important;">
-                                {{ announcement.title }}
-                            </a>
-                        </div>
-                    </div>
-                    <div class="announcement-info">
-                        <div class="announcement-date">{{ announcement.created_at|date:"Y/m/d" }}</div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-
-        <div class="button-container-center">
-            <a href="{% url 'announcements:list' %}" class="list-button announcements-button">
-                お知らせ一覧
-            </a>
-        </div>
-    </div>
-    {% endif %}
 </div>
 
 <style>
