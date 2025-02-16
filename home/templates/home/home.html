@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="button-container">
         {% if user.is_authenticated %}
         <div class="home-btn home-btn-primary" title="執筆する">
-            <a href="/novels/post/">
+            <a href="{% url 'novels:novel_choice' %}">
                 <img src="/static/home/images/pen_icon.svg" alt="Icon" style="width: 100%; height: auto;">
             </a>
         </div>

@@ -383,6 +383,51 @@ a.author-name {    /* 作者名リンクをより具体的に */
     margin: 1.5rem auto !important;  /* 上下のマージンは維持 */
     max-width: 95% !important;       /* 画面幅の95%に変更 */
 }
+
+/* コメント入力欄のスタイルを追加 */
+.comment-form textarea {
+    font-size: 18px !important;  /* 入力時の文字サイズを大きく */
+    line-height: 1.6 !important;
+    padding: 12px !important;
+    min-height: 100px !important;
+    width: 100% !important;
+    border: 2px solid #ccc !important;
+    border-radius: 8px !important;
+}
+
+/* コメント表示部分のスタイルを修正 */
+.comment {
+    font-size: 16px !important;  /* 基本の文字サイズを大きく */
+}
+
+.comment .comment-author {
+    font-size: 17px !important;  /* 作者名を少し大きく */
+    margin-bottom: 8px !important;
+}
+
+.comment .comment-content {
+    font-size: 16px !important;  /* コメント本文の文字サイズ */
+    line-height: 1.8 !important;
+}
+
+/* スマートフォン向けの調整 */
+@media (max-width: 768px) {
+    .comment-form textarea {
+        font-size: 20px !important;  /* スマホでさらに大きく */
+    }
+    
+    .comment {
+        font-size: 18px !important;
+    }
+    
+    .comment .comment-author {
+        font-size: 19px !important;
+    }
+    
+    .comment .comment-content {
+        font-size: 18px !important;
+    }
+}
 </style>
 
 <script>

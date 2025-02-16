@@ -1067,3 +1067,36 @@ class NovelPaginatedView(ListView):
         queryset = queryset.order_by(sort_by)
 
         return queryset
+
+def novel_choice(request):
+    if not request.user.is_authenticated:
+        return redirect('accounts:login')
+    
+    # 作成中の小説を取得
+    drafts = Novel.objects.filter(
+        author=request.user,
+        status='draft'
+    ).order_by('-updated_at')
+    
+    # 公開予定の小説を取得（祭りの小説など）
+    scheduled = Novel.objects.filter(
+        author=request.user,
+        status='scheduled'
+    ).order_by('maturi_games__prediction_start_date')
+    
+    # 公開済みの小説を取得
+    published = Novel.objects.filter(
+        author=request.user,
+        status='published'
+    ).order_by('-published_date')
+
+    # 現在開催中の祭りを取得（修正）
+    from game_maturi.models import MaturiGame
+    current_maturi_game = MaturiGame.find_current_games().first()
+    
+    return render(request, 'novel_choice.html', {
+        'drafts': drafts,
+        'scheduled': scheduled,
+        'published': published,
+        'current_maturi_game': current_maturi_game
+    })

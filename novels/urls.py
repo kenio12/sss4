@@ -32,4 +32,5 @@ urlpatterns = [
     # path('check-unread-comments/<int:novel_id>/', views.check_unread_comments, name='check_unread_comments'),
     # path('<int:novel_id>/load_more_comments/', views.load_more_comments, name='load_more_comments'),
     path('comments/<int:comment_id>/toggle-read/', views.toggle_comment_read_status, name='toggle_comment_read'),
+    path('novel-choice/', views.novel_choice, name='novel_choice'),
 ]
