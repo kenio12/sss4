@@ -1090,14 +1090,14 @@ def novel_choice(request):
         status='published'
     ).order_by('-published_date')
 
-    # 現在開催中の祭りを取得（修正）
+    # 現在開催中の祭りを取得
     from game_maturi.models import MaturiGame
     current_maturi_game = MaturiGame.find_current_games().first()
     
-    # お知らせを5件取得（追加）
+    # 公開済みのお知らせを5件取得（修正）
     from announcements.models import Announcement
     announcements = Announcement.objects.filter(
-        is_important=True
+        status='published'  # 公開済みのみ
     ).order_by('-created_at')[:5]
     
     return render(request, 'novel_choice.html', {
@@ -1105,5 +1105,5 @@ def novel_choice(request):
         'scheduled': scheduled,
         'published': published,
         'current_maturi_game': current_maturi_game,
-        'announcements': announcements  # 追加
+        'announcements': announcements
     })
