@@ -111,6 +111,46 @@
         {% endfor %}
     </div>
     {% endif %}
+
+    <!-- お知らせ一覧 -->
+    {% if announcements %}
+    <div class="announcements-section">
+        <h3 class="section-title">重要なお知らせ</h3>
+        <div class="announcements-list">
+            {% for announcement in announcements %}
+                <!-- PC表示用 -->
+                <div class="announcement-item pc-view">
+                    <div class="announcement-date">{{ announcement.created_at|date:"Y/m/d" }}</div>
+                    <div class="announcement-title">
+                        <a href="{% url 'announcements:detail' announcement.id %}" style="color: #ff69b4 !important;">
+                            {{ announcement.title }}
+                        </a>
+                    </div>
+                </div>
+
+                <!-- スマホ表示用 -->
+                <div class="announcement-item sp-view">
+                    <div class="announcement-header">
+                        <div class="announcement-title">
+                            <a href="{% url 'announcements:detail' announcement.id %}" style="color: #ff69b4 !important;">
+                                {{ announcement.title }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="announcement-info">
+                        <div class="announcement-date">{{ announcement.created_at|date:"Y/m/d" }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="button-container-center">
+            <a href="{% url 'announcements:list' %}" class="list-button announcements-button">
+                お知らせ一覧
+            </a>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <style>
@@ -268,6 +308,93 @@
         }
         100% {
             transform: translateX(100%) rotate(45deg);
+        }
+    }
+
+    /* お知らせ関連のスタイル */
+    .announcements-section {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .announcement-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .announcement-date {
+        flex: 0 0 100px;
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .announcement-title {
+        flex: 1;
+    }
+
+    .announcement-title a {
+        color: #ff69b4;
+        text-decoration: none;
+    }
+
+    .announcement-title a:hover {
+        text-decoration: underline;
+    }
+
+    .button-container-center {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .announcements-button {
+        display: inline-block;
+        padding: 8px 20px;
+        background-color: #ff69b4;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+    .announcements-button:hover {
+        background-color: #ff1493;
+        color: white;
+        text-decoration: none;
+    }
+
+    /* スマホ表示切り替え */
+    @media (min-width: 769px) {
+        .sp-view {
+            display: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .pc-view {
+            display: none;
+        }
+
+        .announcement-item.sp-view {
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        .announcement-header {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .announcement-info {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            color: #666;
         }
     }
 </style>

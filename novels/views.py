@@ -1094,9 +1094,16 @@ def novel_choice(request):
     from game_maturi.models import MaturiGame
     current_maturi_game = MaturiGame.find_current_games().first()
     
+    # お知らせを5件取得（追加）
+    from announcements.models import Announcement
+    announcements = Announcement.objects.filter(
+        is_important=True
+    ).order_by('-created_at')[:5]
+    
     return render(request, 'novel_choice.html', {
         'drafts': drafts,
         'scheduled': scheduled,
         'published': published,
-        'current_maturi_game': current_maturi_game
+        'current_maturi_game': current_maturi_game,
+        'announcements': announcements  # 追加
     })
