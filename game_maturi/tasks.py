@@ -1,3 +1,12 @@
+"""
+現在の問題点：
+1. タスクの戻り値が常に1になってしまう問題が未解決
+2. デバッグログは出力されるが、実行状況の確認が必要
+3. 本番環境（Heroku）でのログ確認が必要
+
+注意：上記の問題により、必要な場合は手動で実行する必要があります。
+"""
+
 from celery import shared_task
 from django.utils import timezone
 from novels.models import Novel
