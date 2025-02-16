@@ -27,13 +27,32 @@ class HomePageView(ListView):
         now = timezone.now()
         
         # 先頭の0を取り除いた月を設定
-        context['now'] = str(now.month)  # strftime('%m') から変更
-        context['announcements'] = Announcement.objects.filter(
-            is_pinned=True,
-            is_active=True
-        ).order_by('-created_at')[:3]
+        context['now'] = str(now.month)
+
+        # お知らせを取得（固定と通常を分けて取得）
+        # 固定のお知らせを直近投稿順に取得
+        fixed_announcements = Announcement.objects.filter(
+            is_active=True,
+            is_pinned=True
+        ).order_by('-created_at')
+
+        # 通常のお知らせを直近投稿順に取得（固定以外）
+        normal_announcements = Announcement.objects.filter(
+            is_active=True,
+            is_pinned=False
+        ).order_by('-created_at')
+
+        # 残り表示可能な件数を計算
+        remaining_count = 5 - fixed_announcements.count()
+        if remaining_count > 0:
+            normal_announcements = normal_announcements[:remaining_count]
+        else:
+            normal_announcements = []
+
+        # 固定と通常のお知らせを結合
+        context['announcements'] = list(fixed_announcements) + list(normal_announcements)
         
-        # 現在開催中の祭りを取得（モデルメソッドを使用）
+        # 現在開催中の祭りを取得
         context['current_maturi_game'] = MaturiGame.find_current_games().first()
 
         # 管理者用の追加情報
@@ -53,11 +72,9 @@ class HomePageView(ListView):
         return context
 
     def get_queryset(self):
-        # published_dateが存在し、statusが'published'の小説のみを取得
-        # '-published_date'でソート（マイナスは降順を意味する）
         return Novel.objects.filter(
             status='published',
-            published_date__isnull=False  # published_dateがNullでないものを取得
+            published_date__isnull=False
         ).order_by('-published_date')
 
 

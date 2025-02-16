@@ -1075,51 +1075,27 @@ def novel_choice(request):
     # 作成中の小説を取得
     drafts = Novel.objects.filter(
         author=request.user,
-        status='draft'  # 正しいステータス値を使用
+        status='draft'
     ).order_by('-updated_at')
     
     # 公開予定の小説を取得（祭りの小説など）
     scheduled = Novel.objects.filter(
         author=request.user,
-        status='scheduled'  # 正しいステータス値を使用
+        status='scheduled'
     ).order_by('maturi_games__prediction_start_date')
     
     # 公開済みの小説を取得
     published = Novel.objects.filter(
         author=request.user,
-        status='published'  # 正しいステータス値を使用
+        status='published'
     ).order_by('-published_date')
 
     # 現在開催中の祭りを取得
-    from game_maturi.models import MaturiGame
     current_maturi_game = MaturiGame.find_current_games().first()
-    
-    # お知らせを取得（固定と通常を分けて取得）
-    from announcements.models import Announcement
-    
-    # 固定のお知らせを取得
-    fixed_announcements = Announcement.objects.filter(
-        is_active=True,
-        is_pinned=True
-    ).order_by('-created_at')
-    
-    # 通常のお知らせを取得（固定以外）
-    normal_announcements = Announcement.objects.filter(
-        is_active=True,
-        is_pinned=False
-    ).order_by('-created_at')
-    
-    # 残り表示可能な件数を計算
-    remaining_count = 5 - fixed_announcements.count()
-    normal_announcements = normal_announcements[:remaining_count]
-    
-    # 固定と通常のお知らせを結合
-    announcements = list(fixed_announcements) + list(normal_announcements)
     
     return render(request, 'novel_choice.html', {
         'drafts': drafts,
         'scheduled': scheduled,
         'published': published,
-        'current_maturi_game': current_maturi_game,
-        'announcements': announcements
+        'current_maturi_game': current_maturi_game
     })
