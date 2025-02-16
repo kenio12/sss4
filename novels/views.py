@@ -1094,11 +1094,36 @@ def novel_choice(request):
     from game_maturi.models import MaturiGame
     current_maturi_game = MaturiGame.find_current_games().first()
     
-    # 公開済みのお知らせを5件取得（修正）
+    # お知らせを取得（固定と通常を分けて取得）
     from announcements.models import Announcement
-    announcements = Announcement.objects.filter(
-        status='published'  # 公開済みのみ
-    ).order_by('-created_at')[:5]
+    from django.db.models import Q
+    
+    # 固定のお知らせを取得
+    fixed_announcements = Announcement.objects.filter(
+        status='published',
+        is_fixed=True  # 固定のお知らせ
+    ).order_by('-created_at')
+    
+    # 通常のお知らせを取得（固定以外）
+    normal_announcements = Announcement.objects.filter(
+        status='published',
+        is_fixed=False  # 固定以外のお知らせ
+    ).order_by('-created_at')
+    
+    # 残り表示可能な件数を計算
+    remaining_count = 5 - fixed_announcements.count()
+    normal_announcements = normal_announcements[:remaining_count]
+    
+    # 固定と通常のお知らせを結合
+    announcements = list(fixed_announcements) + list(normal_announcements)
+    
+    # デバッグ出力
+    print("=== Announcements ===")
+    print(f"Fixed count: {fixed_announcements.count()}")
+    print(f"Normal count: {normal_announcements.count()}")
+    print(f"Total count: {len(announcements)}")
+    for a in announcements:
+        print(f"ID: {a.id}, Title: {a.title}, Fixed: {a.is_fixed}, Created: {a.created_at}")
     
     return render(request, 'novel_choice.html', {
         'drafts': drafts,
