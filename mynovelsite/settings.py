@@ -243,19 +243,13 @@ INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
 
 # Celery Configuration
 if ENVIRONMENT == 'production':
-    # 本番環境設定
-    CELERY_BROKER_URL = 'django://'
-    CELERY_RESULT_BACKEND = 'django-db'
+    # 本番環境設定（Redisを使用）
+    CELERY_BROKER_URL = 'redis://redis:6379/0'
+    CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 else:
-    # 開発環境設定
-    # Redis関連の環境変数をクリア
-    for key in ['REDIS_URL', 'CELERY_BROKER_URL', 'CELERY_RESULT_BACKEND']:
-        if key in os.environ:
-            del os.environ[key]
-    
-    # PostgreSQLを使用
-    CELERY_BROKER_URL = 'django://'
-    CELERY_RESULT_BACKEND = 'django-db'
+    # 開発環境設定（Redisを使用）
+    CELERY_BROKER_URL = 'redis://redis:6379/0'
+    CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 
 # 共通のCelery設定
 CELERY_ACCEPT_CONTENT = ['json']

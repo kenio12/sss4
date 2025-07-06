@@ -221,41 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
     {% include 'home/includes/_admin_area.html' %}
 {% endif %}
 
-<!-- 重要なお知らせのみを表示 -->
-{% if announcements %}
-<div class="announcements-container">
-    <div class="sss-novels-list">
-        {% for announcement in announcements %}
-            <!-- PC表示用 -->
-            <div class="sss-novel-row pc-view">
-                <div class="sss-date">{{ announcement.created_at|date:"Y/m/d" }}</div>
-                <div class="sss-link sss-title">
-                    <a href="{% url 'announcements:detail' announcement.id %}" style="color: #ff69b4 !important;">{{ announcement.title }}</a>
-                </div>
-            </div>
-
-            <!-- スマホ表示用 -->
-            <div class="sss-novel-row sp-view">
-                <div class="sss-header-row">
-                    <div class="sss-link sss-title">
-                        <a href="{% url 'announcements:detail' announcement.id %}" style="color: #ff69b4 !important;">{{ announcement.title }}</a>
-                    </div>
-                </div>
-                <div class="sss-info-row">
-                    <div class="sss-date">{{ announcement.created_at|date:"Y/m/d" }}</div>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-
-    <div class="button-container-center">
-        <a href="{% url 'announcements:list' %}" class="list-button novels-button" style="background-color: #ff69b4 !important;">
-            お知らせ一覧
-        </a>
-    </div>
-</div>
-{% endif %}
-
 <div class="novels-list-container">
     <div class="sss-novels-list">
         {% for novel in latest_novels %}
@@ -307,6 +272,41 @@ document.addEventListener('DOMContentLoaded', function() {
         </a>
     </div>
 </div>
+
+<!-- 重要なお知らせのみを表示 -->
+{% if announcements %}
+<div class="announcements-container">
+    <div class="sss-novels-list">
+        {% for announcement in announcements %}
+            <!-- PC表示用 -->
+            <div class="sss-novel-row pc-view">
+                <div class="sss-date">{{ announcement.created_at|date:"Y/m/d" }}</div>
+                <div class="sss-link sss-title">
+                    <a href="{% url 'announcements:detail' announcement.id %}" style="color: #ff69b4 !important;">{{ announcement.title }}</a>
+                </div>
+            </div>
+
+            <!-- スマホ表示用 -->
+            <div class="sss-novel-row sp-view">
+                <div class="sss-header-row">
+                    <div class="sss-link sss-title">
+                        <a href="{% url 'announcements:detail' announcement.id %}" style="color: #ff69b4 !important;">{{ announcement.title }}</a>
+                    </div>
+                </div>
+                <div class="sss-info-row">
+                    <div class="sss-date">{{ announcement.created_at|date:"Y/m/d" }}</div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="button-container-center">
+        <a href="{% url 'announcements:list' %}" class="list-button novels-button" style="background-color: #ff69b4 !important;">
+            お知らせ一覧
+        </a>
+    </div>
+</div>
+{% endif %}
 
 <footer class="footer">
     <p>Ⓒ超短編小説会</p>
