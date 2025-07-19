@@ -138,6 +138,30 @@ docker-compose exec web python manage.py migrate
 2. 本番影響のあるマイグレーションは事前相談
 3. scheduled_atフィールド等の新機能は開発環境で十分テスト
 
+### 2025-07-06 解決：ログイン前アクセス時のProgrammingError
+
+**問題**: ログインせずにホームページにアクセスするとエラー
+```
+django.db.utils.ProgrammingError: relation "game_same_title_titleproposal" does not exist
+```
+
+**原因**: `game_same_title`アプリの初期マイグレーションが未適用
+- TitleProposalテーブルが存在しないため、game_same_title/views.py:67でエラー
+
+**解決方法**:
+```bash
+docker-compose exec web python manage.py migrate game_same_title
+```
+
+**マイグレーション詳細**:
+- `game_same_title.0001_initial` を適用
+- 作成されたテーブル:
+  - `game_same_title_titleproposal`
+  - `game_same_title_monthlysametitleinfo`  
+  - `game_same_title_sametitleentry`
+
+**結果**: HTTP 200 OK でエラー解決 ✅
+
 ## 📝 履歴
 
 ### 2025-07-06
@@ -145,6 +169,7 @@ docker-compose exec web python manage.py migrate
 - Novelモデルのinitialフィールド仕様理解・修正
 - scheduled_atフィールド用マイグレーション適用
 - サンプルデータ作成（小説3件、お知らせ3件）
+- game_same_titleアプリのマイグレーション不備解決
 - PROJECT_SETTINGS.md作成
 
 ---

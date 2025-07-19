@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    
+    <!-- PWA設定 -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#8b4513">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="超短編小説会">
+    
+    <!-- iOS用アイコン -->
+    <link rel="apple-touch-icon" href="{% static 'images/icon-192x192.png' %}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'images/icon-152x152.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/icon-192x192.png' %}">
+    <link rel="apple-touch-icon" sizes="167x167" href="{% static 'images/icon-192x192.png' %}">
+    
+    <!-- その他のアイコン -->
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'images/icon-192x192.png' %}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'images/icon-512x512.png' %}">
+    
     <link rel="stylesheet" href="{% static 'css/dropdown.css' %}" type="text/css">
     <link rel="stylesheet" href="{% static 'home/css/style.css' %}" type="text/css">
     <!-- Bootstrap CSS の追加 -->
@@ -470,6 +488,18 @@
     };
     </script>
 
+    <!-- Service Worker登録（PWA対応） -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('{% static "sw.js" %}').then(function(registration) {
+                console.log('ServiceWorker 登録成功:', registration.scope);
+            }, function(err) {
+                console.log('ServiceWorker 登録失敗:', err);
+            });
+        });
+    }
+    </script>
 
 </body>
 </html>
