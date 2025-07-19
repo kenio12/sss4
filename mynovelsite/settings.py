@@ -81,9 +81,6 @@ MIDDLEWARE = [
     'middleware.RedirectMiddleware',  # しいスで追加
 ]
 
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-
-
 ROOT_URLCONF = 'mynovelsite.urls'
 
 TEMPLATES = [
@@ -190,12 +187,12 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# WhiteNoiseの設定を変更
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'  # ここを変更
+# WhiteNoiseの設定
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# WhiteNoiseのミドルウェア設定
-if not DEBUG:
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+# WhiteNoiseの追加設定（画像ファイルのキャッシュ対応）
+WHITENOISE_MAX_AGE = 31536000  # 1年間キャッシュ
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg']
 
 # 静的ファイルのディレクトリ設定
 STATICFILES_DIRS = [
