@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>超短編小説会 - Chrome用ショートカット配布ページ</title>
+    <title>超短編小説会 - ホーム画面への追加方法</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
@@ -31,28 +31,6 @@
             border-radius: 10px;
             border-left: 4px solid #8b4513;
         }
-        .button {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 20px 0;
-            background: linear-gradient(135deg, #8b4513, #a0522d);
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-        .warning {
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
         .icon-preview {
             text-align: center;
             margin: 20px 0;
@@ -63,67 +41,49 @@
             border-radius: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+        .safari-recommended {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📱 超短編小説会<br>Chrome用ショートカット</h1>
+        <h1>📱 超短編小説会<br>ホーム画面への追加方法</h1>
         
         <div class="icon-preview">
             <img src="/static/images/icon-192x192.png" alt="アプリアイコン">
         </div>
         
-        <p style="text-align: center; color: #666;">
-            iPhoneのChromeで超短編小説会を<br>
-            ホーム画面から開けるようにします
-        </p>
-        
-        <div class="warning">
-            ⚠️ <strong>重要</strong>：このショートカットはiPhone専用です。<br>
-            Safariをお使いの方は通常の「ホーム画面に追加」をご利用ください。
+        <div class="safari-recommended">
+            <strong>🧭 Safariブラウザをご利用ください</strong><br>
+            iPhoneでは、Safariブラウザからのみホーム画面への追加が可能です
         </div>
         
-        <a href="#" class="button" id="shortcut-link">
-            📲 ショートカットをインストール
-        </a>
-        
         <div class="step">
-            <h3>📋 インストール手順</h3>
+            <h3>📋 追加手順（Safari）</h3>
             <ol>
-                <li>上のボタンをタップ</li>
-                <li>「ショートカットを取得」をタップ</li>
-                <li>「信頼されていないショートカットを追加」をタップ</li>
-                <li>完了！ホーム画面にアイコンが追加されます</li>
+                <li>Safariで超短編小説会を開く</li>
+                <li>画面下の共有ボタン（□↑）をタップ</li>
+                <li>「ホーム画面に追加」をタップ</li>
+                <li>「追加」をタップで完了！</li>
             </ol>
         </div>
         
         <div class="step">
-            <h3>🔧 うまくいかない場合</h3>
-            <p>設定 → ショートカット → 「信頼されていないショートカットを許可」をONにしてください。</p>
+            <h3>💡 Chromeをお使いの方へ</h3>
+            <p>申し訳ございませんが、iOSの制限により、ChromeからはPWAをホーム画面に追加できません。</p>
+            <p>ブックマークでの利用、またはSafariでの追加をお願いします。</p>
         </div>
         
-        <div class="step">
-            <h3>🚀 このショートカットの内容</h3>
-            <ul>
-                <li>URL: https://sss4-377fb25bcf03.herokuapp.com/</li>
-                <li>ブラウザ: Chrome</li>
-                <li>アイコン: 超短編小説会オリジナル</li>
-            </ul>
-        </div>
-        
-        <script>
-            // けーにもーんがiPhoneで生成したiCloudリンク
-            const iCloudLink = "https://www.icloud.com/shortcuts/a902d656d9b74987a20e3b18acf3456d";
-            
-            document.getElementById('shortcut-link').addEventListener('click', function(e) {
-                e.preventDefault();
-                if (iCloudLink.includes('xxxxxx')) {
-                    alert('けーにもーん！まだiCloudリンクが設定されてへんで！\n\niPhoneでショートカット作って、共有→iCloudリンクをコピーして、このHTMLのiCloudLink変数に設定してな！');
-                } else {
-                    window.location.href = iCloudLink;
-                }
-            });
-        </script>
+        <p style="text-align: center; color: #666; margin-top: 30px;">
+            アプリストアを経由せず、手数料2.9%で直接販売可能なPWA技術を採用しています
+        </p>
     </div>
 </body>
 </html>
