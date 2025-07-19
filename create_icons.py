@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 PWA用アイコン生成スクリプト
-profile.pngから各サイズのアイコンを生成する
+dari.pngから各サイズのアイコンを生成する
 """
 from PIL import Image
 import os
@@ -11,7 +11,7 @@ ICON_SIZES = [72, 96, 128, 144, 152, 192, 384, 512]
 
 # パスの設定
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SOURCE_IMAGE = os.path.join(BASE_DIR, 'home/static/home/images/profile.png')
+SOURCE_IMAGE = os.path.join(BASE_DIR, 'static/images/dari.png')
 OUTPUT_DIR = os.path.join(BASE_DIR, 'static/images')
 
 def create_icons():
