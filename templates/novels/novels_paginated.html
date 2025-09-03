@@ -391,13 +391,13 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr>
                 <td class="label-cell"><label for="char_count_min">文字数（最小）:</label></td>
                 <td class="input-cell">
-                    <input type="text" id="char_count_min" name="char_count_min" placeholder="最小文字数" min="0" step="1" value="{{ request.GET.char_count_min|default:'' }}">
+                    <input type="text" id="char_count_min" name="char_count_min" placeholder="最小文字数" min="0" step="1" value="{% if 'char_count_min' in request.GET %}{{ request.GET.char_count_min }}{% endif %}">
                 </td>
             </tr>
             <tr>
                 <td class="label-cell"><label for="char_count_max">文字数（最大）:</label></td>
                 <td class="input-cell">
-                    <input type="text" id="char_count_max" name="char_count_max" placeholder="最大文字数" min="0" step="1" value="{{ request.GET.char_count_max|default:'' }}">
+                    <input type="text" id="char_count_max" name="char_count_max" placeholder="最大文字数" min="0" step="1" value="{% if 'char_count_max' in request.GET %}{{ request.GET.char_count_max }}{% endif %}">
                 </td>
             </tr>
             <tr>

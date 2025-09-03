@@ -101,7 +101,7 @@ def game_maturi_top(request, game_id):
             models.Q(author=request.user) | 
             models.Q(original_author=request.user)
         ).order_by('-published_date')  # 公開日の降順で並び替え
-        print(f"Found {user_novels.count()} novels for user {request.user.nickname}")  # デバッグ用
+        print(f"Found {user_novels.count()} novels for user {request.user.nickname if request.user.is_authenticated else 'Anonymous'}")  # デバッグ用
 
     # 基本のコンテキストを作成
     context = {
@@ -245,7 +245,7 @@ def game_maturi_top(request, game_id):
         context.update({
             'all_predictions': predictions,
             'novel_predictions': user_predictions if request.user.is_authenticated else {},  # 変更！
-            'predictions': user_predictions if user_predictions.exists() else None,  # 予想がない場合はNone
+            'predictions': user_predictions if request.user.is_authenticated and user_predictions else None,  # 予想がない場合はNone
             'novel_stats': novel_stats,
             'participants': participants_stats,
             'user_stats': user_stats,
@@ -291,7 +291,7 @@ def game_maturi_top(request, game_id):
     
     if request.user.is_authenticated:
         user_predictions = all_predictions.filter(predictor=request.user)
-        print(f"\nUser: {request.user.nickname}")
+        print(f"\nUser: {request.user.nickname if request.user.is_authenticated else 'Anonymous'}")
         print(f"User's predictions count: {user_predictions.count()}")
         for pred in user_predictions:
             print(f"Novel: {pred.novel.title}")
