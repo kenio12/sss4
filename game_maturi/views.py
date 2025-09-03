@@ -35,7 +35,10 @@ def game_maturi_top(request, game_id):
     logger.debug("=== View Debug ===")
     logger.debug(f"Function called: game_maturi_top")
     logger.debug(f"Game ID: {game_id}")
-    logger.debug(f"User: {request.user.nickname if request.user.is_authenticated else '未ログイン'}")
+    if request.user.is_authenticated:
+        logger.debug(f"User: {request.user.nickname}")
+    else:
+        logger.debug(f"User: 未ログイン")
     
     game = get_object_or_404(MaturiGame, id=game_id)
     novels = game.maturi_novels.filter(status='published')
