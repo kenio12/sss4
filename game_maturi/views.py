@@ -310,7 +310,7 @@ def game_maturi_top(request, game_id):
     print(f"Current User: {request.user.nickname if request.user.is_authenticated else 'Anonymous'}")
     print(f"Is prediction period finished: {game.is_prediction_period_finished()}")
     
-    if game.is_prediction_period_finished():
+    if game.is_prediction_period_finished() and request.user.is_authenticated:
         predictions = GamePrediction.objects.filter(
             maturi_game=game,
             predictor=request.user
