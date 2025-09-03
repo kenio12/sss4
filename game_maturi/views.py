@@ -271,9 +271,12 @@ def game_maturi_top(request, game_id):
             })
 
         print("\n=== User Prediction Results ===")
-        print(f"Total predictions: {total_predictions}")
-        print(f"Correct predictions: {correct_predictions}")
-        print(f"Accuracy: {accuracy}%")
+        if request.user.is_authenticated:
+            print(f"Total predictions: {total_predictions}")
+            print(f"Correct predictions: {correct_predictions}")
+            print(f"Accuracy: {accuracy}%")
+        else:
+            print("User not authenticated")
 
     print(f"Context keys: {context.keys()}")
     print("=== End Debug ===\n")
