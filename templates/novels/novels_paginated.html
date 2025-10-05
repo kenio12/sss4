@@ -383,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <select id="title_initial" name="title_initial">
                         <option value="">すべて</option>
                         {% for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZあいうえおかきくけこさしすせそたちつとなにぬねのはひふへほまみむめもやゆよらりるれろわをん' %}
-                        <option value="{{ char }}" {% if request.GET.title_initial == char %}selected{% endif %}>{{ char }}</option>
+                        <option value="{{ char }}" {% if title_initial == char %}selected{% endif %}>{{ char }}</option>
                         {% endfor %}
                     </select>
                 </td>
