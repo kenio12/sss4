@@ -1,0 +1,883 @@
+
+/* 基本リセットとリンクスタイル */
+a {
+    text-decoration: none; /* 下線を消す */
+}
+
+/* テーブルスタイル */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+
+th {
+    text-align: center;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    background-color: #f2f2f2;
+    font-size: 1em;
+}
+
+/* 小説リストスタイル */
+.novels-list-container {
+    margin-right: 3px !important;
+}
+
+.novels-list-container a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.novels-list-container a.full-cell-link {
+    display: block;
+    text-decoration: none;
+    color: #007bff; /* !importantを削除 */
+    height: 100%;
+    width: 100%;
+}
+
+.novels-list-container a.full-cell-link:visited,
+.novels-list td a:visited {
+    color: #9e73af;
+}
+
+/* ヘッダースタイル */
+div.fixed-header {
+    z-index: 10; /* 十分に大きな値を設定して前面に表示 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    transition: top 0.3s; /* スムーズな表示切り替えのためのトランジション */
+    font-size: 23px;
+    font-weight: bold;
+    color: #007bff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    white-space: nowrap;
+}
+
+div.fixed-header > a {
+    flex: 1;
+    white-space: nowrap;
+}
+
+div.fixed-header > a:not(:last-child) {
+    margin-right: 15px;
+}
+
+div.fixed-header > a + a {
+    margin-left: 10px;
+}
+
+div.fixed-header a:not(:last-child) {
+    margin-right: 20px;
+}
+
+#user-menu {
+    flex: 0 1 auto;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* ログインとサインアップボタンのスタイル調整 */
+div#user-menu a.btn, div#user-menu a.signup-btn  {
+    color: #007bff !important; /* 青色に設定 */
+    text-decoration: none !important;
+    background-color: transparent !important; /* 背景を透明に */
+    border: none !important; /* 枠線を消す */
+    padding: 8px 12px; /* パディングを追加して位置を調整 */
+    font-size: 18px !important; /* 文字サイズを大きく */
+    line-height: 1.5; /* 行の高さを調整して中央に配置 */
+    display: inline-flex; /* Flexboxを使用して中央揃え */
+    align-items: center; /* Flexboxを使用して垂直方向の中央揃え */
+    margin-top: 0 !important; /* 上マージンをなくす */
+    margin-right: 0; /* 右マージンをなくす */
+    /* その他のスタイル */
+}
+
+/* ボタンスタイル */
+.write-button-container .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 20px;
+    background-color: #007bff;
+    color: white;
+}
+
+:root {
+    --button-padding: 8px 12px;
+    --button-font-size: 16px;
+}
+
+#user-menu a.btn, #user-menu a.signup-btn {
+    padding: var(--button-padding);
+    font-size: var(--button-font-size);
+}
+
+.write-button-container .btn a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+}
+
+.write-button-container .btn img {
+    margin-right: 8px;
+}
+
+/* 画像コンテナスタイル */
+.image-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.image-container img {
+    width: 100%;
+    display: block;
+}
+
+/* 現在の月スタイル */
+.current-month {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 56px;
+    color: white;
+    z-index: 2;
+    text-align: center;
+}
+
+/* その他のスタイル */
+#user-nickname,
+div.fixed-header > a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.novel-title {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+}
+
+.author-nickname {
+    font-size: 1em;
+    color: #777;
+    margin-top: 20px;
+}
+
+.novel-detail-container {
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.novel-content {
+    /* border: 1px solid #ddd;
+    padding: 8px; */
+    text-align: left;
+    margin-bottom: 20px;
+    white-space: normal;
+    max-width: 100%;
+}
+
+.novel-content-detail {
+    margin-bottom: 0;
+}
+
+/* 小説を書くボタンのスタイル */
+.write-button-container {
+    margin-bottom: 20px; /* ボタンの下の余白を追加 */
+}
+
+/* ログインプロンプトのスタイル */
+.login-prompt {
+    margin-bottom: 20px; /* ログインプロンプトの下の余白を追加 */
+}
+
+/* 一覧ボタンのスタイル（既存のスタイル） */
+a.btn-list {
+    display: inline-block !important;
+    padding: 8px 15px !important;
+    font-size: 14px !important;
+    background-color: #007bff !important; /* 一覧ボタンの背景色 */
+    color: white !important;
+    text-align: center !important;
+    border: none !important;
+    border-radius: 4px !important;
+    text-decoration: none !important;
+    margin-top: 20px !important;
+}
+
+a.btn-list:hover {
+    background-color: #0056b3 !important; /* ホバー時の背景色を暗く */
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.btn-primary {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+.container {
+    max-width: none; /* フォームの幅を制限 */
+}
+
+   /* 入力フィールドのスタイル調整 */ 
+.form-control {
+    width: 100%; /* 幅を100%に設定して右側まで伸ばす */
+    padding: 10px; /* パディングを10pxに設定 */
+    font-size: 1rem; /* 文字サイズを適切に設定 */
+    box-shadow: none; /* 影を消す */
+    border-radius: 4px; /* 角を丸くする */
+    border: 1px solid #ccc; /* 枠線を設定 */
+}
+
+/* フォームのエラーメッセージスタイル */
+.form-error {
+    color: red;
+    font-size: 0.875em;
+    margin-top: 0.5rem;
+}
+
+/* タイトルフィールドのスタイル調整 */
+.form-control.title {
+    padding: 12px; /* 上下のパディングを増やす */
+    font-size: 1.5rem; /* 文字サイズを大きくする */
+    font-weight: 300;
+}
+
+/* 内容フィールドのスタイル調整 */
+.form-control.content {
+    font-size: 25px; /* 文字サイズを少し小さくする */
+    font-weight: normal; /* 文字の太さを標準にする */
+}
+
+.pagination a:visited {
+    color: #007bff; /* 青色 */
+}
+
+/* 共通ボタンスタイル */
+.btn {
+    display: inline-block ;
+    padding: 8px 15px ;
+    font-size: 14px ;
+    color: white ;
+    text-align: center ;
+    border: none ;
+    border-radius: 4px ;
+    text-decoration: none ;
+    margin-top: 20px ;
+    transition: background-color 0.3s ease;
+}
+
+/* 編集ボタン */
+.btn-edit {
+    background-color: #28a745 !important; /* 緑色 */
+}
+
+/* 削除ボタン */
+.btn-delete {
+    background-color: #ff0000 !important; /* 赤色 */
+}
+
+/* ホバー時のスタイル変更 */
+.btn:hover {
+    opacity: 0.8;
+}
+
+/* プライマリーボタン（青色） */
+.btn-primary {
+    background-color: #007bff !important; /* 青色 */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3 !important; /* ホバー時の背景色を暗く */
+}
+
+/* 既存のモバイルデバイス向けスタイル */
+@media (max-width: 768px) {
+    .btn {
+        padding: 6px 12px !important; /* モバイルデバイス用のパディングに調整 */
+        font-size: 12px !important; /* モバイルデバイス用のフォントサイズに調整 */
+    }
+}
+
+
+
+.my-custom-page {
+    padding-left: 3px;
+}
+
+.profile-details {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    border: 1px solid #ddd; /* 外枠に境界線を追加 */
+    border-radius: 4px; /* 四隅を丸める */
+}
+
+.profile-item {
+    padding: 0.5em 15px; /* パディングを調整 */
+    box-sizing: border-box;
+    flex: 0 0 50%; /* デフォルトでは2列 */
+    max-width: 50%; /* デフォルトでは2列 */
+    border-bottom: 1px solid #ddd; /* 下境界線を追加 */
+    /* 右境界線を追加しない */
+}
+
+.profile-item.full-width {
+    flex: 0 0 100%; /* 自己紹介は常に1列 */
+    max-width: 100%; /* 自己紹介は常に1列 */
+    border-right: none; /* 右境界線を削除 */
+}
+
+/* 最後の項目の下境界線を削除 */
+.profile-item:last-child, .profile-item.full-width:last-child {
+    border-bottom: none;
+}
+
+/* 2列目の項目の右境界線を削除 */
+.profile-item:nth-child(odd) {
+    border-right: none;
+}
+
+/* すべての項目に縦線を追加 */
+.profile-item:not(.full-width) {
+    border-right: 1px solid #ddd;
+}
+
+@media (max-width: 768px) {
+    .profile-item {
+        flex: 0 0 100%; /* 小さな画面では1列 */
+        max-width: 100%; /* 小さな画面では1列 */
+        border-right: none; /* 右境界線を削除 */
+        border-bottom: 1px solid #ddd; /* 下境界線を追加 */
+    }
+    /* 最後の項目の下境界線を削除 */
+    .profile-item:last-child {
+        border-bottom: none;
+    }
+}
+
+/* カスタムスタイル */
+.form-group p {
+    margin-bottom: 15px;
+}
+
+
+/* フォームのスタイル調整 */
+.form-group .row {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+/* ラベルのスタイル調整 */
+.col-form-label {
+    padding-right: 0;
+    text-align: right;
+    font-weight: bold;
+}
+
+/* エラーメッセージのスタイル */
+.invalid-feedback {
+    display: block; /* エラーメッセージを常に表示 */
+}
+
+/* レスポンシブデザインの調整 */
+@media (max-width: 768px) {
+    .col-sm-10, .col-sm-2 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .col-form-label {
+        text-align: left;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* チェックボックスのスタイル調整 */
+.form-check {
+    position: relative;
+    display: flex; /* Flexbox を使用 */
+    align-items: center; /* アイテムを縦方向の中央に揃える */
+    padding-left: 0; /* チェックボックスの左側のパディングを調整 */
+}
+
+/* チェックボックスのスタイル調整 */
+.form-check-input {
+    position: static;
+    margin-top: auto; /* チェックボックスの上マージンを自動調整 */
+    margin-bottom: auto; /* チェックボックスの下マージンを自動調整 */
+    margin-right: 0.3rem; /* 右側のマージンを調整 */
+    margin-left: 0; /* チェックボックスの左側のマージンを調整 */
+    width: 45px; /* 他の入力フィールドに合わせる */
+    height: 45px; /* 他の入力フィールドに合わせる */
+}
+
+/* プロフィール見出しのスタイル調整 */
+.profile-heading {
+    font-size: 1.8rem; /* または希望するサイズに調整 */
+}
+
+/* ログインフォームコンテナのスタイル調整 */
+.login-form-container .row {
+    display: flex;
+    justify-content: center;
+}
+
+.login-form-container .col-md-6 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-form-container form {
+    padding-right: 0%; /* フォームの右側にパディングを追加 */
+    max-width: 500px; /* フォームの最大幅を指定 */
+    margin: auto; /* 中央揃え */
+}
+a.btn-list.btn-list-orange {
+    background-color: #FF4500 !important; /* より赤みが強いオレンジ色に変更 */
+    color: white !important;
+    border-color: #FF4500 !important; /* ボーダー色も合わせて変更 */
+}
+
+/* 「いいね」ボタンの余白調整 */
+.like-button-container {
+    margin-top: 0;
+    padding-top: 0;
+    text-align: left;
+}
+
+.like-button-container .btn {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* 「一覧へ移動」と「新しく小説を書く」ボタンの高さを揃える */
+.list-button, .write-button {
+    padding: 8px 12px !important; /* パディングを調整 */
+    font-size: 14px !important; /* フォントサイズを統一 */
+}
+
+.like-count {
+    margin-bottom: 0 !important; /* 下のマージンを取り除く */
+}
+
+.like-button {
+    position: relative; /* これを追加 */
+    /* font-size: 48px; アイコンのサイズをより大きく調整 */
+    background-color: transparent; /* 背景色を透明に */
+    border: none; /* ボーダーを取り除く */
+    color: #007bff; /* アイコンの色を指定、必要に応じて変更してください */
+}
+
+@media (max-width: 768px) {
+    .btn.like-button {
+        padding: 10px 15px !important; /* モバイルデバイスでもパディングを大きく保つ */
+        font-size: 30px !important; /* モバイルデバイスでもフォントサイズを大きく保つ */
+    }
+}
+
+/* キラキラする効果 */
+@keyframes sparkle {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.2);
+    }
+}
+
+.sparkle-effect {
+    position: absolute;
+    top: -38%; /* 画像の近くに寄せるために調整 */
+    left: 10%; /* 画像の近くに寄せるために調整 */
+    transform: translate(-50%, -50%);
+    color: #ffd700;
+    text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
+    opacity: 0;
+    pointer-events: none;
+    animation: sparkle 0.5s ease-in-out;
+}
+
+/* 回転するアニメーション */
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate-effect {
+    animation: rotate 0.5s ease-in-out;
+}
+
+div#user-menu a.auth-link-large {
+    font-size: 20px !important; /* フォントサイズを大きく */
+    font-weight: bold !important; /* フォントを太く */
+}
+
+
+a.btn-list-orange {
+    margin-left: 5px !important;
+}
+
+.card-body {
+    padding: 5px !important;
+}
+
+.container.custom-container-margin {
+    padding: 5px !important;
+}
+
+/* コメントの作者のスタイル */
+.comment-author {
+    margin-bottom: 1px; /* 下のマージンを小さくして間隔を縮める */
+}
+
+
+
+.comment-textarea {
+    width: 100%; /* 親要素の幅いっぱいに広げる */
+    box-sizing: border-box; /* パディングとボーダーを幅に含める */
+    margin-bottom: 1px !important; /* 下のマージンを5pxに設定 */
+}
+
+.comment-submit-btn {
+    background-color: #6f42c1 !important; /* 紫色の背景 */
+    margin-top: 0 !important;
+}
+
+.comment-form p {
+    margin-bottom: 5px !important;
+}
+
+.comment-content {
+    overflow: hidden;
+    transition: max-height 0.5s ease-out; /* アニメーション効果 */
+    max-height: 80px; /* 初期状態の最大高さ（5行分程度） */
+    margin-top: 0; /* 上のマージンをなくして間隔を縮める */
+}
+
+.comment-content.expanded {
+    max-height: 500px; /* 展開時の最大高さ（コメントの長さに応じて調整） */
+}
+
+.toggle-button {
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+.toggle-button::before {
+    content: '▼';
+    display: inline-block;
+    transition: transform 0.5s ease;
+}
+
+.toggle-button.expanded::before {
+    transform: rotate(-180deg); /* ボタンが展開時に上向きになる */
+}
+
+
+
+
+.fixed-header > span {
+    display: flex;
+    align-items: center;
+    height: 100%; /* 親要素と同じ高さにする */
+}
+
+.content-wrapper {
+    position: relative;
+}
+
+#wordCount {
+    position: absolute;
+    right: 10px; /* 必要に応じて調整 */
+    top: 0; /* テキストエリアの上部と揃える */
+    background-color: #fff; /* 読みやすさを保つための背景色 */
+    padding: 0 5px; /* テキストの周りに少し余白を追加 */
+}
+
+
+    .comments-list {
+        border-top: 1px solid rgba(0, 0, 0, 0.1); /* うっすらとした横線 */
+        padding-top: 20px; /* コンテンツとの間隔 */
+        margin-top: 1.0rem !important;
+    }
+
+    .author-nickname {
+        margin-bottom: 0; /* マージンを削除 */
+        font-size: 22px;
+    }
+
+/* カスタムボタン
+    <a href="{% url 'novels:post_novel' %}" class="btn btn-custom" style="background-color: #004085;">
+        <img src="{% static 'home/images/pen_icon.svg' %}" alt="Icon">
+        <span>執筆</span>
+    </a>
+*/
+
+    .btn-custom {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 20px;
+        color: white;
+        text-decoration: none;
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+    
+    .btn-custom img {
+        height: 24px;
+        margin-right: 8px;
+    }
+    
+/* ページネーションの下の余白を削除 */
+.pagination {
+    margin-bottom: 0 !important;
+}
+
+/* 作成中＝非公開と公開済の見出しスタイル */
+.draft-novels-heading, .published-novels-heading {
+    font-size: 1.3rem; /* 希望するサイズに調整 */
+    margin-top: 25px;
+    margin-bottom: 5px;
+}
+
+/* プロフィールページの特定要素の横幅とマージン調整 */
+.mail-youser {
+    width: calc(100% - 3px); /* 両側のマージンを引いた幅 */
+    margin: 0.5rem auto; /* 上下に1rem、左右に自動でマージンを設定 */
+    box-sizing: border-box; /* パディングとボーダーを要素の幅に含める */
+}
+
+#footerWordCount {
+    pointer-events: none;
+    position: fixed;
+    bottom: 0;
+    right: 0; /* 右端に配置 */
+    text-align: right; /* テキストを右揃えに */
+    padding-right: 30px !important;
+    padding-bottom: 30px !important;
+    color: #000 !important; /* テキストの色を黒に */
+    background-color: transparent !important; /* 背景色を完全に透明に */
+    z-index: 1000;
+    font-size: 20px; /* 上のカウンターと同じフォントサイズに調整 */
+    line-height: 1 !important; /* フォントサイズに合わせて行の高さを1に設定 */
+}
+
+.comment-icon-container {
+    position: relative;
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    background-image: url("/static/images/comments-icon.e87965beda63.svg");
+    background-size: cover;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    top: 5px; /* 位置を下げるために追加 */
+}
+
+.unread-comments-count {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    width: 1.3em;
+    height: 1.3em;
+    min-width: 1.1em;
+    min-height: 1.1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0;
+    font-size: 0.6em;
+    line-height: 1;
+    z-index: 15;
+    transform: translate(70%, -40%);
+    margin-right: 5px;
+    top: 5px; /* 位置を下げるために追加 */
+}
+
+
+
+/* 未読コメント数の背景色を設定するクラス */
+.unread-comments-count.red { background-color: red; }
+.unread-comments-count.blue { background-color: blue; }
+.unread-comments-count.orange { background-color: orange; }
+.unread-comments-count.purple { background-color: purple; }
+.unread-comments-count.green { background-color: green; }
+.unread-comments-count.black { background-color: black; }
+
+.btn-list {
+    margin-top: 0 !important; /* 余白をなくすために変更 */
+    /* その他のプロパティは変更せずにそのまま */
+}
+
+/* 「執筆」ボタンの上の余白を取り除く */
+.btn-primary {
+    margin-top: 0 !important;
+}
+
+/* 非表示ボタンのスタイル調整 */
+.toggle-message-button {
+    padding: 3px 8px; /* パディングを少し小さく */
+    font-size: 11px; /* フォントサイズを小さく */
+    border-radius: 10px; /* 角をより丸く */
+    color: #fff;
+    background-color: brown; /* 背景色を青に変更 */
+    border: none;
+    cursor: pointer;
+    margin-left: 10px; /* メッセージテキストから少し離す */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* 少し立体感を出す */
+    vertical-align: middle; /* ボタンの縦位置を中央に調整 */
+}
+
+.toggle-message-button:hover {
+    background-color: darkred; /* ホバー時は少し暗く */
+}
+
+.toggle-message {
+    background-color: yellow;
+}
+
+/* 遅延の効果を改善 */
+.fade-in {
+    opacity: 0;
+    visibility: hidden !important; /* 初期状態では見えないようにする */
+    transition: opacity 1s ease-out, visibility 1s ease-out !important; /* opacityとvisibilityの変化にトランジションを適用 */
+}
+  
+.fade-in.visible {
+    opacity: 1 !important;
+    visibility: visible !important; /* visibleクラスが追加されたら、要素を表示する */
+}
+
+
+/* 小説リストの一行目を残す。Sticky Table Header */
+/* Sticky Table Header with visible underline using ::after pseudo-element */
+.sticky-header thead th {
+    position: sticky;
+    top: 0;
+    background-color: #fff; /* 背景色を白に */
+    z-index: 3; /* z-indexを高くして他の要素より前面に */
+    /* 既存のbox-shadowは削除 */
+}
+
+.sticky-header thead th::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: -1px; /* th要素の下端に合わせる */
+    width: 100%;
+    border-bottom: 1px solid #ddd; /* 下線を他の行と同じスタイルに */
+    z-index: -1; /* th要素の内容より下に表示 */
+}
+
+.sticky-header thead {
+    position: relative; /* 疑似要素の位置決めの基準点 */
+}
+
+/* 既存のスタイルの下に追加 */
+#nickname-help-text {
+    display: inline-block;
+    margin-left: 10px; /* ラベルの右側に表示するための余白 */
+    background-color: yellow;
+    color: black;
+    padding: 2px;
+    vertical-align: top; /* ラベルのテキストと上揃えにする */
+    top: -3px; /* ラベルの高さに合わせて微調整 */
+}
+
+
+/* 画像ボタンのスタイル */
+#dari-image-button {
+    position: fixed;
+    left: -250px;
+    display: none; /* 初期状態では非表示 */
+    top: 50%; /* 画面の縦中央に配置 */
+    width: 50px; /* お好みでサイズ調整 */
+    height: 50px; /* お好みでサイズ調整 */
+    background-image: url("/static/images/dari.abc645f90452.webp"); /* ウェブサーバーの相対パスを使用 */
+    background-size: contain; /* 画像がひしゃげないように調整 */
+    background-position: center; /* 画像を中央に配置 */
+    background-repeat: no-repeat; /* 画像を繰り返さない */
+    border: none; /* ボタンの枠を消す */
+    cursor: pointer; /* カーソルを指マークに */
+    outline: none; /* フォーカス時の枠を消す */
+}
+
+#my-side-panel {
+    display: block;
+    position: fixed;
+    left: -250px; /* 画面外に隠す（左側から） */
+    top: 0;
+    width: 250px;
+    height: 100%;
+    background: #f8f9fa;
+    border: 5px solid #222;
+    box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    color: #000;
+    font-family: 'Times New Roman', Times, serif;
+    max-height: 100vh;
+    overflow-y: auto;
+}
+
+.close-panel-btn {
+    display: block; /* ブロックレベル要素として表示 */
+    width: 100%; /* 親要素の幅いっぱいに広がる */
+    text-align: center; /* テキストを中央寄せ */
+    margin: 0; /* 余白をなくす */
+    padding: 10px 0; /* 上下にパディングを設定 */
+    background-color: #444; /* 背景色 */
+    color: #ccc; /* 文字色 */
+    border: none; /* 境界線をなくす */
+    cursor: pointer; /* カーソルをポインターに */
+}
+
+div.fixed-header a:not(:last-child) {
+    margin-right: 3px;
+}
+

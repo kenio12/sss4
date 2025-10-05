@@ -1,0 +1,207 @@
+<div style="margin: 60px 0 60px 0;">
+    <div id="timeline"></div>
+</div>
+
+<!-- vis.js のライブラリを読み込み -->
+<script src="https://unpkg.com/vis-timeline@7.7.0/standalone/umd/vis-timeline-graph2d.min.js"></script>
+<link href="https://unpkg.com/vis-timeline@7.7.0/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        {% with game=game %}
+        // タイムラインのデータを準備
+        var items = new vis.DataSet([
+            {
+                id: 1, 
+                content: '',
+                start: new Date('{{ game.maturi_start_date|date:"Y-m-d" }}T00:00:00'),
+                end: new Date('{{ game.maturi_end_date|date:"Y-m-d" }}T23:59:59'),
+                group: 0,
+                style: 'background-color: rgba(76, 175, 80, 0.2);'
+            },
+            {
+                id: 2,
+                content: '',
+                start: new Date('{{ game.entry_start_date|date:"Y-m-d" }}T00:00:00'),
+                end: new Date('{{ game.entry_end_date|date:"Y-m-d" }}T23:59:59'),
+                group: 1,
+                style: 'background-color: #2196F3;'
+            },
+            {
+                id: 3,
+                content: '',
+                start: new Date('{{ game.start_date|date:"Y-m-d" }}T00:00:00'),
+                end: new Date('{{ game.end_date|date:"Y-m-d" }}T23:59:59'),
+                group: 2,
+                style: 'background-color: #FF9800;'
+            },
+            {
+                id: 4,
+                content: '',
+                start: new Date('{{ game.novel_publish_start_date|date:"Y-m-d H:i:s" }}'),
+                end: new Date('{{ game.prediction_end_date|date:"Y-m-d" }}T23:59:59'),
+                group: 3,
+                style: 'background-color: #9C27B0;'
+            }
+        ]);
+
+        // グループの定義
+        var groups = new vis.DataSet([
+            {id: 0, content: '祭り全体'},
+            {id: 1, content: 'エントリー'},
+            {id: 2, content: '執筆'},
+            {id: 3, content: '作者予想'}
+        ]);
+
+        // タイムラインの設定
+        var options = {
+            locale: 'ja',
+            height: '200px',
+            min: new Date('{{ game.maturi_start_date|date:"Y-m-d" }}T00:00:00'),
+            max: new Date('{{ game.maturi_end_date|date:"Y-m-d" }}T23:59:59'),
+            showCurrentTime: true,
+            showMajorLabels: true,
+            stack: false,
+            margin: {
+                item: {
+                    horizontal: 0,
+                    vertical: 0
+                }
+            },
+            timeAxis: { 
+                scale: 'day', 
+                step: 1
+            },
+            format: {
+                minorLabels: {
+                    day: 'D',
+                    hour: 'H'
+                },
+                majorLabels: {
+                    day: 'YYYY年M月',
+                    hour: 'M/D'
+                }
+            },
+            zoomable: false
+        };
+        {% endwith %}
+
+        // タイムラインの作成
+        var container = document.getElementById('timeline');
+        var timeline = new vis.Timeline(container, items, groups, options);
+        
+        // 現在時刻の線を更新する関数
+        function updateCurrentTime() {
+            timeline.setCurrentTime(new Date());
+        }
+
+        // 初期表示時に現在時刻の線を設定
+        updateCurrentTime();
+
+        // タイムラインの表示範囲が変更されたときのイベントハンドラ
+        timeline.on('rangechanged', function() {
+            // 少し遅延を入れて現在時刻の線を更新
+            setTimeout(updateCurrentTime, 100);
+        });
+
+        // 定期的に現在時刻の線を更新（1秒ごと）
+        setInterval(updateCurrentTime, 1000);
+    });
+</script>
+
+<style>
+    #timeline {
+        width: 100%;
+        margin: 20px 0;
+    }
+    .vis-timeline {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        position: relative !important;
+        overflow: visible !important;
+        z-index: 1;
+    }
+    .vis-item {
+        border-color: rgba(0, 0, 0, 0.1);
+        color: white;
+        font-weight: bold;
+        height: 32px !important;
+    }
+    .vis-labelset .vis-label {
+        color: #333;
+        padding: 5px;
+        font-weight: bold;
+        border-bottom: 1px solid #ddd;
+        height: 32px !important;
+        line-height: 22px !important;
+    }
+    .vis-panel.vis-left {
+        width: 120px !important;
+    }
+    .vis-grid.vis-minor {
+        border-color: #f0f0f0;
+    }
+    .vis-grid.vis-major {
+        border-color: #e0e0e0;
+    }
+    .vis-text {
+        font-size: 12px;
+    }
+    .vis-time-axis .vis-text {
+        padding: 3px;
+        color: #666;
+    }
+    .vis-item .vis-item-content {
+        display: none;
+    }
+    .vis-item[data-id="1"] {
+        background-color: rgba(76, 175, 80, 0.2) !important;
+        border-color: rgba(76, 175, 80, 0.3) !important;
+        height: 30px !important;
+    }
+    /* 現在時刻の線のスタイル */
+    .vis-current-time {
+        background-color: #FF4081 !important;
+        width: 2px !important;
+        z-index: 9999 !important;
+        opacity: 1 !important;
+        pointer-events: none;
+        position: absolute !important;
+        height: 100% !important;
+    }
+    /* 現在時刻のマーカーを追加 */
+    .vis-current-time:before {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -4px;
+        width: 10px;
+        height: 10px;
+        background-color: #FF4081;
+        border-radius: 50%;
+        box-shadow: 0 0 4px rgba(255, 64, 129, 0.8);
+    }
+    /* 年月表示を右寄せに */
+    .vis-time-axis .vis-text.vis-major {
+        text-align: right;
+        padding-right: 15px;
+    }
+    
+    /* 年月表示の位置調整 */
+    .vis-time-axis .vis-grid.vis-major {
+        border-width: 0;
+    }
+
+    /* 年月表示のスタイリング */
+    .vis-time-axis .vis-text.vis-major {
+        font-weight: bold;
+        color: #333;
+        font-size: 0.9em;
+    }
+
+    /* 日付（数字）の表示調整 */
+    .vis-time-axis .vis-text.vis-minor {
+        font-size: 0.8em;
+    }
+</style> 

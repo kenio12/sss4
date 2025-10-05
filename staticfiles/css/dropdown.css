@@ -1,0 +1,44 @@
+/* dropdown.css */
+#user-menu {
+    position: relative; /* ドロップダウンメニューの位置調整の基準点 */
+}
+
+.dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: none;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    background-color: #f9f9f9;
+    z-index: 1000;
+    border-radius: 10px; /* 角を丸めるために追加 */
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd; /* リンクにホバーしたときの背景色 */
+}
+
+#user-nickname {
+    padding-right: 30px; /* ニックネームの右側に余白を追加 */
+}
+
+.signup-btn {
+    margin-right: 40px; /* サインアップボタンの右側に20pxの余白を追加 */
+}
+
+#user-type {
+    margin-right: 15px; /* ユーザータイプとニックネームの間に15pxの余白を追加 */
+    color: black; /* 文字の色を黒に設定 */
+    font-weight: normal; /* 文字を普通の太さに設定 */
+}
+
+.dropdown-content a {
+    display: block; /* リンクをブロック要素として表示し、縦に並べる */
+    width: 100%; /* リンクの幅をドロップダウンの幅に合わせる */
+    padding: 10px 0; /* 上下にパディングを追加 */
+    padding-left: 15px; /* テキストの左側に余白を追加 */
+    text-decoration: none; /* テキストの下線を削除 */
+    color: black; /* テキストの色を指定 */
+    text-align: left; /* テキストを左揃えにする */
+}

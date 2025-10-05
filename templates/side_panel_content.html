@@ -1,0 +1,144 @@
+{% load static %}
+<style>
+    .custom-paragraph {
+        padding: 0 10px;
+        font-family: 'Comic Sans MS', cursive, sans-serif;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+        color: #000;
+    }
+    .btn-novels-list {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: white;
+        background-color: #3498db; /* 初期状態は青色 */
+        border-radius: 20px;
+        padding: 8px 12px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 10px;
+        margin-bottom: 20px; /* ボタンと閉じるボタンの間にスペースを追加 */
+    }
+    /* クリック後のボタンの色を茶色に変更 */
+    .clicked {
+        background-color: #8B4513; /* 茶色 */
+    }
+</style>
+
+<button class="close-panel-btn">✖ 閉じる</button>
+<img src="{% static 'images/dari.webp' %}" alt="Dari Image" style="width: 100%; height: auto;">
+<p class="custom-paragraph">
+わしは短編小説の妖精じゃ！ハッハー！わしを押してみ？
+</p>
+
+<!-- btn-primary を btn-novels-list に変更 -->
+<div class="btn-novels-list" title="執筆する">
+    <a href="/novels/post/" style="display: flex; align-items: center; justify-content: center; text-decoration: none; color: inherit; flex-direction: row;">
+        <img src="{% static 'home/images/pen_icon.svg' %}" alt="Icon" style="height: 24px;">
+        <span style="font-size: 20px; font-weight: bold; white-space: nowrap;">　執筆する　</span>
+        <img src="{% static 'home/images/pen_icon.svg' %}" alt="Icon" style="height: 24px;">
+    </a>
+</div>
+
+<button class="close-panel-btn">✖ 閉じる</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageElement = document.querySelector('img[src="{% static "images/dari.webp" %}"]');
+    let currentState = 0; // 状態を0からスタートとする
+
+    imageElement.addEventListener('click', function() {
+        const btnContainer = document.querySelector('.btn-novels-list');
+        const btnLink = btnContainer.querySelector('a');
+        const paragraph = document.querySelector('.custom-paragraph');
+        const iconElements = btnLink.querySelectorAll('img');
+
+        currentState = (currentState + 1) % 7; // 6番目の状態も含めるために7に変更
+
+        // 全ての状態で共通のスタイルをリセット
+        btnContainer.classList.remove('clicked');
+        btnContainer.style.backgroundColor = '';
+
+        switch (currentState) {
+            case 0:
+                // 最初の状態に戻す処理
+                imageElement.src = '{% static "images/dari.webp" %}';
+                imageElement.alt = 'Dari Image';
+                paragraph.textContent = 'お困りかな？　わしは短編小説の妖精じゃ！　ハッハー！';
+                btnLink.href = "/novels/post/";
+                btnLink.querySelector('span').textContent = '　執筆する　';
+                iconElements.forEach(icon => icon.src = '{% static "home/images/pen_icon.svg" %}');
+                break;
+            case 1:
+                // 2番目の状態にする処理
+                imageElement.src = '{% static "images/kenchan.webp" %}';
+                imageElement.alt = '新しい画像の説明';
+                paragraph.textContent = 'お呼びかな？わしは短編小説の妖怪じゃ！ふぉふぉふぉ！';
+                btnContainer.classList.add('clicked');
+                btnLink.href = "/novels/";
+                btnLink.querySelector('span').textContent = '　小説一覧へ　';
+                iconElements.forEach(icon => icon.src = '{% static "home/images/books.svg" %}');
+                break;
+            case 2: // 新しい5番目の状態にする処理
+                imageElement.src = '{% static "images/serch-writer.png" %}'; // 新しい画像ファイル名に変更
+                imageElement.alt = '探しているの';
+                paragraph.textContent = '私は人を探しているの！そう、あの人よ！';
+                btnContainer.classList.add('clicked');
+                btnContainer.style.backgroundColor = '#3498db'; // 青色に変更
+                btnLink.href = "{% url 'accounts:member_list' %}";
+                btnLink.querySelector('span').textContent = '作家探し';
+                iconElements.forEach(icon => icon.src = '{% static "images/serch.svg" %}');
+                break;
+            case 3:
+                // 新しい3番目の状態にする処理
+                imageElement.src = '{% static "images/sakka.jpeg" %}';
+                imageElement.alt = '作家の画像';
+                paragraph.textContent = 'こんにちは！私は短編小説のお姉さんです！るんるん🎵';
+                btnContainer.classList.add('clicked');
+                btnContainer.style.backgroundColor = '#2ecc71'; // 緑色に変更
+                btnLink.href = "/accounts/profile/";
+                btnLink.querySelector('span').textContent = '　自宅へ　';
+                iconElements.forEach(icon => icon.src = '{% static "home/images/house.svg" %}');
+                break;
+            case 4:
+                // 新しい4番目の状態にする処理
+                imageElement.src = '{% static "images/bungo2.webp" %}';
+                imageElement.alt = '超短編小説会の神さまの画像';
+                paragraph.textContent = 'わしこそが超短編小説会の神さまじゃ！　えっへん！';
+                btnContainer.classList.add('clicked');
+                btnContainer.style.backgroundColor = '#000000'; // ブラックに変更
+                btnLink.href = "{% url 'home:home' %}"; // ホームページのURLに遷移
+                btnLink.querySelector('span').textContent = 'ホームページ';
+                // アイコンの変更が必要な場合はここで行う
+                break;
+            case 5: // 新しい5番目の状態にする処理
+                imageElement.src = '{% static "images/tanpen.webp" %}'; // 新しい画像ファイル名に変更
+                imageElement.alt = 'たんことぺんこ';
+                paragraph.textContent = 'わたしは短子、私は編子！一緒に遊びましょう！';
+                btnContainer.classList.add('clicked');
+                btnContainer.style.backgroundColor = '#3498db'; // 青色に変更
+                btnLink.href = "{% url 'games:game_top' %}"; // 'games:game_top'はDjangoのURL名に合わせて変更
+                btnLink.querySelector('span').textContent = '　SSSげーむ　';
+                iconElements.forEach(icon => icon.src = '{% static "images/game_icon.svg" %}');
+                break;
+            case 6: // お知らせ状態
+                imageElement.src = '{% static "images/kakuseiki.png" %}';
+                imageElement.alt = '拡声器';
+                paragraph.textContent = '絵は面倒なので手抜きだ。お知らせじゃ！伝えたいんじゃ！';
+                btnContainer.classList.add('clicked');
+                btnContainer.style.backgroundColor = '#FF4500'; // オレンジレッド
+                btnLink.href = "{% url 'announcements:list' %}";
+                btnLink.querySelector('span').textContent = 'お知らせ';
+                // Font Awesomeアイコンに変更
+                iconElements.forEach(icon => {
+                    icon.outerHTML = '<i class="fas fa-bullhorn" style="font-size: 24px;"></i>';
+                });
+                break;
+        }
+    });
+});
+
+</script>

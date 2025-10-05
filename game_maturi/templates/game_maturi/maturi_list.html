@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .hover-effect {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+        cursor: pointer;
+    }
+    .card-link {
+        color: inherit;
+        text-decoration: none;
+    }
+    .card-link:hover {
+        color: inherit;
+        text-decoration: none;
+    }
+</style>
+
+<div class="container mt-4">
+    <h1 class="mb-4">祭りイベント一覧</h1>
+    
+    {% if current_games %}
+        <section class="mb-5">
+            <div class="alert alert-success p-4">
+                <h2 class="mb-4">🎉 現在開催中の祭り 🎉</h2>
+                <div class="row">
+                    {% for game in current_games %}
+                        <div class="col-12 mb-4">
+                            <a href="{% url 'game_maturi:game_maturi_top' game.id %}" class="card-link">
+                                <div class="card h-100 border-success shadow hover-effect">
+                                    <div class="card-body">
+                                        <h3 class="card-title text-success">{{ game.title }}</h3>
+                                        <div class="mt-3">
+                                            <p class="mb-2">
+                                                <strong>開催期間：</strong><br>
+                                                {{ game.maturi_start_date|date:"Y年m月d日" }} 〜 
+                                                {{ game.maturi_end_date|date:"Y年m月d日" }}
+                                            </p>
+                                            <p class="mb-2">
+                                                <strong>現在のフェーズ：</strong><br>
+                                                {% if game.is_entry_period %}
+                                                    <span class="badge bg-info">エントリー受付中</span>
+                                                {% elif game.is_writing_period %}
+                                                    <span class="badge bg-warning">執筆期間</span>
+                                                {% elif game.is_prediction_period %}
+                                                    <span class="badge bg-primary">作者予想期間</span>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if upcoming_games %}
+        <section class="mb-5">
+            <h2 class="mb-4">📅 開催予定の祭り</h2>
+            <div class="row">
+                {% for game in upcoming_games %}
+                    <div class="col-md-6 mb-4">
+                        <a href="{% url 'game_maturi:game_maturi_top' game.id %}" class="card-link">
+                            <div class="card h-100 shadow-sm hover-effect">
+                                <div class="card-body">
+                                    <h3 class="card-title">{{ game.title }}</h3>
+                                    <div class="mt-3">
+                                        <p class="mb-2">
+                                            <strong>開催予定：</strong><br>
+                                            {{ game.maturi_start_date|date:"Y年m月d日" }} 〜
+                                            {{ game.maturi_end_date|date:"Y年m月d日" }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% if past_games %}
+        <section>
+            <h2 class="mb-4">📚 過去の祭り</h2>
+            <div class="row">
+                {% for game in past_games %}
+                    <div class="col-md-6 mb-4">
+                        <a href="{% url 'game_maturi:game_maturi_top' game.id %}" class="card-link">
+                            <div class="card h-100 shadow-sm bg-light hover-effect">
+                                <div class="card-body">
+                                    <h3 class="card-title">{{ game.title }}</h3>
+                                    <div class="mt-3">
+                                        <p class="mb-2">
+                                            <strong>開催期間：</strong><br>
+                                            {{ game.maturi_start_date|date:"Y年m月d日" }} 〜
+                                            {{ game.maturi_end_date|date:"Y年m月d日" }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% if not current_games and not upcoming_games and not past_games %}
+        <div class="alert alert-info">
+            祭りの情報がありません。
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

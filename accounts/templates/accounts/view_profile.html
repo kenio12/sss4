@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+{% if user.is_authenticated and profile.user == user  %}
+
+<style>
+.custom-select {
+  height: 50px; /* 高さを設定 */
+  min-height: 40px;
+  width: 100%; /* 幅を100%に設定 */
+  appearance: none;
+  background-color: transparent;
+  border: 2px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 18px; /* フォントサイズを大きく設定 */
+  color: #333;
+}
+</style>
+<style>
+.select-container {
+    position: relative;
+}
+
+.select-container::after {
+    content: '\25BC';
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #333;
+}
+</style>
+<style>
+  .stylish-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 20px; /* 角を丸める */
+      background-color: #007bff; /* 青色にする */
+      color: white;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 16px;
+  }
+  
+  .stylish-btn img {
+      height: 24px;
+      margin-right: 8px;
+  }
+  </style>
+
+<div class="container mt-3 mb-3">
+    <div class="row">
+<!-- ... 上部のコード ... -->
+
+<!-- メッセージ表示部分を追加 -->
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="col-12">
+    <h3 class="profile-heading">{{ user.nickname }} さんの部屋</h3>
+    
+    <!-- 認証されたユーザーが自分のプロフィールを閲覧している場合にメールアドレス（ユーザーネーム）を表示 -->
+
+
+
+<!-- メールアドレス表示部分とタイプ -->
+<div class="mail-youser" style="border: 1px solid #ccc; padding: 10px; margin-top: 30px;">
+    <p style="margin-bottom: 3px;">◯{{ user.nickname }}さんのメールアドレス（ユーザーネーム）は、{{ user.email }}</p>
+    <p style="margin-bottom: 3px;">◯現在のお立場は、{{ user.get_user_type_display }}</p>
+    <p style="font-size: 0.8em;">※ なお、この枠内は他人には見えませんので、ご安心ください。</p>
+</div>
+
+</div>
+
+<!-- ... 下部のコード ... -->
+    </div>
+
+    <a href="{% url 'accounts:edit_profile' %}" id="btn-edit" class="btn btn-edit" style="display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 20px; background-color: #007bff; color: white; margin-right: 10px; text-decoration: none; margin-bottom: 10px;">
+        <img src="{% static 'images/profile.svg' %}" alt="Icon" style="height: 24px; margin-right: 8px;">
+        <span>プロフィール編集</span>
+    </a>
+
+    <div class="row">
+        <div class="col-12">
+            {% if profile %}
+                {% include 'accounts/profile_detail.html' %}
+            {% else %}
+                <p>まだ作成されていないようです。</p>
+            {% endif %}
+        </div>
+
+    </div>
+    <!-- ユーザーが認証されており、プロフィールページがそのユーザー自身のものである場合に表示 -->
+
+    <div class="row">
+        <div class="col-12">
+            {% if not profile %}
+                <!-- プロフィール作成ボタンの追加 -->
+                <a href="{% url 'accounts:create_profile' %}" class="btn btn-primary" style="margin-top: 20px;">プロフィール作成</a>
+            {% endif %}
+
+        </div>
+    </div>
+
+<!-- 作成中の小説一覧 -->
+<div class="full-width-adjust" style="margin-bottom: 30px;">
+    <h3 class="draft-novels-heading" style="color: #e74c3c; margin-bottom: 15px;">作成中</h3>
+    {% for novel in drafts %}
+        <a href="{% url 'novels:novel_detail' novel.id %}" class="novel-link" style="text-decoration: none; color: inherit; display: block;">
+            <div class="novel-item" style="padding: 15px; background: #fff0f0; border-radius: 12px; margin-bottom: 10px; transition: all 0.3s ease;">
+                <div style="color: #2c3e50; font-size: 1.1em;">{{ novel.title }}</div>
+                <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                    {% if novel.genre %}
+                        {% with style=novel.get_genre_style %}
+                            <span class="genre-badge" style="background-color: {{ style.bg }}; color: {{ style.text }}; display: inline-block !important; padding: 4px 15px !important; border-radius: 50px !important; font-weight: bold !important; font-size: 0.95em !important; margin-right: 12px !important; box-shadow: 0 3px 6px rgba(0,0,0,0.2) !important; transition: all 0.3s ease !important; border: 2px solid rgba(255,255,255,0.2) !important; letter-spacing: 0.5px !important; min-width: 70px !important; text-align: center !important;">{{ novel.get_genre_display }}</span> | 
+                        {% endwith %}
+                    {% endif %}
+                    文字数: {{ novel.word_count }} | 
+                    最終更新: {{ novel.updated_at|date:"Y年m月d日" }}
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+</div>
+
+<!-- 公開予定の小説一覧 -->
+<div class="full-width-adjust" style="margin-bottom: 30px;">
+    <h3 class="scheduled-novels-heading" style="font-size: 1.2em; margin-top: 15px; color: #3498db;">公開予定（{{ scheduled.count }}作品）</h3>
+    {% if scheduled %}
+        {% for novel in scheduled %}
+        <a href="{% url 'novels:novel_detail' novel_id=novel.id %}" class="novel-link" style="text-decoration: none; color: inherit; display: block;">
+                <div class="novel-item" style="padding: 15px; background: #f0f8ff; border-radius: 12px; margin-bottom: 10px; transition: all 0.3s ease; cursor: pointer;">
+                    <div style="color: #666; font-size: 0.9em; margin-bottom: 5px;">
+                        {% for game in novel.maturi_games.all %}
+                            {{ game.prediction_start_date|date:"Y年m月d日" }}に公開予定
+                        {% endfor %}
+                    </div>
+                    <div style="color: #2c3e50; font-size: 1.1em;">{{ novel.title }}</div>
+                    <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                        {% if novel.genre %}
+                            {% with style=novel.get_genre_style %}
+                                <span class="genre-badge" style="background-color: {{ style.bg }}; color: {{ style.text }}; display: inline-block !important; padding: 4px 15px !important; border-radius: 50px !important; font-weight: bold !important; font-size: 0.95em !important; margin-right: 12px !important; box-shadow: 0 3px 6px rgba(0,0,0,0.2) !important; transition: all 0.3s ease !important; border: 2px solid rgba(255,255,255,0.2) !important; letter-spacing: 0.5px !important; min-width: 70px !important; text-align: center !important;">{{ novel.get_genre_display }}</span> | 
+                            {% endwith %}
+                        {% endif %}
+                        文字数: {{ novel.word_count }}
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    {% else %}
+        <p>公開予定の作品はありません</p>
+    {% endif %}
+</div>
+
+<!-- 公開済みの小説一覧 -->
+<div class="full-width-adjust" style="margin-bottom: 30px;">
+    {% for novel in published %}
+        <a href="{% url 'novels:novel_detail' novel_id=novel.id %}" style="text-decoration: none; color: inherit; display: block;">
+            <div class="novel-item" style="padding: 15px; background: #f0fff0; border-radius: 12px; margin-bottom: 10px; transition: all 0.3s ease; cursor: pointer;">
+                <div style="color: #2c3e50; font-size: 1.1em;">{{ novel.title }}</div>
+                <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                    {% if novel.genre %}
+                        {% with style=novel.get_genre_style %}
+                            <span class="genre-badge" style="background-color: {{ style.bg }}; color: {{ style.text }}; display: inline-block !important; padding: 4px 15px !important; border-radius: 50px !important; font-weight: bold !important; font-size: 0.95em !important; margin-right: 12px !important; box-shadow: 0 3px 6px rgba(0,0,0,0.2) !important; transition: all 0.3s ease !important; border: 2px solid rgba(255,255,255,0.2) !important; letter-spacing: 0.5px !important; min-width: 70px !important; text-align: center !important;">{{ novel.get_genre_display }}</span> | 
+                        {% endwith %}
+                    {% endif %}
+                    文字数: {{ novel.word_count }} | 
+                    投稿日: {{ novel.created_at|date:"Y年m月d日" }}
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+</div>
+
+
+
+
+
+<!-- 以前のSSS作家選択フォーム -->
+<div class="select-container" style="margin: 20px 0;">
+    <form method="post" action="{% url 'accounts:view_profile' %}">
+        {% csrf_token %}
+        <label for="old_sss_writer_select" style="display: block; margin-bottom: 10px;">以前のあなたを選択：</label>
+        <select name="selected_writer" id="old_sss_writer_select" class="custom-select" style="margin-bottom: 20px;">
+            <option value="">選択してください</option>
+            {% for writer in old_sss_writers %}
+                <option value="{{ writer.id }}" {% if profile.selected_writer and profile.selected_writer.id == writer.id %}selected{% endif %}>
+                    {{ writer.nickname }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-link"></i> 結びつける
+        </button>
+    </form>
+</div>
+
+<!-- 以前の自分の小説一覧 -->
+{% if selected_writer_novels %}
+<div class="full-width-adjust" style="margin-bottom: 30px;">
+    <h3 class="draft-novels-heading" style="color: #9b59b6; margin-bottom: 15px;">以前のあなた【{{ selected_writer_nickname }}】の小説</h3>
+    {% for novel in selected_writer_novels %}
+        <div class="novel-item" style="padding: 15px; background: #faf0ff; border-radius: 12px; margin-bottom: 10px; transition: all 0.3s ease;">
+            <a href="{% url 'novels:novel_detail' novel_id=novel.id %}" style="color: #2c3e50; text-decoration: none; font-size: 1.1em;">{{ novel.title }}</a>
+            <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                {% if novel.genre %}
+                    {% with style=novel.get_genre_style %}
+                        <span class="genre-badge" style="background-color: {{ style.bg }}; color: {{ style.text }}; display: inline-block !important; padding: 4px 15px !important; border-radius: 50px !important; font-weight: bold !important; font-size: 0.95em !important; margin-right: 12px !important; box-shadow: 0 3px 6px rgba(0,0,0,0.2) !important; transition: all 0.3s ease !important; border: 2px solid rgba(255,255,255,0.2) !important; letter-spacing: 0.5px !important; min-width: 70px !important; text-align: center !important;">{{ novel.get_genre_display }}</span> | 
+                    {% endwith %}
+                {% endif %}
+                文字数: {{ novel.word_count }} | 
+                投稿日: {{ novel.created_at|date:"Y年m月d日" }}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- パスワード変更ボタン（控えめなデザイン） -->
+<div style="text-align: left; margin-top: 60px; margin-bottom: 20px;">
+    <a href="{% url 'accounts:password_change' %}" style="
+        display: inline-block; 
+        padding: 8px 12px; 
+        background-color: #6c757d; 
+        color: white; 
+        text-decoration: none; 
+        border-radius: 20px; 
+        font-size: 14px;">
+        パスワードを変更する
+    </a>
+</div>
+
+<!-- 退会ボタン（既存のコード） -->
+<div style="text-align: left; margin-top: 60px;">
+    <a href="{% url 'accounts:delete_account' %}" style="display: inline-block; padding: 10px 15px; background-color: red; color: white; text-decoration: none; border-radius: 20px; border: none; font-size: 16px;">
+        <img src="{% static 'images/end.svg' %}" alt="Icon" style="vertical-align: middle; height: 24px; margin-right: 8px;">
+        <span>このサイトを完全にやめる</span>
+    </a>
+</div>
+
+<!-- 新規ユーザー向けウェルカムポップアップのHTML -->
+<div class="modal fade" id="welcomeModal" tabindex="-1" role="dialog" aria-labelledby="welcomeModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="welcomeModalLabel">ようこそ、{{ user.nickname }}さん！</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>いらっしゃーい！これであんたもSSSの会員や！ここはあんたのプロフィールページや！プロフィール編集からしっかり書いて自分をアピールするんや！おっと個人情報の書き込みは犯罪につながる可能性があるから、なしやで！あと、サイト内で困ったら、左上の文豪チックなおじさん押すんやで！そしたら、おじさんが何とか助けてくれるさかいに！</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">閉じる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 新規ユーザーの場合にウェルカムポップアップを表示するJavaScript -->
+<script>
+  $(document).ready(function() {
+      $('#old_sss_writer_select').change(function() {
+          var selectedValue = $(this).val();
+          console.log("選択された値: " + selectedValue);
+          // 要に応じて、選択された値に基づいて何かアクションを起こす
+      });
+  });
+  </script>
+<script>
+    $(document).ready(function() {
+      // セッションフラグを基にポップアップを表示
+      var showWelcomePopup = "{{ request.session.show_welcome_popup|yesno:"true,false" }}";
+      if (showWelcomePopup === "true") {
+      $('#welcomeModal').modal('show');
+  
+        // モーダルが閉じられたときに実行
+        $('#welcomeModal').on('hidden.bs.modal', function () {
+          // AJAXを使ってサーバーにリクエストを送る
+          $.ajax({
+            url: "{% url 'accounts:update_first_login' %}",  // 名前空間を含めたURLの名前に修正
+            type: "GET",
+            success: function(response) {
+              console.log("first_login updated");
+            },
+            error: function(xhr, textStatus, errorThrown) {
+              console.log("Error in updating first_login");
+            }
+          });
+        });
+      }
+    });
+
+    $(document).ready(function() {
+    $('#old_sss_writer_select').change(function() {
+        var selectedValue = $(this).val();
+        console.log("選択された値: " + selectedValue);
+        // 必要に応じて、選択された値に基づいて何かアクションを起こす
+    });
+});
+</script>
+
+{% endif %}
+
+</div>
+{% endblock %}
+
+<style>
+    .genre-badge {
+        display: inline-block !important;
+        padding: 4px 15px !important;  /* パディングを小さく */
+        border-radius: 50px !important;  /* 完全な丸みに */
+        font-weight: bold !important;
+        font-size: 0.95em !important;  /* フォントサイズを小さく */
+        margin-right: 12px !important;  /* 右マージンを増やす */
+        box-shadow: 0 3px 6px rgba(0,0,0,0.2) !important;  /* シャドウを強く */
+        transition: all 0.3s ease !important;
+        border: 2px solid rgba(255,255,255,0.2) !important;  /* 境界線を太く、より明確に */
+        letter-spacing: 0.5px !important;  /* 文字間隔を少し広げ */
+        min-width: 70px !important;  /* 最小幅を設定 */
+        text-align: center !important;  /* テキストを中央揃え */
+    }
+
+    .genre-badge:hover {
+        transform: translateY(-3px) !important;  /* ホバー時の浮き上がりを大きく */
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3) !important;
+        border: 2px solid rgba(255,255,255,0.4) !important;  /* ホバー時に境界線を明るく */
+    }
+</style>

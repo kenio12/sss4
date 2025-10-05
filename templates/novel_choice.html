@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- 新規作成ボタン -->
+    <div class="choice-button-container mb-4">
+        <a href="{% url 'novels:post_novel' %}" class="choice-button new-novel">
+            <img src="{% static 'home/images/pen_icon.svg' %}" alt="新規作成" class="choice-icon">
+            <div class="button-text">
+                <h3>新しい小説を書く</h3>
+                <p>真っ白なページから、新しい物語を始めましょう</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- 同タイトル会場ボタン -->
+    <div class="choice-button-container mb-4">
+        <a href="{% url 'game_same_title:same_title' %}" class="choice-button same-title">
+            <img src="{% static 'home/images/dou_game.svg' %}" alt="同タイトル" class="choice-icon">
+            <div class="button-text">
+                <h3>同タイトル会場へ</h3>
+                <p>みんなで同じタイトルの小説を書いて遊ぼう</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- 祭り会場ボタン -->
+    {% if current_maturi_game %}
+    <div class="choice-button-container mb-4">
+        <a href="{% url 'game_maturi:game_maturi_top' game_id=current_maturi_game.id %}" class="choice-button maturi">
+            <img src="{% static 'home/images/maturi.svg' %}" alt="祭り" class="choice-icon">
+            <div class="button-text">
+                <h3>祭り会場へ</h3>
+                <p>期間限定の特別なイベントに参加しよう</p>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- 作成中の小説一覧 -->
+    {% if drafts %}
+    <div class="drafts-section">
+        <h3 class="section-title">作成中の小説</h3>
+        {% for novel in drafts %}
+            <a href="{% url 'novels:edit_novel' novel.id %}" class="draft-item">
+                <div class="draft-content">
+                    <div class="draft-title">{{ novel.title }}</div>
+                    <div class="draft-info">
+                        {% if novel.genre %}
+                            <span class="genre-badge" style="background-color: {{ novel.get_genre_style.bg }}; color: {{ novel.get_genre_style.text }};">
+                                {{ novel.get_genre_display }}
+                            </span>
+                        {% endif %}
+                        <span class="word-count">{{ novel.word_count }}文字</span>
+                        <span class="last-updated">最終更新: {{ novel.updated_at|date:"Y/m/d" }}</span>
+                    </div>
+                </div>
+                <div class="arrow-icon">→</div>
+            </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- 公開予定の小説一覧 -->
+    {% if scheduled %}
+    <div class="scheduled-section">
+        <h3 class="section-title">公開予定の小説</h3>
+        {% for novel in scheduled %}
+            <a href="{% url 'novels:novel_detail' novel.id %}" class="scheduled-item">
+                <div class="draft-content">
+                    <div class="draft-title">{{ novel.title }}</div>
+                    <div class="draft-info">
+                        {% if novel.genre %}
+                            <span class="genre-badge" style="background-color: {{ novel.get_genre_style.bg }}; color: {{ novel.get_genre_style.text }};">
+                                {{ novel.get_genre_display }}
+                            </span>
+                        {% endif %}
+                        <span class="word-count">{{ novel.word_count }}文字</span>
+                        {% for game in novel.maturi_games.all %}
+                            <span class="scheduled-date">公開予定日: {{ game.prediction_start_date|date:"Y/m/d" }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="arrow-icon">→</div>
+            </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- 公開済みの小説一覧 -->
+    {% if published %}
+    <div class="published-section">
+        <h3 class="section-title">公開済みの小説</h3>
+        {% for novel in published %}
+            <a href="{% url 'novels:novel_detail' novel.id %}" class="published-item">
+                <div class="draft-content">
+                    <div class="draft-title">{{ novel.title }}</div>
+                    <div class="draft-info">
+                        {% if novel.genre %}
+                            <span class="genre-badge" style="background-color: {{ novel.get_genre_style.bg }}; color: {{ novel.get_genre_style.text }};">
+                                {{ novel.get_genre_display }}
+                            </span>
+                        {% endif %}
+                        <span class="word-count">{{ novel.word_count }}文字</span>
+                        <span class="published-date">公開日: {{ novel.published_date|date:"Y/m/d" }}</span>
+                    </div>
+                </div>
+                <div class="arrow-icon">→</div>
+            </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .choice-button-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .choice-button {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .choice-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        color: white;
+        text-decoration: none;
+    }
+
+    .choice-icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 20px;
+    }
+
+    .button-text h3 {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    .button-text p {
+        margin: 5px 0 0;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .drafts-section, .scheduled-section, .published-section {
+        max-width: 800px;
+        margin: 20px auto;
+    }
+
+    .section-title {
+        color: #333;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #eee;
+    }
+
+    .draft-item, .scheduled-item, .published-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        color: #333;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+
+    .draft-item {
+        background-color: #fff0f0;
+    }
+
+    .scheduled-item {
+        background-color: #f0f8ff;
+    }
+
+    .published-item {
+        background-color: #f0fff0;
+    }
+
+    .draft-item:hover, .scheduled-item:hover, .published-item:hover {
+        background-color: #e9ecef;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .draft-content {
+        flex: 1;
+    }
+
+    .draft-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .draft-info {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .genre-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin-right: 10px;
+    }
+
+    .word-count, .last-updated, .scheduled-date, .published-date {
+        margin-right: 10px;
+    }
+
+    .arrow-icon {
+        font-size: 1.2rem;
+        color: #007bff;
+    }
+
+    @media (max-width: 768px) {
+        .choice-button, .draft-item, .scheduled-item, .published-item {
+            margin: 0 15px;
+        }
+    }
+
+    .choice-button.same-title {
+        background-color: rgb(118, 50, 50);  /* 同タイトル会場の色 */
+    }
+
+    .choice-button.maturi {
+        background: linear-gradient(45deg, #FF4081, #FF1744);
+        box-shadow: 0 0 15px rgba(255, 64, 129, 0.5);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* キラキラエフェクト */
+    .choice-button.maturi::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            45deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent
+        );
+        transform: rotate(45deg);
+        animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+        0% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+        100% {
+            transform: translateX(100%) rotate(45deg);
+        }
+    }
+
+    /* お知らせ関連のスタイル */
+    .announcements-section {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .announcement-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .announcement-date {
+        flex: 0 0 100px;
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .announcement-title {
+        flex: 1;
+    }
+
+    .announcement-title a {
+        color: #ff69b4;
+        text-decoration: none;
+    }
+
+    .announcement-title a:hover {
+        text-decoration: underline;
+    }
+
+    .button-container-center {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .announcements-button {
+        display: inline-block;
+        padding: 8px 20px;
+        background-color: #ff69b4;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+    .announcements-button:hover {
+        background-color: #ff1493;
+        color: white;
+        text-decoration: none;
+    }
+
+    /* スマホ表示切り替え */
+    @media (min-width: 769px) {
+        .sp-view {
+            display: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .pc-view {
+            display: none;
+        }
+
+        .announcement-item.sp-view {
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        .announcement-header {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .announcement-info {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            color: #666;
+        }
+    }
+</style>
+{% endblock %} 

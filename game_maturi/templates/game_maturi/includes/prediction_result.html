@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% if current_game.is_prediction_period_finished %}
+    <div class="container mt-4">
+        <!-- 戻るボタンを上部に配置 -->
+        <div class="mb-4">
+            <a href="{% url 'game_maturi:game_maturi_top' game_id=game.id %}" class="btn btn-secondary" style="padding: 10px 20px;">
+                <i class="fas fa-arrow-left"></i> 祭りトップに戻る
+            </a>
+        </div>
+
+        <h1>{{ predictor.nickname }}の予想結果</h1>
+        
+        <div class="alert alert-info mt-4">
+            <h4>予想成績</h4>
+            <p>正解数: {{ correct_predictions }}/{{ total_predictions }}</p>
+            <p>正解率: {{ accuracy|floatformat:1 }}%</p>
+        </div>
+
+        <div class="mt-4">
+            <h4>{{ predictor.nickname }}さんの予想内容</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>小説タイトル</th>
+                        <th>正解の作者</th>
+                        <th>予想した作者</th>
+                        <th>判定</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prediction in predictions %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'novels:novel_detail' prediction.novel.id %}" 
+                               style="color: #007bff; text-decoration: none;">
+                                {{ prediction.novel.title }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'accounts:view_other_profile' prediction.novel.original_author.id %}"
+                               style="color: #007bff; text-decoration: none;">
+                                {{ prediction.novel.original_author.nickname }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'accounts:view_other_profile' prediction.predicted_author.id %}"
+                               style="color: #007bff; text-decoration: none;">
+                                {{ prediction.predicted_author.nickname }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if prediction.predicted_author == prediction.novel.original_author %}
+                                <span class="badge bg-success">正解</span>
+                            {% else %}
+                                <span class="badge bg-danger">不正解</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 mb-4 text-center">
+            <a href="{% url 'game_maturi:game_maturi_top' game_id=game.id %}" class="btn btn-primary" style="padding: 10px 30px; font-size: 1.1em;">
+                <i class="fas fa-arrow-left"></i> 祭りトップに戻る
+            </a>
+        </div>
+    </div>
+{% else %}
+    <div class="alert alert-warning">
+        予想期間が終了するまで結果は表示できません。
+    </div>
+{% endif %}
+
+<style>
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.table th, .table td {
+    vertical-align: middle;
+}
+.badge {
+    font-size: 0.9em;
+    padding: 0.4em 0.6em;
+}
+/* リンクのホバー効果 */
+.table a:hover {
+    text-decoration: underline !important;
+    opacity: 0.8;
+}
+</style>
+{% endblock %} 

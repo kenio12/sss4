@@ -1,0 +1,118 @@
+{% load static %}
+
+<div class="container custom-container-margin">
+    <!-- 作家名セクション -->
+    <div class="author-section" style="margin-bottom: 15px;">
+        {% if novel.author %}
+            <a href="{% url 'accounts:view_other_profile' user_id=novel.author.id %}" class="author-name">
+                {{ novel.author.nickname }}
+            </a>
+        {% else %}
+            <p class="author-nickname" style="margin-bottom: 0;">不明な作家</p>
+        {% endif %}
+    </div>
+
+    <!-- 小説情報セクション -->
+    <div class="novel-stats" style="margin-bottom: 15px;">
+        {% if novel.genre %}
+            <span class="genre">{{ novel.get_genre_display }}</span>
+            <span class="stats-divider">|</span>
+        {% endif %}
+        <span class="word-count">文字数: {{ novel.word_count }}</span>
+        <span class="stats-divider">|</span>
+        <span class="comments-count">コメント: {{ novel.comments.count }}</span>
+    </div>
+
+    <!-- タイトルセクション -->
+    <h2 class="novel-title card-title">{{ novel.title }}</h2>
+
+    <!-- 編集ボタンを追加 -->
+    {% if user.is_authenticated and can_edit %}
+        {% if not hide_edit_button %}
+            <div class="edit-button-container">
+                {% if novel.maturi_games.all %}
+                    <a href="{% url 'game_maturi:post_or_edit_maturi_novel' novel_id=novel.id %}" class="btn edit-button">
+                {% elif novel.is_same_title_game %}
+                    <a href="{% url 'game_same_title:post_or_edit_same_title_with_id' novel_id=novel.id %}" class="btn edit-button">
+                {% else %}
+                    <a href="{% url 'novels:edit_novel' novel_id=novel.id %}" class="btn edit-button">
+                {% endif %}
+                    <span>編集</span>
+                    <img src="{% static 'images/edit.svg' %}" alt="Edit" style="height: 24px;">
+                </a>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <div class="novel-content novel-content-detail">
+        <p style="font-size: 25px;">{{ novel.content|linebreaksbr }}</p>
+    </div>
+    <!-- <p class="word-count" style="margin-top: 15px;margin-bottom: 0 !important;"> 文字数: {{ novel.word_count }}</p> -->
+</div>
+
+<style>
+    /* 共通の余白設定 */
+    .container.custom-container-margin {
+        padding-left: 1rem !important;  /* コンテナ全体の左余白 */
+    }
+
+    /* 作者名セクション */
+    .author-section {
+        margin-bottom: 15px !important;
+        margin-left: 0.5rem !important;  /* 作者名の左余白 */
+    }
+
+    /* 小説情報セクション（ジャンルなど） */
+    .novel-stats {
+        display: block !important;
+        font-size: 0.9em !important;
+        color: #666 !important;
+        margin-bottom: 10px !important;
+        margin-left: 0.5rem !important;  /* ジャンル情報の左余白 */
+    }
+
+    /* タイトルと本文の余白 */
+    .novel-title,
+    .novel-content {
+        margin-left: 0.5rem !important;  /* タイトルと本文の左余白 */
+    }
+
+    /* 既存のスタイルは維持 */
+    .stats-divider {
+        margin: 0 8px !important;
+        color: #ccc !important;
+    }
+
+    .word-count, 
+    .likes-count, 
+    .comments-count {
+        display: inline-block !important;
+    }
+
+    .edit-button-container {
+        text-align: left !important;
+        margin: 10px 0 !important;
+        margin-left: 0.5rem !important;  /* 編集ボタンの左余白 */
+    }
+
+    .edit-button {
+        display: inline-flex !important;
+        align-items: center !important;
+        height: 38px !important;
+        line-height: 26px !important;
+        padding: 5px 15px !important;
+        font-size: 20px !important;
+        border-radius: 20px !important;
+        background-color: orchid !important;
+        color: white !important;
+        text-decoration: none !important;
+        transition: background-color 0.3s !important;
+    }
+
+    .novel-title {
+        clear: both !important;
+    }
+</style>
+
+
+

@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  test_db:
+    image: postgres:16
+    container_name: novel_site_test_db
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data
+      - ./dumps:/dumps
+    environment:
+      - POSTGRES_DB=novel_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5434:5432"
+    networks:
+      - novel_test_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  test_web:
+    build: .
+    container_name: novel_site_test_web
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py runserver 0.0.0.0:8001"
+    volumes:
+      - .:/code
+      - ./dumps:/code/dumps
+    ports:
+      - "8001:8001"
+    depends_on:
+      test_db:
+        condition: service_healthy
+    environment:
+      - ENVIRONMENT=test
+      - TZ=Asia/Tokyo
+      - DATABASE_URL=postgres://postgres:postgres@test_db:5432/novel_test
+      - DEBUG=True
+    networks:
+      - novel_test_network
+
+networks:
+  novel_test_network:
+    driver: bridge
+
+volumes:
+  test_postgres_data:

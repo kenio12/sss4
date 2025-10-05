@@ -1,0 +1,432 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% load form_filters %}
+{% load i18n %}
+
+{% block content %}
+{% if novel.id and novel.content %}
+    <div class="novel-detail-section">
+        {% include 'novels/novel_detail_section.html' with hide_edit_button=True %}
+    </div>
+    <hr style="margin-top: 0;">
+    <p class="toggle-message" id="message-warning" style="display:none;">
+        ↑こんな感じの仕上がりや！　気に入らへんのなら下↓の欄で編集してやー
+        <button class="toggle-message-button">非表示</button>
+    </p>
+{% endif %}
+
+<!-- Bootstrap CSSの追加 -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+    /* フォントサイズを全体的に大きく設定 */
+    body, input, button, label {
+        font-size: 20px !important; /* 大きくする */
+    }
+
+    .container {
+        max-width: 100%; /* コンテナの最大幅を100%に設定 */
+        padding-right: 15px; /* 右パディング */
+        padding-left: 15px; /* 左パディング */
+        margin-right: auto; /* 右マージンを自動調整 */
+        margin-left: auto; /* 左マージンを自動調整 */
+    }
+
+    .form-control {
+        width: 100% !important; /* 幅を100%に設定 */
+        height: 40px; /* 高さ調整 */
+        border-radius: 5px; /* ーダーの角丸 */
+        border: 1px solid #ced4da; /* ボタイル */
+        color: #333; /* テキストカラー */
+
+    }
+
+    .form-control.title2, .form-control.content2 {
+        padding: 15px; /* 調整 */
+        font-size: 40px !important; /* タイトルのフォントサイズを大きくする */
+        font-weight: 300;
+        height: auto; /* 高さを自動調整に */
+        min-height: 60px; /* 最小高さ設定 */
+        
+    }
+
+    .keywords-container {
+        display: flex; /* Display keywords horizontally */
+        flex-wrap: wrap; /* Allow wrapping */
+        gap: 10px; /* Space between keywords */
+    }
+
+    .keyword-option {
+        background: #f8f9fa;
+        border: 1px solid #ced4da;
+        padding: 10px 15px; /* キーワードオプションのパディング調整 */
+        border-radius: 5px;
+    }
+
+    .form-control, .form-control.content {
+        width: 100% !important; /* 幅を100%に設定 */
+    }
+
+    .form-spacing {
+        margin-bottom: 5px; /* 下マージンを20pxに設定 */
+    }
+
+    /* タイトル入力欄の下のマージンを増やす */
+    .form-group {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* タイトル以外のフォームコントロールのフォントサイズ */
+    .form-control:not(.title2) {
+        font-size: 20px;
+    }
+
+    /* テキストエリアの制限解除 */
+    textarea.content {
+        /* 高さを内容に合わせて自動調整 */
+        height: fit-content !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        
+        /* 内容に合わせて自動的に広がる */
+        overflow: hidden !important;
+        
+        /* 基本設定 */
+        width: 100% !important;
+        line-height: 1.5 !important;
+        padding: 1rem !important;
+        
+        /* サイズ変更は縦方向のみ許可 */
+        resize: vertical !important;
+    }
+
+    /* モバイル向けの調整 */
+    @media (max-width: 768px) {
+        textarea.content {
+            min-height: 50vh !important;
+            padding: 1rem !important;
+            font-size: 23px !important;
+        }
+    }
+
+    /* テキストエリアとその親要素の余白を調整 */
+    .form-group {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        margin-left: 15px !important;
+        margin-right: 15px !important;
+    }
+
+    textarea.content, 
+    textarea.form-control.content {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 300px !important;
+        
+        /* スクロール関連 */
+        overflow: auto !important;
+        -webkit-overflow-scrolling: unset !important;
+        overscroll-behavior: none !important;
+        resize: none !important;
+    }
+
+    /* タイトル入力フィールドのスタイル調整 */
+    .form-control.title2 {
+        font-size: 20px !important;
+        padding: 10px !important;
+        height: auto !important;
+    }
+
+    /* テキストエリアのスタイル */
+    html body textarea.content, 
+    html body textarea.form-control.content {
+        width: calc(100% - 13px) !important;
+        height: 70vh !important;  /* ビューポートの70%で固定 */
+        min-height: 500px !important;
+        padding: 15px !important;
+        margin: 3px !important;
+        
+        /* スクロール設定 */
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        resize: vertical !important;
+        
+        /* その他の設定 */
+        line-height: 1.5 !important;
+        font-size: 20px !important;
+    }
+
+    /* form-groupのパディングを確実に削除し、左右マージンのみ残す */
+    html body .container .form-group,
+    html body .form-group,
+    .form-group {
+        padding: 0 !important;
+        margin: 0 3px !important;
+        border: none !important;
+        background: none !important;
+    }
+
+    /* テキストエリアのスタイル */
+    html body textarea.content, 
+    html body textarea.form-control.content {
+        width: calc(100% - 13px) !important;
+        height: auto !important;
+        min-height: 500px !important;
+        padding: 0 !important;
+        margin-left: 3px !important;
+        margin-right: 10px !important;
+        
+        /* スクロール関連 */
+        overflow: auto !important;
+        -webkit-overflow-scrolling: unset !important;
+        overscroll-behavior: none !important;
+        resize: none !important;
+    }
+</style>
+
+<div class="container mt-5">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ゲームのタイトルをH1で表示、スタイル調整 -->
+    <h1 class="mb-4">
+        {% if current_game %}
+            {{ current_game.title }}
+        {% else %}
+            ゲームなし
+        {% endif %}
+    </h1>
+
+    <form method="post" class="needs-validation" novalidate>
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% csrf_token %}
+        <input type="hidden" id="novelId" name="novelId" value="{{ novel.id|default_if_none:'' }}">
+
+<!-- ジャンル選択 -->
+<div class="form-group">
+    <label>ジャンル</label>
+    {% if not is_writing_period %}
+        {{ form.genre|add_class:"form-control" }}
+    {% else %}
+        <input type="text" class="form-control" value="祭り" readonly>
+        {{ form.genre|add_class:"d-none" }}  <!-- Bootstrapのd-noneクラスで非表示に -->
+    {% endif %}
+</div>
+
+        <!-- タイトル -->
+        <label for="titleInput">タイトル</label><br>
+        <div class="form-group" style="position: relative;">
+            {{ form.title|add_class:"form-control title2" }}
+            <div id="titleWordCount" style="position: absolute; left: 10px; bottom: -30px; color: black;">0 / 100文字</div>
+        </div><br>
+
+        <!-- 頭文字フィールド -->
+        <div class="form-group">
+            <label for="{{ form.initial.id_for_label }}">タイトルの頭文字のふりがな</label>
+            {{ form.initial|add_class:"form-control" }}
+            {% if form.initial.errors %}
+                <div class="alert alert-danger mt-2">
+                    {% for error in form.initial.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <small class="form-text text-muted">
+                ※ タイトルの頭文字のふりがなは必須です。入力してださい。
+            </small>
+        </div>
+
+        <!-- 語句カウント表示 -->
+        <div id="phraseCount" style="text-align: right; padding: 10px; color: red; position: fixed; bottom: 40px; right: 20px; width: auto;">
+            0/5 語句
+        </div>
+
+        <!-- 現在のフレーズ示フィールド -->
+        <label for="current_phrases">祭りで含めるべき語句</label><br>
+        <div class="keywords-container">
+            {% if current_game %}
+                {% for phrase in current_game.phrases.all %}
+                    <div id="phrase-{{ forloop.counter }}" class="keyword-option">{{ phrase.text }}</div>
+                {% endfor %}
+            {% else %}
+                <p>現在行中のゲームはありません。</p>
+            {% endif %}
+        </div><br>
+
+        <!-- 小内容 -->
+        <div class="form-group">
+            <label for="{{ form.content.id_for_label }}">内容（自動保存はないで！こまめに保存してや！）</label>
+            {{ form.content|add_class:"form-control content" }}
+        </div>
+
+        <!-- 状態 (status) -->
+        <div class="form-group">
+            <label for="status-display">状態</label>
+            <input type="text" class="form-control" id="status-display" 
+                   value="{% if novel.status == 'published' %}公開済み
+                          {% elif novel.status == 'scheduled' %}予約公開
+                          {% else %}作成中{% endif %}" 
+                   readonly>
+        </div>
+
+        {{ form.status }}  <!-- 隠しフィールドとして status を追加 -->
+
+        {% if form.instance.status == 'published' %}
+            <!-- 公開済みの場合は編集ボタンのみ表示 -->
+            {% if can_publish %}
+                <button type="submit" name="action" value="edit_published" class="btn btn-primary" style="margin:5px !important;" title="編集して再投稿します">編集して公開保存</button>
+            {% else %}
+                <div class="alert alert-info">
+                    <h5>📢 小説の公開について</h5>
+                    <p>現在は公開期間外です。</p>
+                    <ul>
+                        <li>執筆期間：{{ current_game.start_date|date:"Y年m月d日" }} 〜 {{ current_game.end_date|date:"Y年m月d日" }}</li>
+                        <li>公開開始日：{{ current_game.prediction_start_date|date:"Y年m月d日" }}</li>
+                    </ul>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- 下書きの場合の処理 -->
+            {% if is_writing_period %}
+                {% if novel.status == 'scheduled' %}
+                    <!-- 予約公開中の場合 -->
+                    <div class="auto-publish-group mb-3">
+                        <div class="alert alert-info">
+                            <h5>予約公開状態について</h5>
+                            <p>この小説は予約公開が設定されています。</p>
+                            <ul>
+                                <li>公開予定日：<strong>{{ current_game.prediction_start_date|date:"Y年m月d日" }}</strong></li>
+                            </ul>
+                        </div>
+                        
+                        <button type="submit" 
+                                name="action" 
+                                value="edit_scheduled"
+                                class="btn btn-primary" 
+                                style="margin:5px !important;" 
+                                title="編集内容を保存します">
+                                編集を保存
+                        </button>
+
+                        <button type="submit" 
+                                name="action" 
+                                value="cancel_schedule"
+                                class="btn btn-warning" 
+                                style="margin:5px !important;" 
+                                title="予約を取り消します">
+                                予約を取り消す
+                        </button>
+                    </div>
+                {% else %}
+                    <!-- 通常の下書き状態の場合 -->
+                    <button type="submit" name="action" value="draft" class="btn btn-success" title="一時保存します。画面はこのままです。">保存</button>
+                    {% if edit %}
+                        <button type="submit" name="action" value="rest" class="btn btn-warning ml-2" style="margin:5px !important;" title="一時保存します。自身の部屋に移動します。">休息</button>
+                        {% if can_publish %}
+                            <!-- 予想期間開始後は即時公開ボタンを表示 -->
+                            <button type="submit" 
+                                    name="action" 
+                                    value="publish"
+                                    class="btn btn-primary" 
+                                    style="margin:5px !important;" 
+                                    onclick="return confirmPublish()"
+                                    title="即時公開します">
+                                    公開する
+                            </button>
+                        {% else %}
+                            <!-- 予想期間開始前は予約公開ボタンを表示 -->
+                            <div class="auto-publish-group mb-3">
+                                <div class="alert alert-info">
+                                    <h5>予約公開について</h5>
+                                    <p>小説が完成したら、予約公開することができます。</p>
+                                    <ul>
+                                        <li>予約すると、<strong>{{ current_game.prediction_start_date|date:"Y年m月d日" }}に自動的に公開</strong>されます</li>
+                                        <li>予約後も公開日まではいつでも編集可能です</li>
+                                    </ul>
+                                </div>
+
+                                <button type="submit" 
+                                        name="action" 
+                                        value="schedule_publish"
+                                        class="btn btn-info" 
+                                        style="margin:5px !important;" 
+                                        title="{{ current_game.prediction_start_date|date:'Y年m月d日' }}に自動で公開れます">
+                                        予約公開する
+                                </button>
+                            </div>
+                        {% endif %}
+                        <button type="submit" name="action" value="delete" class="btn btn-danger" onclick="return confirmDelete()" style="margin:5px !important;" title="公開前の小説は消すことが可能です。">削除</button>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                <!-- 執筆期間外の場合の表示 -->
+                <div class="alert alert-info">
+                    <h5>📢 執筆期間のお知らせ</h5>
+                    <p>現在は執筆期間外です。</p>
+                    <ul>
+                        <li>執筆期間：{{ current_game.start_date|date:"Y年m月d日" }} 〜 {{ current_game.end_date|date:"Y年m月d日" }}</li>
+                        <li>公開開始日：{{ current_game.prediction_start_date|date:"Y年m月d日" }}</li>
+                    </ul>
+                </div>
+            {% endif %}
+        {% endif %}
+    </form>
+</div>
+
+<div id="footerWordCount" style="text-align: right; padding: 10px; color: #fff; background-color: #333; position: fixed; bottom: 0; right: 0; width: auto; box-shadow: none;">
+    0 / 10,000文字
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 語句カウントの初期化と更新
+    const content = document.querySelector('textarea.content');
+    const phraseCountDisplay = document.getElementById('phraseCount');
+    const requiredPhrases = Array.from(document.querySelectorAll('.keyword-option')).map(el => el.textContent.trim().toLowerCase());
+    
+    function updatePhraseCount() {
+        const text = content.value.toLowerCase();
+        const usedPhrases = requiredPhrases.filter(phrase => text.includes(phrase));
+        const count = usedPhrases.length;
+        
+        phraseCountDisplay.textContent = `${count}/5 語句`;
+        phraseCountDisplay.style.color = count >= 5 ? 'green' : 'red';
+        
+        // 使用されている語句をハイライト
+        document.querySelectorAll('.keyword-option').forEach(el => {
+            if (text.includes(el.textContent.trim().toLowerCase())) {
+                el.style.backgroundColor = '#e6ffe6';  // 薄い緑色
+            } else {
+                el.style.backgroundColor = '#f8f9fa';  // デフォルトの背景色
+            }
+        });
+    }
+    
+    // 初期表示時にもカウントを更新
+    if (content) {
+        updatePhraseCount();
+        content.addEventListener('input', updatePhraseCount);
+    }
+});
+</script>
+
+{% endblock %}

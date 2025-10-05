@@ -1,0 +1,60 @@
+<!-- 管理者専用エリア -->
+<div class="admin-area mt-2">
+    <div class="container">
+        <h4 class="mb-3">
+            <i class="fas fa-shield-alt"></i> 管理者用エリア
+        </h4>
+
+        <!-- お問い合わせ通知 -->
+        {% if pending_contacts %}
+            <div class="alert alert-info mb-2" role="alert">
+                <a href="{% url 'contacts:contact_list' %}" class="text-decoration-none text-dark">
+                    <div class="notification-item">
+                        <i class="fas fa-envelope"></i>
+                        未対応のお問い合わせが {{ pending_contacts.count }} 件あります
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- イベント管理ボタン -->
+        <div class="alert alert-success mb-2" role="alert">
+            <a href="/adminpanel/event-selection/" class="text-decoration-none text-dark">
+                <div class="notification-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    イベント（祭り等）管理
+                </div>
+            </a>
+        </div>
+
+        <!-- 管理者画面ボタン -->
+        <div class="alert alert-danger mb-2" role="alert">
+            <a href="{% url 'admin:index' %}" class="text-decoration-none text-dark">
+                <div class="notification-item">
+                    <i class="fas fa-cog"></i>
+                    総合管理（お知らせ等）
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-area {
+        background-color: var(--bs-light);
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .notification-item {
+        display: flex;
+        align-items: center;
+        font-size: 1rem;
+    }
+
+    .notification-item i {
+        margin-right: 10px;
+        font-size: 1.1em;
+    }
+</style> 

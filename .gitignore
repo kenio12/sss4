@@ -1,0 +1,66 @@
+# 環境変数
+.env
+
+# Pythonバイトコード
+__pycache__/
+*.pyc
+
+# データベースファイル
+*.db
+*.sqlite3
+
+# VS Code設定
+.vscode/
+
+__pycache__/
+*.pyc
+
+# 開発でHTTPS　を使うため
+cert.pem
+key.pem
+
+debug.log
+
+# .gitignoreに追加
+echo "*.dump" >> .gitignore
+echo "*.sql" >> .gitignore
+echo "*.json" >> .gitignore
+echo "backup/*" >> .gitignorecelerybeat-schedule
+*.sql
+*.bak
+*.dump*
+dumps/
+backups/
+migrations_backup/
+# ログファイル
+*.log
+debug_log.txt
+
+# バックアップ関連（追加）
+*.backup
+docker-compose*.backup
+migrations_backup/
+
+# 設定ファイル（追加）
+settings_local.py
+local_settings.py
+
+# システムファイル（追加）
+.DS_Store
+Thumbs.db
+
+# Node.js（フロントエンド用）
+node_modules/
+.next/
+out/
+build/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Docker
+docker-compose.override.yml
+# メモファイル
+memo*.md
+便利.md

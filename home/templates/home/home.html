@@ -1,0 +1,1076 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ホーム{% endblock %}
+
+{% block header_content %}
+<div class="header">
+    <span>超短編小説会</span>
+    {% if user.is_authenticated %}
+        <span class="user-nickname">{{ user.nickname }}</span>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block nav_links %}
+<!-- ホーム画面ではホームへのリンクを表示しない -->
+<!-- 他のナビゲーションリンクがあればここに追加 -->
+{% endblock nav_links %}
+
+{% block content %}
+
+{# ここから追加 #}
+{% if not user.is_authenticated %}
+<!-- モーダルダイアログ -->
+<div id="welcomeModal" class="modal" style="display: block;">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2 style="color: #856404; margin-bottom: 15px; text-align: center; font-size: 1.2em;">
+            会員登録がまだの皆様へ
+        </h2>
+        <div style="color: #555; line-height: 1.6; font-size: 0.95em;">
+            <div style="background: #fff; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                <p style="margin-bottom: 10px; font-weight: bold; color: #856404;">
+                    超短編小説会に会員登録すると、こんなことができます：
+                </p>
+                <ul style="list-style: none; padding-left: 0;">
+                    <li style="margin-bottom: 8px; padding-left: 25px; position: relative;">
+                        <span style="position: absolute; left: 0;">✨</span>
+                        自分の小説を投稿できる
+                    </li>
+                    <li style="margin-bottom: 8px; padding-left: 25px; position: relative;">
+                        <span style="position: absolute; left: 0;">💭</span>
+                        作品に感想を書ける
+                    </li>
+                    <li style="margin-bottom: 8px; padding-left: 25px; position: relative;">
+                        <span style="position: absolute; left: 0;">🎮</span>
+                        みんなで同じタイトルの小説を書いて遊べる
+                    </li>
+                </ul>
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="{% url 'accounts:signup' %}" class="signup-button">
+                    今すぐ会員登録する
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- モーダル用のスタイル -->
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fff3cd;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #ffeeba;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+    animation: slideIn 0.3s;
+}
+
+.close-button {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    color: #856404;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover {
+    color: #000;
+}
+
+.signup-button {
+    display: inline-block;
+    padding: 10px 30px;
+    background-color: #28a745;
+    color: white !important;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.signup-button:hover {
+    background-color: #218838;
+    color: white !important;
+    text-decoration: none;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+@keyframes slideIn {
+    from {transform: translateY(-100px); opacity: 0;}
+    to {transform: translateY(0); opacity: 1;}
+}
+
+/* スマホ対応 */
+@media screen and (max-width: 768px) {
+    .modal-content {
+        margin: 30% auto;
+        width: 90%;
+        padding: 15px;
+    }
+}
+</style>
+
+<!-- モーダル用のJavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var modal = document.getElementById('welcomeModal');
+    var closeButton = document.getElementsByClassName('close-button')[0];
+
+    closeButton.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+});
+</script>
+{% endif %}
+{# ここまで追加 #}
+
+<div class="image-container">
+    <img src="{% static 'home/images/'|add:now|add:'.jpeg' %}" alt="{{ now }}月" class="responsive-image">
+    <div class="centered-text">{{ now }}月</div>
+
+    <div class="button-container">
+        {% if user.is_authenticated %}
+        <div class="home-btn home-btn-primary" title="執筆する">
+            <a href="{% url 'novels:novel_choice' %}">
+                <img src="/static/home/images/pen_icon.svg" alt="Icon" style="width: 100%; height: auto;">
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="home-btn home-btn-list home-btn-list-orange" title="本を探す">
+            <a href="{% url 'novels:index' %}">
+                <img src="{% static 'home/images/books.svg' %}" alt="Icon" style="width: 100%; height: auto;">
+            </a>
+        </div>
+
+        <div class="home-btn home-btn-list home-btn-list-green" title="人探し">
+            <a href="{% url 'accounts:member_list' %}">
+                <img src="{% static 'images/profile_lady.svg' %}" alt="Icon" style="width: 100%; height: auto;">
+            </a>
+        </div>
+
+        <!-- デバッグ用コメント -->
+        <!-- 祭り情報: {{ current_maturi_game|default:"なし" }} -->
+        
+        <!-- 祭り期間中のみ表示 -->
+        {% if current_maturi_game %}
+        <div class="home-btn home-btn-list home-btn-maturi" title="祭り">
+            <a href="{% url 'game_maturi:game_maturi_top' game_id=current_maturi_game.id %}">
+                <img src="{% static 'home/images/maturi.svg' %}" alt="Icon" style="width: 100%; height: auto;">
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- 同タイトル小説ボタン -->
+        <div class="home-btn home-btn-list home-btn-list-blue" title="同タイトル小説">
+            <a href="{% url 'game_same_title:same_title' %}">
+                <img src="{% static 'home/images/dou_game.svg' %}" alt="Icon" style="width: 100%; height: auto;">
+            </a>
+        </div>
+
+        <div class="home-btn home-btn-list home-btn-list-purple" title="このサイトについて">
+            <a href="{% url 'home:terms' %}">
+                <img src="{% static 'home/images/hatena.svg' %}" alt="Icon" style="width: 100%; height: auto;">
+            </a>
+        </div>
+
+        <div class="home-btn home-btn-list home-btn-list-red" title="お知らせ">
+            <a href="{% url 'announcements:list' %}">
+                <img src="{% static 'home/images/info.svg' %}" alt="Icon" style="width: 100%; height: auto;">
+            </a>
+        </div>
+
+
+        
+    </div>
+</div>
+
+<!-- 管理者用エリアをここに移動 -->
+{% if user.is_staff %}
+    {% include 'home/includes/_admin_area.html' %}
+{% endif %}
+
+<div class="novels-list-container">
+    <div class="sss-novels-list">
+        {% for novel in latest_novels %}
+            <!-- PC表示 -->
+            <div class="sss-novel-row pc-view">
+                <div class="sss-date">{{ novel.published_date|date:"Y/m/d" }}</div>
+                <div class="sss-genre">{{ novel.genre }}</div>
+                <div class="sss-count">{{ novel.word_count }}文字</div>
+                <div class="sss-link sss-author">
+                    {% if novel.author %}
+                        <a href="{% url 'accounts:view_other_profile' user_id=novel.author.id %}">{{ novel.author.nickname }}</a>
+                    {% else %}
+                        <span>作者不明</span>
+                    {% endif %}
+                </div>
+                <div class="sss-link sss-title" style="color: #007bff !important;">
+                    <a href="{% url 'novels:novel_detail' novel.id %}" style="color: #007bff !important;">{{ novel.title }}</a>
+                </div>
+            </div>
+
+            <!-- スマホ表示用 -->
+            <div class="sss-novel-row sp-view">
+                <div class="sss-header-row">
+                    <div class="sss-link sss-title">
+                        <a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title }}</a>
+                    </div>
+                    <div class="sss-link sss-author">
+                        {% if novel.author %}
+                            <a href="{% url 'accounts:view_other_profile' user_id=novel.author.id %}">{{ novel.author.nickname }}</a>
+                        {% else %}
+                            <span>作者不明</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="sss-info-row">
+                    <div class="sss-date">{{ novel.published_date|date:"Y/m/d" }}</div>
+                    <div class="sss-meta">
+                        <div class="sss-genre">{{ novel.genre }}</div>
+                        <div class="sss-count">{{ novel.word_count }}文字</div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="button-container-center">
+        <a href="{% url 'novels:novels_paginated' %}" class="list-button novels-button" style="background-color: #007bff !important;">
+            もっと小説一覧
+        </a>
+    </div>
+</div>
+
+<!-- 重要なお知らせのみを表示 -->
+{% if announcements %}
+<div class="announcements-container">
+    <div class="sss-novels-list">
+        {% for announcement in announcements %}
+            <!-- PC表示用 -->
+            <div class="sss-novel-row pc-view">
+                <div class="sss-date">{{ announcement.created_at|date:"Y/m/d" }}</div>
+                <div class="sss-link sss-title">
+                    <a href="{% url 'announcements:detail' announcement.id %}" style="color: #ff69b4 !important;">{{ announcement.title }}</a>
+                </div>
+            </div>
+
+            <!-- スマホ表示用 -->
+            <div class="sss-novel-row sp-view">
+                <div class="sss-header-row">
+                    <div class="sss-link sss-title">
+                        <a href="{% url 'announcements:detail' announcement.id %}" style="color: #ff69b4 !important;">{{ announcement.title }}</a>
+                    </div>
+                </div>
+                <div class="sss-info-row">
+                    <div class="sss-date">{{ announcement.created_at|date:"Y/m/d" }}</div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="button-container-center">
+        <a href="{% url 'announcements:list' %}" class="list-button novels-button" style="background-color: #ff69b4 !important;">
+            お知らせ一覧
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<footer class="footer">
+    <p>Ⓒ超短編小説会</p>
+</footer>
+
+<style>
+    .responsive-image {
+        width: 100%; /* 画像の幅を100%に設定 */
+        height: auto; /* 高さは自動で調整 */
+        max-height: 430px; /* 最大の高さを500pxに設定 */
+        object-fit: cover; /* コンテナのサイズに合わせて画像をトリミング */
+    }
+    .image-container {
+        position: relative; /* 相対位置 */
+        text-align: center; /* イメージを中央に配置 */
+        width: 100%; /* コンテナの幅を全体に */
+        overflow: hidden;
+    }
+
+    .responsive-image {
+        width: 100%; /* 画像の幅を100%に設定 */
+        height: auto; /* 高さは自動で調整 */
+    }
+
+    .centered-text {
+        position: absolute; /* 絶対位置 */
+        top: 50%; /* 上から50%の位置 */
+        left: 50%; /* 左から50%の位置 */
+        transform: translate(-50%, -50%); /* 中央に配置 */
+        color: white; /* テストの色 */
+        font-size: 45px; /* フォントサイズを36pxに大きくす */
+        font-weight: bold; /* フォントの太さ */
+        z-index: 100; /* z-indexを設定し前面に表示 */
+        text-shadow: 2px 2px 4px #000000; /* 黒い影をテキストに追加 */
+        pointer-events: none;  /* クリックイベントを無視 */
+        z-index: 1;  /* z-indexを下げる */
+    }
+
+    /* スマホ表示時のスクロール対応 */
+    @media screen and (max-width: 768px) {
+        .scrolled .centered-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+    }
+
+.responsive-image {
+    max-width: 100%; /* コンテナの幅に合わせて調整 */
+    height: auto; /* 高さは自動で調整 */
+}
+    .home-btn {
+        margin: 5px !important;
+        width: 50px !important;
+        height: 50px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        overflow: hidden; /* はみ出た画像を隠す */
+    }
+    .home-btn img {
+        width: 72% !important; /* 90%の80%に相当するサイズに調整 */
+        height: auto !important;
+        object-fit: cover; /* 画像がボタンの形に合わせて表示されるように */
+        margin: auto; /* 画像を中央に配置 */
+    }
+    .home-btn-primary {
+        background-color: #007bff !important;
+    }
+    .home-btn-list-orange {
+        background-color: #f0ad4e !important;
+    }
+    .home-btn-list-green {
+        background-color: #5cb85c !important;
+    }
+    .home-btn-list-blue {
+        background-color: rgb(118, 50, 50) !important;
+    }
+    .home-btn-list-purple {
+        background-color: #6f42c1 !important;
+    }
+    .home-btn-list-red {
+        background-color: #dc3545 !important;  /* Bootstrap の赤色を使用 */
+    }
+    .home-btn-list-silver {
+    background-color: silver !important;
+    }   
+
+    .footer {
+        text-align: center;  /* 左揃えから中揃えに変更 */
+        background-color: #f8f9fa;
+        color: #333;
+        padding: 10px 0;  /* 上下のパディングを追加 */
+    }
+
+    .footer p {
+        margin: 0;  /* デフォルトのマージンを削除 */
+    }
+
+    .novels-list-container,
+    .announcements-container {
+        margin: 10px 20px !important;  /* 左右のマージンを20pxに設定 */
+        padding: 0 !important;
+        width: auto !important;        /* 幅を自動に */
+        max-width: none !important;    /* max-widthの制限を解除 */
+    }
+
+    /* スマホ表示時のマージン調整 */
+    @media screen and (max-width: 768px) {
+        .novels-list-container,
+        .announcements-container {
+            margin: 10px 15px !important;  /* スマホではマージンを少し小さく */
+        }
+    }
+
+    .sss-novels-list {
+        margin-bottom: 10px !important;  /* リストと下ボタンの間のマージンも調整 */
+    }
+
+    .button-container-center {
+        margin: 10px 0 !important;  /* ボタンの上下マージンも調整 */
+    }
+
+    .novels-list-title {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: #333;
+        text-align: center;
+    }
+
+    .novels-table {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    /* 表示切り替え用 */
+    .pc-only {
+        display: flex !important;
+    }
+    .sp-only {
+        display: none !important;
+    }
+
+    /* PC用のスタイル */
+    .pc-only.novel-item {
+        padding: 8px 10px !important;
+        border-bottom: 1px solid #eee !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 15px !important;
+        min-height: 36px !important;
+    }
+
+    .novel-link-container {
+        font-size: 0.9em !important;
+        color: #007bff !important;
+        display: flex !important;
+        align-items: center !important;
+        line-height: 20px !important;
+        height: 20px !important;
+    }
+
+    .novel-link-container a,
+    .novel-link-container span {
+        color: inherit !important;
+        text-decoration: none !important;
+        display: block !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        line-height: 20px !important;
+        height: 20px !important;
+        font-weight: normal !important;
+    }
+
+    .pc-only .novel-date {
+        flex: 0 0 100px !important;
+        font-size: 0.9em !important;
+        color: #666 !important;
+    }
+
+    .pc-only .novel-genre {
+        flex: 0 0 100px !important;
+        font-size: 0.9em !important;
+        color: #28a745 !important;
+    }
+
+    .pc-only .novel-count {
+        flex: 0 0 80px !important;
+        font-size: 0.9em !important;
+        color: #666 !important;
+    }
+
+    .pc-only .novel-author {
+        flex: 0 0 150px !important;
+    }
+
+    .pc-only .novel-title {
+        flex: 1 !important;
+    }
+
+    /* スマホ用のスタイル */
+    @media screen and (max-width: 768px) {
+        .pc-only {
+            display: none !important;
+        }
+        .sp-only {
+            display: block !important;
+        }
+
+        .sp-only.novel-item {
+            padding: 3px 8px !important;
+            border-bottom: 1px solid #eee !important;
+        }
+
+        .title-author-container {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-bottom: 5px !important;
+        }
+
+        .date-genre-container {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+
+        .sp-only .novel-title {
+            flex: 1 !important;
+            margin-right: 10px !important;
+        }
+
+        .sp-only .novel-author {
+            flex: 0 0 auto !important;
+            white-space: nowrap !important;
+        }
+
+        .genre-count-container {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+        }
+
+        .sp-only .novel-count {
+            margin-left: 10px !important;
+        }
+    }
+
+    /* ボタンのスタイルを追加 */
+    .novels-table + a {  /* 小説一覧の後のリンク */
+        display: inline-block !important;
+        padding: 10px 20px !important;
+        margin-top: 20px !important;
+        background-color: #007bff !important;
+        color: white !important;
+        text-decoration: none !important;
+        border-radius: 5px !important;
+        font-size: 0.9em !important;
+    }
+
+    .novels-table + a:hover {
+        background-color: #0056b3 !important;
+        text-decoration: none !important;
+    }
+
+    /* スマホ用ボタンスタイル */
+    @media screen and (max-width: 768px) {
+        .novels-table + a {
+            width: 100% !important;  /* スマホでは幅いっぱい */
+            text-align: center !important;
+            box-sizing: border-box !important;
+        }
+    }
+
+    /* ボタンのスタイルを完全に元通りに */
+    .btn-primary {
+        display: inline-block !important;
+        padding: 6px 12px !important;
+        margin-bottom: 0 !important;
+        font-size: 14px !important;
+        font-weight: 400 !important;
+        line-height: 1.42857143 !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        vertical-align: middle !important;
+        cursor: pointer !important;
+        background-color: #337ab7 !important;
+        border: 1px solid #2e6da4 !important;
+        border-radius: 4px !important;
+        color: #fff !important;
+        text-decoration: none !important;
+    }
+
+    .btn-primary:hover {
+        color: #fff !important;
+        background-color: #286090 !important;
+        border-color: #204d74 !important;
+    }
+
+    /* スマホ用のボタンスタイル */
+    @media screen and (max-width: 768px) {
+        .btn-primary {
+            display: block !important;
+            width: 100% !important;
+            margin-top: 10px !important;
+        }
+    }
+
+    /* タイトルを強制的に下げる */
+    .novel-link-container.novel-title {
+        margin-top: 4px !important;  /* ここで強制的に下げる */
+    }
+
+    .novel-link-container.novel-title a {
+        margin-top: 4px !important;  /* リクも同じく下げる */
+    }
+
+    /* PC表示用 */
+    .sss-novels-list {
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+    }
+
+    .pc-view {
+        display: flex !important;
+        padding: 8px 10px !important;
+        border-bottom: 1px solid #eee !important;
+        align-items: center !important;
+        gap: 15px !important;
+        min-height: 36px !important;
+    }
+
+    .sss-date {
+        flex: 0 0 100px !important;
+        font-size: 0.9em !important;
+        color: #666 !important;
+    }
+
+    .sss-genre {
+        flex: 0 0 100px !important;
+        font-size: 0.9em !important;
+        color: #28a745 !important;
+    }
+
+    .sss-count {
+        flex: 0 0 80px !important;
+        font-size: 0.9em !important;
+        color: #666 !important;
+    }
+
+    .sss-link {
+        font-size: 0.9em !important;
+        color: #007bff !important;
+        display: flex !important;
+        align-items: center !important;
+        line-height: 20px !important;
+        height: 20px !important;
+    }
+
+    .sss-author {
+        flex: 0 0 150px !important;
+    }
+
+    .sss-title {
+        flex: 1 !important;
+    }
+
+    .sss-link a,
+    .sss-link span {
+        color: inherit !important;
+        text-decoration: none !important;
+        display: block !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        line-height: 20px !important;
+        height: 20px !important;
+        font-weight: normal !important;
+    }
+
+    .sp-view {
+        display: none !important;
+    }
+
+    /* スマホ表示用 */
+    @media screen and (max-width: 768px) {
+        .pc-view {
+            display: none !important;
+        }
+
+        .sp-view {
+            display: block !important;
+            padding: 3px 8px !important;
+            border-bottom: 1px solid #eee !important;
+        }
+
+        .sss-header-row {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-bottom: 5px !important;
+        }
+
+        .sss-info-row {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+
+        .sss-meta {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            flex-wrap: wrap !important;
+            min-width: 0 !important;
+        }
+
+        .sp-view .sss-title {
+            flex: 1 !important;
+            margin-right: 10px !important;
+        }
+
+        .sp-view .sss-author {
+            flex: 0 0 auto !important;
+            white-space: nowrap !important;
+        }
+
+        .sss-count {
+            flex: 0 0 auto !important;
+            white-space: nowrap !important;
+            font-size: 0.85em !important;
+            margin-left: 5px !important;
+            overflow: visible !important;
+        }
+
+        .sss-genre {
+            flex: 0 0 auto !important;
+            white-space: nowrap !important;
+            font-size: 0.85em !important;
+        }
+
+        .sss-date {
+            font-size: 0.85em !important;
+            white-space: nowrap !important;
+        }
+    }
+
+    /* タイトルだけ太字に */
+    .sss-link.sss-title a,
+    .sss-link.sss-title span {
+        font-weight: bold !important;  /* タイトルだけ太字 */
+        color: #0056b3 !important;  /* タイトルだけ濃い青に */
+    }
+
+    /* 作家名は元のスタイルに */
+    .sss-link.sss-author a,
+    .sss-link.sss-author span {
+        font-weight: normal !important;  /* 通常の太さ */
+        color: #007bff !important;  /* 元の青色 */
+    }
+
+    /* タイトルのホバー時の効果 */
+    .sss-link.sss-title a:hover {
+        color: #003d7a !important;
+        text-decoration: underline !important;
+    }
+
+    /* もっと見るボタンのスタイル */
+    .more-novels-button-container {
+        text-align: left;  /* PCではデフォルトで左寄せ */
+        margin: 20px auto;
+        padding: 0 15px;
+    }
+
+    .more-novels-button {
+        display: inline-block;
+        padding: 10px 30px;
+        background-color: #007bff;
+        color: white !important;
+        text-decoration: none !important;
+        border-radius: 5px;
+        font-size: 0.9em;
+        transition: background-color 0.3s;
+    }
+
+    .more-novels-button:hover {
+        background-color: #0056b3;
+        color: white !important;
+        text-decoration: none !important;
+    }
+
+    /* マホ向けの調整 */
+    @media screen and (max-width: 768px) {
+        .more-novels-button-container {
+            margin: 15px auto;
+            text-align: center;  /* スマホでは中央寄せ */
+        }
+
+        .more-novels-button {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 12px 20px;
+        }
+    }
+
+    /* ボタンコンテナとボタンのスタイル */
+    .button-container-center {
+        text-align: left !important;  /* PCでは左寄せ */
+        margin: 20px 0 !important;
+    }
+
+    .list-button {
+        display: inline-block !important;
+        padding: 6px 12px !important;
+        margin-bottom: 0 !important;
+        font-size: 14px !important;
+        font-weight: 400 !important;
+        line-height: 1.42857143 !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        vertical-align: middle !important;
+        cursor: pointer !important;
+        border-radius: 4px !important;
+        text-decoration: none !important;
+    }
+
+    .announcements-button {
+        background-color: #337ab7 !important;
+        border: 1px solid #2e6da4 !important;
+        color: #fff !important;
+    }
+
+    .novels-button {
+        background-color: #337ab7 !important;
+        border: 1px solid #2e6da4 !important;
+        color: #fff !important;
+    }
+
+    .announcements-button:hover,
+    .novels-button:hover {
+        background-color: #286090 !important;
+        border-color: #204d74 !important;
+        color: #fff !important;
+    }
+
+    /* スマホ対応 */
+    @media screen and (max-width: 768px) {
+        .button-container-center {
+            text-align: center !important;  /* スマホでは中央寄せ */
+            padding: 0 10px !important;
+        }
+        
+        .list-button {
+            display: block !important;
+            width: 100% !important;
+            margin-top: 10px !important;
+            box-sizing: border-box !important;
+        }
+    }
+
+    /* お知らせのスタイル */
+    .announcement-item {
+        padding: 12px 15px !important;
+        margin-bottom: 10px !important;
+        border-radius: 6px !important;
+        background-color: #fff !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+    }
+
+    .announcement-item.priority-high {
+        border-left: 4px solid #dc3545 !important;  /* 重要なお知らせは赤いボーダー */
+    }
+
+    .announcement-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 5px !important;
+    }
+
+    .announcement-priority {
+        font-size: 0.8em !important;
+        padding: 2px 8px !important;
+        border-radius: 12px !important;
+        background-color: #dc3545 !important;
+        color: white !important;
+    }
+
+    .announcement-title {
+        font-weight: bold !important;
+        margin-bottom: 5px !important;
+    }
+
+    .announcements-footer {
+        text-align: right !important;
+        padding: 10px !important;
+    }
+
+    .view-all-link {
+        font-size: 0.9em !important;
+        color: #6c757d !important;
+        text-decoration: none !important;
+    }
+
+    .view-all-link:hover {
+        text-decoration: underline !important;
+    }
+
+    /* お知らせタイトルのリンク色を青に戻す */
+    .sss-link.sss-title a {
+        color: #0056b3 !important;  /* 濃い青に戻す */
+        font-weight: bold !important;
+    }
+
+    .sss-link.sss-title a:hover {
+        color: #003d7a !important;  /* ホバー時はより濃い青 */
+        text-decoration: underline !important;
+    }
+
+    /* お知らせ一覧ボタンを青に戻す */
+    .list-button.novels-button {
+        background-color: #337ab7 !important;  /* 元の青色に戻す */
+        border: 1px solid #2e6da4 !important;  /* 元の青色のボーダー */
+        color: #fff !important;
+    }
+
+    .list-button.novels-button:hover {
+        background-color: #286090 !important;  /* ホバー時は元の濃い青 */
+        border-color: #204d74 !important;
+    }
+
+    /* 既存のスタイルに追加 */
+    .home-btn-maturi {
+        background: linear-gradient(45deg, #FF4081, #FF1744) !important;
+        box-shadow: 0 0 15px rgba(255, 64, 129, 0.5) !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* キラキラエフェクト */
+    .home-btn-maturi::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            45deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent
+        );
+        transform: rotate(45deg);
+        animation: shine 3s infinite;
+    }
+
+    /* ホバーエフェクト */
+    .home-btn-maturi:hover {
+        transform: scale(1.1);
+        transition: transform 0.3s ease;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes shine {
+        0% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+        100% {
+            transform: translateX(100%) rotate(45deg);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 15px rgba(255, 64, 129, 0.5);
+        }
+        50% {
+            box-shadow: 0 0 25px rgba(255, 64, 129, 0.8);
+        }
+        100% {
+            box-shadow: 0 0 15px rgba(255, 64, 129, 0.5);
+        }
+    }
+</style>
+
+<!-- メンテナンス中ダイアログ用のスタイル -->
+<style>
+.maintenance-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s;
+}
+
+.maintenance-modal-content {
+    position: relative;
+    background-color: #fff3cd;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #ffeeba;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+    animation: slideIn 0.3s;
+}
+
+.maintenance-close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    color: #856404;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.maintenance-close:hover {
+    color: #000;
+}
+</style>
+
+<!-- メンテナンス中ダイアログ -->
+<div id="maintenanceModal" class="maintenance-modal">
+    <div class="maintenance-modal-content">
+        <span class="maintenance-close">&times;</span>
+        <h3 style="color: #856404; margin-bottom: 15px;">お知らせ</h3>
+        <p style="color: #555;">同タイトル小説は現在、メンテナンス中です。<br>ご迷惑をおかけして申し訳ありません。</p>
+    </div>
+</div>
+
+<!-- メンテナンス中ダイアログ用のJavaScript -->
+<script>
+function showMaintenanceDialog() {
+    var modal = document.getElementById('maintenanceModal');
+    modal.style.display = "block";
+
+    // 閉じるボタンの処理
+    var closeBtn = modal.getElementsByClassName('maintenance-close')[0];
+    closeBtn.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // モーダルの外側をクリックしても閉じる
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+}
+</script>
+
+{% endblock content %}

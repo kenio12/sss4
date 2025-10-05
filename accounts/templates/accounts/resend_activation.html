@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>認証メールの再送信</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="email">メールアドレス</label>
+            <input type="email" name="email" class="form-control" 
+                   value="{{ request.GET.email }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">
+            認証メールを再送信
+        </button>
+    </form>
+</div>
+{% endblock %} 

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-3 mb-3">
+    <div class="row">
+        <div class="col-12">
+            <h3 class="profile-heading">{{ profile_user.nickname }} さんの部屋</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            {% if profile %}
+                {% include 'accounts/profile_detail.html' %}
+            {% else %}
+                <p>まだ作成されていないようです。</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 公開済みの小説一覧 -->
+    <div style="display: flex; align-items: center; justify-content: start; margin-top: 15px;">
+        <h3 class="published-novels-heading" style="margin-bottom: 15px; color: #2ecc71;">公開済</h3>
+    </div>
+
+    <div class="full-width-adjust" style="margin-bottom: 30px;">
+        {% if novels %}
+            {% for novel in novels %}
+                <a href="{% url 'novels:novel_detail' novel_id=novel.id %}" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="novel-item" style="padding: 15px; background: #f0fff0; border-radius: 12px; margin-bottom: 10px; transition: all 0.3s ease; cursor: pointer;">
+                        <div style="color: #2c3e50; font-size: 1.1em;">{{ novel.title }}</div>
+                        <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                            {% if novel.genre %}
+                                {% with style=novel.get_genre_style %}
+                                    <span class="genre-badge" style="background-color: {{ style.bg }}; color: {{ style.text }}; display: inline-block !important; padding: 4px 15px !important; border-radius: 50px !important; font-weight: bold !important; font-size: 0.95em !important; margin-right: 12px !important; box-shadow: 0 3px 6px rgba(0,0,0,0.2) !important; transition: all 0.3s ease !important; border: 2px solid rgba(255,255,255,0.2) !important; letter-spacing: 0.5px !important; min-width: 70px !important; text-align: center !important;">{{ novel.get_genre_display }}</span> | 
+                                {% endwith %}
+                            {% endif %}
+                            文字数: {{ novel.word_count }} | 
+                            投稿日: {{ novel.created_at|date:"Y年m月d日" }}
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        {% else %}
+            <p>公開済みの小説はありません。</p>
+        {% endif %}
+    </div>
+
+    <!-- 以前の小説一覧 -->
+    {% if profile_user.profile.selected_writer %}
+    <div class="full-width-adjust" style="margin-bottom: 30px;">
+        <h3 class="draft-novels-heading" style="color: #9b59b6; margin-bottom: 15px;">ご自身と主張される【{{ profile_user.profile.selected_writer.nickname }}】さんの小説</h3>
+        {% for novel in profile_user.profile.selected_writer.novels.all %}
+            <a href="{% url 'novels:novel_detail' novel_id=novel.id %}" style="text-decoration: none; color: inherit; display: block;">
+                <div class="novel-item" style="padding: 15px; background: #faf0ff; border-radius: 12px; margin-bottom: 10px; transition: all 0.3s ease; cursor: pointer;">
+                    <div style="color: #2c3e50; font-size: 1.1em;">{{ novel.title }}</div>
+                    <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                        {% if novel.genre %}
+                            {% with style=novel.get_genre_style %}
+                                <span class="genre-badge" style="background-color: {{ style.bg }}; color: {{ style.text }}; display: inline-block !important; padding: 4px 15px !important; border-radius: 50px !important; font-weight: bold !important; font-size: 0.95em !important; margin-right: 12px !important; box-shadow: 0 3px 6px rgba(0,0,0,0.2) !important; transition: all 0.3s ease !important; border: 2px solid rgba(255,255,255,0.2) !important; letter-spacing: 0.5px !important; min-width: 70px !important; text-align: center !important;">{{ novel.get_genre_display }}</span> | 
+                            {% endwith %}
+                        {% endif %}
+                        文字数: {{ novel.word_count }} | 
+                        投稿日: {{ novel.created_at|date:"Y年m月d日" }}
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+
+<style>
+    .novel-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .full-width-adjust {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .published-novels-heading {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+
+    .draft-novels-heading {
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+
+    .genre-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        background-color: #8e44ad;  /* 紫色の背景 */
+        color: white;              /* 白文字 */
+        border-radius: 12px;       /* 丸みを帯びた角 */
+        font-weight: bold;         /* 太字 */
+        font-size: 0.95em;         /* フォントサイズ調整 */
+        margin-right: 5px;         /* 右側の余白 */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);  /* 軽い影をつける */
+    }
+</style>
+{% endblock %}

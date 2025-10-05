@@ -1,0 +1,60 @@
+{% load static %}
+<style>
+    .panel-content {
+        word-wrap: break-word;
+        white-space: pre-wrap; /* 折り返しを有効にする */
+    }
+</style>
+<style>
+    .annoying-btn, .close-panel-btn {
+        display: block; /* ブロックレベル要素として表示 */
+        width: 100%; /* 親要素の幅いっぱいに広がる */
+        text-align: center; /* テキストを中央寄せ */
+        margin: 0; /* 余白をなくす */
+        padding: 10px 0; /* 上下にパディングを設定 */
+        background-color: #444; /* 背景色 */
+        color: #ccc; /* 文字色 */
+        border: none; /* 境界線をなくす */
+        cursor: pointer; /* カーソルをポインターに */
+    }
+</style>
+
+<a href="javascript:void(0);" id="toggle-panel-btn" style="cursor: pointer;"><img id="dari-image" src="{% static 'images/bungo2.webp' %}" alt="Dari Image" style="vertical-align: middle; width: 50px; height: auto;background-color: #f8f9fa;"></a>
+
+<div id="my-side-panel" class="my-side-panel">
+<!-- コンテンツの中を切り分け -->
+    {% include 'side_panel_content.html' %}
+</div>
+
+{% load static %}
+<!-- ここにサイドパネルのHTMLコンテンツ -->
+
+<script type="text/javascript">
+
+        // トグルボタンのクリックイベント
+        $('#toggle-panel-btn').click(function() {
+            var $sidePanel = $('#my-side-panel');
+            // サイドパネルが開いているかどうかをクラスで判断
+            if($sidePanel.hasClass('panel-open')){
+                // サイドパネルを閉じる
+                $sidePanel.animate({left: "-250px"}, 500, function() {
+                    // アニメーション完了後にクラスを削除
+                    $(this).removeClass('panel-open');
+                });
+            } else {
+                // サイドパネルを開く
+                $sidePanel.animate({left: "0px"}, 500, function() {
+                    // アニメーション完了後にクラスを追加
+                    $(this).addClass('panel-open');
+                });
+            }
+        });
+    
+        // 「閉じる」ボタンのクリックイベントハンドラ
+        $(document).on('click', '.close-panel-btn', function() {
+            var $sidePanel = $('#my-side-panel');
+            $sidePanel.animate({left: "-250px"}, 500, function() {
+                $(this).removeClass('panel-open');
+            });
+        });
+</script>

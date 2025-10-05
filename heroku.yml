@@ -1,0 +1,8 @@
+build:
+  docker:
+    web: Dockerfile  # Dockerfileの場所を指定
+release:
+  command:
+    - python manage.py migrate  # デプロイ時にマイグレーションを実行
+run:
+  web: gunicorn mynovelsite.wsgi:application --log-file - --bind 0.0.0.0:$PORT  # Webサーバーの起動コマンド

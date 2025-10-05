@@ -1,0 +1,224 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロフィールページ</title>
+    <style>
+        /* モダンなベーススタイル */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #2c3e50;
+        }
+
+        .profile {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* セクションヘッダー */
+        h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3498db;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: #e74c3c;
+        }
+
+        /* プロフィール項目のスタイル */
+        .profile-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .profile-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-label {
+            font-weight: 600;
+            color: #34495e;
+            min-width: 120px;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .profile-label::before {
+            content: '•';
+            position: absolute;
+            left: 10px;
+            color: #3498db;
+        }
+
+        .profile-value {
+            flex: 1;
+            color: #2c3e50;
+        }
+
+        /* 好きな曲リスト */
+        .music-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .music-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .music-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .music-item::before {
+            content: '♪';
+            margin-right: 15px;
+            color: #e74c3c;
+            font-size: 1.2em;
+        }
+
+        /* 会員ステータスバッジ */
+        .member-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .profile {
+                margin: 20px 10px;
+                padding: 20px;
+            }
+
+            .profile-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .profile-label {
+                margin-bottom: 5px;
+            }
+
+            .member-status {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-bottom: 20px;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile">
+        <div class="member-status">無料会員</div>
+        
+        <h2>基本情報</h2>
+        <div class="profile-item">
+            <span class="profile-label">長所</span>
+            <span class="profile-value">積極性</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">短所</span>
+            <span class="profile-value">気が急いてしまう</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">年齢</span>
+            <span class="profile-value">20歳</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">性別</span>
+            <span class="profile-value">女性</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">生物名</span>
+            <span class="profile-value">Homo sapiens</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">逆鱗</span>
+            <span class="profile-value">嘘をつかれること</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">癖</span>
+            <span class="profile-value">髪をいじる</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">住まい</span>
+            <span class="profile-value">東京都</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">抹茶</span>
+            <span class="profile-value">好き</span>
+        </div>
+
+        <h2>趣味・嗜好</h2>
+        <div class="profile-item">
+            <span class="profile-label">趣味</span>
+            <span class="profile-value">写真撮影</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">マイブーム</span>
+            <span class="profile-value">ハイキング</span>
+        </div>
+        
+        <h3 style="color: #2c3e50; margin: 30px 0 20px;">好きな曲</h3>
+        <ul class="music-list">
+            <li class="music-item">Imagine - John Lennon</li>
+            <li class="music-item">Bohemian Rhapsody - Queen</li>
+            <li class="music-item">Yesterday - The Beatles</li>
+        </ul>
+
+        <div class="profile-item">
+            <span class="profile-label">好きなダンス</span>
+            <span class="profile-value">ヒップホップ</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">好きな言葉</span>
+            <span class="profile-value">「一期一会」</span>
+        </div>
+    </div>
+</body>
+</html>
