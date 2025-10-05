@@ -872,6 +872,9 @@ def novels_paginated(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
+    # タイトル一覧を取得（タイトル選択ドロップダウン用）
+    title_choices = Novel.objects.filter(status='published').values_list('id', 'title').distinct().order_by('title')
+
     # コンテキストの設定
     context = {
         'page_obj': page_obj,
@@ -886,7 +889,8 @@ def novels_paginated(request):
         'author_search': author_search,
         'author_select': author_select,
         'title_initial': title_initial,
-        'years': range(1800, 2101)  # 1800年から2100年までの年リスト
+        'years': range(1800, 2101),  # 1800年から2100年までの年リスト
+        'title_choices': title_choices  # タイトル選択用リスト
     }
 
     return render(request, 'novels/novels_paginated.html', context)
