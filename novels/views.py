@@ -885,7 +885,8 @@ def novels_paginated(request):
         'title_search': title_search,
         'author_search': author_search,
         'author_select': author_select,
-        'title_initial': title_initial
+        'title_initial': title_initial,
+        'years': range(1800, 2101)  # 1800年から2100年までの年リスト
     }
 
     return render(request, 'novels/novels_paginated.html', context)
