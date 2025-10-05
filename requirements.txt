@@ -18,3 +18,4 @@ django-celery-beat==2.5.0
 tzdata==2024.1
 django-celery-results
 backports.zoneinfo;python_version<"3.9"
+sentry-sdk>=1.40.0

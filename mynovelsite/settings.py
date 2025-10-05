@@ -332,3 +332,19 @@ else:
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
     SESSION_COOKIE_HTTPONLY = True  # これは開発環境でも有効にしておく
+
+# =============================================
+# Sentry設定（エラー監視・通知）
+# =============================================
+
+import sentry_sdk
+
+# 本番環境のみSentryを有効化
+if ENVIRONMENT == 'production':
+    sentry_sdk.init(
+        dsn=os.getenv('SENTRY_DSN', ''),
+        # トレース有効化（パフォーマンス監視）
+        traces_sample_rate=1.0,
+        # プロファイル有効化（詳細なパフォーマンス分析）
+        profiles_sample_rate=1.0,
+    )
