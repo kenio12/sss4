@@ -271,38 +271,38 @@ document.addEventListener('DOMContentLoaded', function() {
                         </a>
                     </th>
                     <th>
-                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if request.GET.sort == 'genre' %}-{% endif %}genre" 
-                           class="sort-header {% if 'genre' in request.GET.sort %}active{% endif %}">
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'genre' %}-{% endif %}genre"
+                           class="sort-header {% if 'genre' in sort %}active{% endif %}">
                             ジャンル
                         </a>
                     </th>
                     <th>
-                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if request.GET.sort == 'title' %}-{% endif %}title" 
-                           class="sort-header {% if 'title' in request.GET.sort %}active{% endif %}">
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'title' %}-{% endif %}title"
+                           class="sort-header {% if 'title' in sort %}active{% endif %}">
                             作品名
                         </a>
                     </th>
                     <th>
-                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if request.GET.sort == 'author' %}-{% endif %}author" 
-                           class="sort-header {% if 'author' in request.GET.sort %}active{% endif %}">
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'author' %}-{% endif %}author"
+                           class="sort-header {% if 'author' in sort %}active{% endif %}">
                             作家名
                         </a>
                     </th>
                     <th>
-                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if request.GET.sort == 'published_date' %}-{% endif %}published_date" 
-                           class="sort-header {% if 'published_date' in request.GET.sort %}active{% endif %}">
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'published_date' %}-{% endif %}published_date"
+                           class="sort-header {% if 'published_date' in sort %}active{% endif %}">
                             投稿日
                         </a>
                     </th>
                     <th>
-                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if request.GET.sort == 'likes' %}-{% endif %}likes"
-                           class="sort-header {% if 'likes' in request.GET.sort %}active{% endif %}">
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'likes' %}-{% endif %}likes"
+                           class="sort-header {% if 'likes' in sort %}active{% endif %}">
                             いいね
                         </a>
                     </th>
                     <th>
-                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if request.GET.sort == 'comments' %}-{% endif %}comments"
-                           class="sort-header {% if 'comments' in request.GET.sort %}active{% endif %}">
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'comments' %}-{% endif %}comments"
+                           class="sort-header {% if 'comments' in sort %}active{% endif %}">
                             コメ
                         </a>
                     </th>
@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr>
                 <td class="label-cell"><label for="author_search">作者名検索:</label></td>
                 <td class="input-cell">
-                    <input type="text" id="author_search" name="author_search" placeholder="作者名で検索" value="{{ request.GET.author_search|default:'' }}">
+                    <input type="text" id="author_search" name="author_search" placeholder="作者名で検索" value="{{ author_search|default:'' }}">
                 </td>
             </tr>
             <tr>
@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <select id="author_select" name="author_select">
                         <option value="">全ての作者</option>
                         {% for author in authors_list %}
-                        <option value="{{ author.id }}" {% if request.GET.author_select == author.id|stringformat:"s" %}selected{% endif %}>
+                        <option value="{{ author.id }}" {% if author_select == author.id|stringformat:"s" %}selected{% endif %}>
                             {{ author.nickname }}
                         </option>
                         {% endfor %}
@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr>
                 <td class="label-cell"><label for="title_search">タイトル検索:</label></td>
                 <td class="input-cell">
-                    <input type="text" id="title_search" name="title_search" placeholder="タイトルで検索" value="{{ request.GET.title_search|default:'' }}">
+                    <input type="text" id="title_search" name="title_search" placeholder="タイトルで検索" value="{{ title_search|default:'' }}">
                 </td>
             </tr>
             <tr>
@@ -391,13 +391,13 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr>
                 <td class="label-cell"><label for="char_count_min">文字数（最小）:</label></td>
                 <td class="input-cell">
-                    <input type="text" id="char_count_min" name="char_count_min" placeholder="最小文字数" min="0" step="1" value="{% if 'char_count_min' in request.GET %}{{ request.GET.char_count_min }}{% endif %}">
+                    <input type="text" id="char_count_min" name="char_count_min" placeholder="最小文字数" min="0" step="1" value="{{ char_count_min|default:'' }}">
                 </td>
             </tr>
             <tr>
                 <td class="label-cell"><label for="char_count_max">文字数（最大）:</label></td>
                 <td class="input-cell">
-                    <input type="text" id="char_count_max" name="char_count_max" placeholder="最大文字数" min="0" step="1" value="{% if 'char_count_max' in request.GET %}{{ request.GET.char_count_max }}{% endif %}">
+                    <input type="text" id="char_count_max" name="char_count_max" placeholder="最大文字数" min="0" step="1" value="{{ char_count_max|default:'' }}">
                 </td>
             </tr>
             <tr>
