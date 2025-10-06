@@ -380,13 +380,18 @@ if ENVIRONMENT == 'production':
     sentry_sdk.init(
         dsn=os.getenv('SENTRY_DSN', ''),
         integrations=[
-            DjangoIntegration(),
+            DjangoIntegration(
+                # SQLクエリのパフォーマンス監視を無効化（通知過多防止）
+                db_spans=False,
+                # Redisのパフォーマンス監視を無効化
+                redis_spans=False,
+            ),
         ],
         before_send=before_send,
-        # トレースサンプルレート（10%に削減）
-        traces_sample_rate=0.1,
-        # プロファイルサンプルレート（10%に削減）
-        profiles_sample_rate=0.1,
+        # トレースサンプルレート（0%に設定 = パフォーマンス監視完全オフ）
+        traces_sample_rate=0.0,
+        # プロファイルサンプルレート（0%に設定 = プロファイリング完全オフ）
+        profiles_sample_rate=0.0,
         # 本番環境指定
         environment="production",
         # PII（個人情報）送信設定
