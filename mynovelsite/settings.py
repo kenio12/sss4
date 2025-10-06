@@ -338,13 +338,57 @@ else:
 # =============================================
 
 import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+# Sentry誤検知フィルター（before_send関数）
+def before_send(event, hint):
+    """
+    Sentryに送信する前のイベントフィルタリング
+    誤検知（404、ボット、healthcheck等）を除外
+    """
+    # 無視するエラータイプ
+    ignore_errors = [
+        "DoesNotExist",           # Django ORM: レコードが存在しない
+        "NotFound",               # 404エラー
+        "ConnectionRefusedError", # 一時的なネットワーク問題
+        "BrokenPipeError",        # uWSGI/Gunicorn再起動時によくある
+    ]
+
+    if 'exc_info' in hint:
+        exc_type, exc_value, tb = hint['exc_info']
+        if exc_type.__name__ in ignore_errors:
+            return None  # イベントを送信しない
+
+    # 404エラーをフィルタリング
+    if event.get('request', {}).get('url'):
+        url = event['request']['url']
+        # healthcheckやping系のURLは無視
+        if '/healthcheck/' in url or '/ping/' in url or '/health/' in url:
+            return None
+
+    # ボット・クローラーのアクセスを無視
+    if event.get('request', {}).get('headers', {}).get('User-Agent'):
+        user_agent = event['request']['headers']['User-Agent'].lower()
+        bot_keywords = ['bot', 'crawler', 'spider', 'scraper', 'googlebot', 'bingbot']
+        if any(keyword in user_agent for keyword in bot_keywords):
+            return None
+
+    return event  # その他のイベントは送信
 
 # 本番環境のみSentryを有効化
 if ENVIRONMENT == 'production':
     sentry_sdk.init(
         dsn=os.getenv('SENTRY_DSN', ''),
-        # トレース有効化（パフォーマンス監視）
-        traces_sample_rate=1.0,
-        # プロファイル有効化（詳細なパフォーマンス分析）
-        profiles_sample_rate=1.0,
+        integrations=[
+            DjangoIntegration(),
+        ],
+        before_send=before_send,
+        # トレースサンプルレート（10%に削減）
+        traces_sample_rate=0.1,
+        # プロファイルサンプルレート（10%に削減）
+        profiles_sample_rate=0.1,
+        # 本番環境指定
+        environment="production",
+        # PII（個人情報）送信設定
+        send_default_pii=False,
     )
