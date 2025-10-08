@@ -380,12 +380,7 @@ if ENVIRONMENT == 'production':
     sentry_sdk.init(
         dsn=os.getenv('SENTRY_DSN', ''),
         integrations=[
-            DjangoIntegration(
-                # SQLクエリのパフォーマンス監視を無効化（通知過多防止）
-                db_spans=False,
-                # Redisのパフォーマンス監視を無効化
-                redis_spans=False,
-            ),
+            DjangoIntegration(),
         ],
         before_send=before_send,
         # トレースサンプルレート（0%に設定 = パフォーマンス監視完全オフ）
