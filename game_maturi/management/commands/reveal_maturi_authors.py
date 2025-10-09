@@ -14,14 +14,14 @@ class Command(BaseCommand):
 
         for game in finished_games:
             # 小説の作者を元に戻す
-            novels = Novel.objects.filter(maturi_games=game)
+            novels = Novel.objects.filter(maturi_game=game)
             for novel in novels:
                 if novel.original_author:
                     novel.author = novel.original_author
                     novel.save()
 
             # コメントの投稿者を元に戻す
-            comments = Comment.objects.filter(maturi_games=game)
+            comments = Comment.objects.filter(maturi_game=game)
             for comment in comments:
                 if comment.original_commenter:
                     comment.author = comment.original_commenter
