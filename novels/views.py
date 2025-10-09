@@ -97,10 +97,10 @@ def post_or_edit_novel(request, novel_id=None):
                 return redirect('novels:edit_novel', novel_id=saved_novel.id)
         else:
             print("Form errors:", form.errors)
-            return render(request, 'novels/post_or_edit_novel.html', {'form': form, 'novel': novel, 'edit': edit_mode})
+            return render(request, 'novels/post_or_edit_novel.html', {'form': form, 'novel': novel, 'edit': edit_mode, 'can_edit': True})
     else:
         form = NovelForm(instance=novel)
-        return render(request, 'novels/post_or_edit_novel.html', {'form': form, 'novel': novel, 'edit': edit_mode})
+        return render(request, 'novels/post_or_edit_novel.html', {'form': form, 'novel': novel, 'edit': edit_mode, 'can_edit': True})
 
 
 import logging
