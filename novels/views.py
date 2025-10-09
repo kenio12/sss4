@@ -1,54 +1,24 @@
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
-from .forms import NovelForm
-from .models import Novel  # Novelモデルをインポート
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.urls import reverse
-from django.http import HttpResponseRedirect
-from .models import Novel, Like
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from .forms import CommentForm
-from .models import Comment  # Commentモデルをインポート
-from django.views.decorators.csrf import csrf_exempt
-from django.http import Http404
-import json
-from django.http import HttpResponseForbidden
-from django.utils import timezone
-from django.contrib.auth import get_user_model
-from django.views.generic import ListView
-from game_maturi.models import MaturiGame  # この行を追加
-
-# from .context_processors import get_unread_comments_count  # これを追加
-
-import logging  # これを追加
-from django.urls import reverse_lazy  # これを追加
-
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
-from .forms import NovelForm
-from .models import Novel, Like, Comment  # Novel, Like, Commentモデルをインポート
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect, JsonResponse, Http404
-from django.shortcuts import get_object_or_404
-from django.urls import reverse, reverse_lazy
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib import messages  # これを追加！
 import json
 import logging
-from django.db.models import Q
-from django.db.models import Count  # これを追加
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Q, Count
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect, JsonResponse, Http404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.views.generic import ListView
+
+from .forms import NovelForm, CommentForm
+from .models import Novel, Like, Comment
+from game_maturi.models import MaturiGame
 
 # ログ設定
 logger = logging.getLogger(__name__)
-handler = logging.FileHandler('novel_site.log')
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
 
 @login_required
 def post_or_edit_novel(request, novel_id=None):
@@ -73,21 +43,23 @@ def post_or_edit_novel(request, novel_id=None):
         action = request.POST.get('action', 'draft')
 
         if action == 'delete':
-            novel.delete()
+            # 保存済みのインスタンスのみ削除可能
+            if novel.pk:
+                novel.delete()
             return redirect('accounts:view_profile')  # プロファイルページにリダイレクト
-        
+
         if action == 'rest':
             return redirect('accounts:view_profile')
 
         if form.is_valid():
             saved_novel = form.save(commit=False)
             saved_novel.word_count = len(form.cleaned_data['content'].split())
-            
+
             if action == 'publish':
                 saved_novel.status = 'published'
             elif action == 'draft':
                 saved_novel.status = 'draft'
-            
+
             saved_novel.save()
             form.save_m2m()
 
@@ -96,27 +68,12 @@ def post_or_edit_novel(request, novel_id=None):
             else:
                 return redirect('novels:edit_novel', novel_id=saved_novel.id)
         else:
-            print("Form errors:", form.errors)
+            logger.debug(f"Form errors: {form.errors}")
             return render(request, 'novels/post_or_edit_novel.html', {'form': form, 'novel': novel, 'edit': edit_mode, 'can_edit': True})
     else:
         form = NovelForm(instance=novel)
         return render(request, 'novels/post_or_edit_novel.html', {'form': form, 'novel': novel, 'edit': edit_mode, 'can_edit': True})
 
-
-import logging
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-from .models import Novel
-
-# ログ設定
-logger = logging.getLogger(__name__)
-handler = logging.FileHandler('novel_site.log')
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
 
 from django.core.cache import cache
 
@@ -164,50 +121,11 @@ def get_unread_comments_count_for_novel(user, novel_id):
     return count
 
 
-from django.http import JsonResponse
-from django.core.paginator import Paginator
-from .models import Novel
-from django.shortcuts import render
-
-from django.db.models import Value, CharField
-from django.db.models.functions import Coalesce
-
-from django.db.models import Value, CharField
-from django.db.models.functions import Coalesce
-import logging
-
-logger = logging.getLogger(__name__)
-from django.db.models import Value, CharField
-from django.db.models.functions import Coalesce
-
-from django.http import JsonResponse
-
-from django.core.paginator import Paginator
-from django.shortcuts import render
-from .models import Novel
-from django.db.models import Count
-from django.contrib.auth.decorators import login_required
-import logging
-logger = logging.getLogger(__name__)
-
-from accounts.models import User  # accounts アプリケーションから User モデルをインポート
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import Novel
-from django.core.paginator import Paginator
-from django.db.models import Count
-from django.http import JsonResponse
 import datetime
-from .models import Novel
-# この行を追加
+from django.db.models import Value, CharField
+from django.db.models.functions import Coalesce
+
 from accounts.models import User
-# from .utils import get_user_info  # get_user_info 関数をインポート
-
-
-
-
-
-from django.db.models import Count
 
 
 
@@ -237,47 +155,39 @@ def like_novel(request, novel_id):
     
     return JsonResponse({"is_liked": is_liked, "likes_count": novel.likes.count()})
 
-from django.urls import reverse
-from django.utils import timezone
-
-from django.http import HttpResponse
-import logging
-logger = logging.getLogger(__name__)
-
 def novel_detail(request, novel_id):
     """
     小説詳細ページのメイン処理
     Template: novels/detail.html
-    
+
     関連する処理：
     - コメント投稿: post_comment関数で処理 (/novels/<novel_id>/comment/)
       ※ 祭り小説のコメント処理や、コメントの既読/未読管理もpost_comment関数で実装
     """
-    print("="*50)
-    print(f"1. リクエストされたURL: {request.path}")
-    print(f"2. novel_id: {novel_id}")
+    logger.debug("="*50)
+    logger.debug(f"1. リクエストされたURL: {request.path}")
+    logger.debug(f"2. novel_id: {novel_id}")
     
     novel = get_object_or_404(Novel.objects.select_related('author'), id=novel_id)
-    print(f"3. 取得された小説: ID={novel.id}, タイトル={novel.title}")
+    logger.debug(f"3. 取得された小説: ID={novel.id}, タイトル={novel.title}")
 
     # 祭り作品の判定をより詳細に
-    print("\n==== 祭り作品判定 ====")
-    print(f"小説ID: {novel.id}")
-    print(f"hasattr(novel, 'maturi_games'): {hasattr(novel, 'maturi_games')}")
+    logger.debug("\n==== 祭り作品判定 ====")
+    logger.debug(f"小説ID: {novel.id}")
+    logger.debug(f"hasattr(novel, 'maturi_games'): {hasattr(novel, 'maturi_games')}")
     if hasattr(novel, 'maturi_games'):
-        print(f"novel.maturi_games.exists(): {novel.maturi_games.exists()}")
-    print(f"original_author_id: {novel.original_author_id if hasattr(novel, 'original_author_id') else 'なし'}")
-    print("=====================\n")
-   
+        logger.debug(f"novel.maturi_games.exists(): {novel.maturi_games.exists()}")
+    logger.debug(f"original_author_id: {novel.original_author_id if hasattr(novel, 'original_author_id') else 'なし'}")
+    logger.debug("=====================\n")
 
-    print("\n==== ユーザー照合 ====")
-    print(f"小説ID: {novel.id}")
-    print(f"小説タイトル: {novel.title}")
-    print(f"作者ID: {novel.author.id}")
-    print(f"作者のメール: {novel.author.email}")
-    print(f"ログインユーザーID: {request.user.id if request.user.is_authenticated else 'None'}")
-    print(f"ログインユーザーメール: {request.user.email if request.user.is_authenticated else 'None'}")
-    print("==================\n")
+    logger.debug("\n==== ユーザー照合 ====")
+    logger.debug(f"小説ID: {novel.id}")
+    logger.debug(f"小説タイトル: {novel.title}")
+    logger.debug(f"作者ID: {novel.author.id}")
+    logger.debug(f"作者のメール: {novel.author.email}")
+    logger.debug(f"ログインユーザーID: {request.user.id if request.user.is_authenticated else 'None'}")
+    logger.debug(f"ログインユーザーメール: {request.user.email if request.user.is_authenticated else 'None'}")
+    logger.debug("==================\n")
 
     comments_list = Comment.objects.filter(novel=novel).select_related('author').order_by('-created_at')
     form = CommentForm()
@@ -292,24 +202,24 @@ def novel_detail(request, novel_id):
             not (hasattr(novel, 'original_author_id') and novel.original_author_id == request.user.id)
         )
     ):
-        print(f"リダイレクト前の状態: novel.status={novel.status}, user_authenticated={request.user.is_authenticated}, user={request.user}, novel_author={novel.author}")
+        logger.debug(f"リダイレクト前の状態: novel.status={novel.status}, user_authenticated={request.user.is_authenticated}, user={request.user}, novel_author={novel.author}")
         messages.error(request, f'{novel.get_status_display()}の小説は、作者本人のみ閲覧できません。')
         return redirect('novels:novels_paginated')
 
     # 祭り作品かどうかの判定
     is_maturi = hasattr(novel, 'maturi_games') and novel.maturi_games.exists()
-    print(f"祭り作品判定: {is_maturi}")
+    logger.debug(f"祭り作品判定: {is_maturi}")
     if is_maturi:
-        print("祭り小説の詳細情報を表示")
+        logger.debug("祭り小説の詳細情報を表示")
         # 祭り小説の詳細情報を表示するための追加デバッグ
         maturi_games = novel.maturi_games.all()
         for game in maturi_games:
-            print(f"祭りゲームID: {game.id}, タイトル: {game.title}")
-            print(f"is_author_revealed: {game.is_author_revealed}")
-            print(f"prediction_end_date: {game.prediction_end_date}")
+            logger.debug(f"祭りゲームID: {game.id}, タイトル: {game.title}")
+            logger.debug(f"is_author_revealed: {game.is_author_revealed}")
+            logger.debug(f"prediction_end_date: {game.prediction_end_date}")
             now = timezone.now().date()
-            print(f"現在時刻: {now}")
-            print(f"予想期間終了？: {now > game.prediction_end_date}")
+            logger.debug(f"現在時刻: {now}")
+            logger.debug(f"予想期間終了？: {now > game.prediction_end_date}")
 
     # 同イトル作品かどうかの判定
     is_same_title = novel.is_same_title_game if hasattr(novel, 'is_same_title_game') else False
@@ -317,23 +227,23 @@ def novel_detail(request, novel_id):
     # 編集権限確認（ログインユーザーのみ）
     can_edit = False
     if request.user.is_authenticated:
-        print("\n==== 編集権限チェック ====")
-        print(f"リクエストユーザー: {request.user.id} - {request.user.email}")
-        print(f"小説の作者: {novel.author.id} - {novel.author.email}")
-        print(f"オリジナル作者: {novel.original_author_id if hasattr(novel, 'original_author_id') else 'なし'}")
-        
+        logger.debug("\n==== 編集権限チェック ====")
+        logger.debug(f"リクエストユーザー: {request.user.id} - {request.user.email}")
+        logger.debug(f"小説の作者: {novel.author.id} - {novel.author.email}")
+        logger.debug(f"オリジナル作者: {novel.original_author_id if hasattr(novel, 'original_author_id') else 'なし'}")
+
         if is_maturi:
             # 祭り作品の場合、作者またはオリジナルの作者
-            can_edit = (request.user == novel.author or 
+            can_edit = (request.user == novel.author or
                        novel.original_author_id == request.user.id)
         else:
             # 通常作品の場合、作者または original_author_id が一致する場合
-            can_edit = (request.user == novel.author or 
-                       (hasattr(novel, 'original_author_id') and 
+            can_edit = (request.user == novel.author or
+                       (hasattr(novel, 'original_author_id') and
                         novel.original_author_id == request.user.id))
-        
-        print(f"編集権限: {can_edit}")
-        print("="*50)
+
+        logger.debug(f"編集権限: {can_edit}")
+        logger.debug("="*50)
 
     # 未読コメント情報を取得
     latest_unread_novels = []
@@ -349,45 +259,45 @@ def novel_detail(request, novel_id):
                 distinct=True
             )
         )
-        
+
         # デバッグ用：実際のSQL文を表示
-        print("SQL Query:", latest_unread_novels.query)
-        
+        logger.debug(f"SQL Query: {latest_unread_novels.query}")
+
         # デバッグ用：各コメントの詳細を表示
         for unread_novel in latest_unread_novels:
             comments = Comment.objects.filter(
                 novel=unread_novel,
                 is_read=False
             ).exclude(author=request.user)
-            print(f"Novel {unread_novel.id} unread comments:")
+            logger.debug(f"Novel {unread_novel.id} unread comments:")
             for comment in comments:
-                print(f"- Comment {comment.id}: by {comment.author}, content: {comment.content}")
-        
-            print(f"\n5. 祭り判定結果: {is_maturi}")
+                logger.debug(f"- Comment {comment.id}: by {comment.author}, content: {comment.content}")
+
+            logger.debug(f"\n5. 祭り判定結果: {is_maturi}")
     if is_maturi:
-        print("   祭り小説の詳細:")
-        print(f"   - maturi_games: {novel.maturi_games.all()}")
-    
+        logger.debug("   祭り小説の詳細:")
+        logger.debug(f"   - maturi_games: {novel.maturi_games.all()}")
+
     # コンテキスト作成直前の状態確認
-    print("\n6. コンテキスト作成直前の小説情報:")
-    print(f"   - ID: {novel.id}")
-    print(f"   - タイトル: {novel.title}")
-    
+    logger.debug("\n6. コンテキスト作成直前の小説情報:")
+    logger.debug(f"   - ID: {novel.id}")
+    logger.debug(f"   - タイトル: {novel.title}")
+
     # コンテキスト作成直前にデバッグ情報を追加
-    print("\n==== コンテキスト変数 ====")
-    print(f"user: {request.user}")
-    print(f"can_edit: {can_edit}")
-    print(f"hide_edit_button: {False}")
-    
+    logger.debug("\n==== コンテキスト変数 ====")
+    logger.debug(f"user: {request.user}")
+    logger.debug(f"can_edit: {can_edit}")
+    logger.debug(f"hide_edit_button: {False}")
+
     # コメント情報のデバッグ出力を追加
-    print("\n==== コメント情報 ====")
+    logger.debug("\n==== コメント情報 ====")
     for comment in comments_list:
         if comment.author:  # 作者が存在する場合のみ
-            print(f"作者: {comment.author.nickname}")
-            print(f"作者の色: {comment.author.comment_color}")
+            logger.debug(f"作者: {comment.author.nickname}")
+            logger.debug(f"作者の色: {comment.author.comment_color}")
         else:
-            print(f"作者: 退会したユーザー")
-            print(f"作者の色: #cccccc")  # デフォルトのグレー色
+            logger.debug(f"作者: 退会したユーザー")
+            logger.debug(f"作者の色: #cccccc")  # デフォルトのグレー色
 
     context = {
         'novel': novel,
@@ -401,9 +311,9 @@ def novel_detail(request, novel_id):
         'is_same_title': is_same_title,
         'hide_edit_button': False  # これを追加
     }
-    print(f"4. レンダリング前のcontext['novel']: ID={context['novel'].id}, タイトル={context['novel'].title}")
-    print("="*50)
-    
+    logger.debug(f"4. レンダリング前のcontext['novel']: ID={context['novel'].id}, タイトル={context['novel'].title}")
+    logger.debug("="*50)
+
     return render(request, 'novels/detail.html', context)
 
 
@@ -477,9 +387,9 @@ def toggle_comment_read_status(request, comment_id):
         ).values('id', 'unread_count')
 
         # デバッグ用ログ
-        print("サーバー側での未読カウント:")
+        logger.debug("サーバー側での未読カウント:")
         for novel in novels_with_unread:
-            print(f"Novel {novel['id']}: {novel['unread_count']} unread comments")
+            logger.debug(f"Novel {novel['id']}: {novel['unread_count']} unread comments")
 
         return JsonResponse({
             'success': True,
@@ -533,18 +443,6 @@ def mark_comments_as_read(request):
 
 
 
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from .models import Novel, Comment
-
-import logging
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
-from .models import Novel, Comment
-
-# ロガーを設定する
-logger = logging.getLogger(__name__)
 
 @login_required
 def check_unread_comments(request, novel_id):
@@ -579,9 +477,7 @@ def check_unread_comments(request, novel_id):
 
 
 # 遅延のコメントコード
-from django.core.paginator import Paginator
-from django.http import JsonResponse
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import EmptyPage, PageNotAnInteger
 
 @login_required
 def load_more_comments(request, novel_id):
@@ -603,12 +499,6 @@ def load_more_comments(request, novel_id):
     })
 
 
-from django.http import JsonResponse
-from django.urls import reverse
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-from .models import Novel
 
 @login_required
 @require_POST
@@ -683,7 +573,7 @@ def index(request):
     author_select = request.GET.get('author_select', '').strip()
     if author_select:
         novels_list = novels_list.filter(author__id=author_select)
-    print("Selected author ID:", author_select)
+    logger.debug(f"Selected author ID: {author_select}")
 
 
     # イトルでの曖昧検索
@@ -729,9 +619,9 @@ def index(request):
     # その他の処理...
 
     # 並替え
-    print("Sort by:", sort_by)  # sort_byの値を確認
-    print("Order:", order)  # orderの値を確認
-    print("SQL Query:", str(novels_list.query))  # 実行されるSQLクエリを確認
+    logger.debug(f"Sort by: {sort_by}")  # sort_byの値を確認
+    logger.debug(f"Order: {order}")  # orderの値を確認
+    logger.debug(f"SQL Query: {str(novels_list.query)}")  # 実行されるSQLクエリを確認
 
 
     if order == 'asc':
@@ -791,12 +681,8 @@ def index(request):
 
 
 # 真リスト
-from django.shortcuts import render
-from django.core.paginator import Paginator
-from django.db.models import Count  # ここを正！
-from django.contrib.auth import get_user_model
-from .models import Novel, GENRE_CHOICES
-from django.db.models import Count, F, Q 
+from .models import GENRE_CHOICES
+from django.db.models import F
 
 User = get_user_model()  # カスタムユーザーモデルを取得
 
@@ -980,7 +866,7 @@ def toggle_comment_read(request, comment_id):
     # context_processors.pyと同じ方法で色を計算
     novels_with_unread = []
     for i, novel in enumerate(novels):
-        print(f"\nDEBUG: Novel ID {novel.id} assigned color {i % 10}")  # デバッグ出力
+        logger.debug(f"\nDEBUG: Novel ID {novel.id} assigned color {i % 10}")  # デバッグ出力
         novels_with_unread.append({
             'id': novel.id,
             'unread_count': novel.unread_count,
