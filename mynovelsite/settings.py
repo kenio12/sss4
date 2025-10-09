@@ -12,20 +12,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os  # osモジュールをインポート
 from pathlib import Path
-from dotenv import load_dotenv
 import environ
-import custom_timezone
-import django.utils.timezone
-from freezegun import freeze_time
-import datetime
-
-# .envファイルを読み込む（これ追加）
-load_dotenv()
 
 env = environ.Env()
 environ.Env.read_env()  # .envファイルから環境変数を読み込む
-
-django.utils.timezone = custom_timezone.custom_timezone
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -34,13 +24,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-secret-key-here')
+SECRET_KEY = env('DJANGO_SECRET_KEY', default=os.getenv('DJANGO_SECRET_KEY', 'django-insecure-dev-key-please-change-in-production'))
 
 
 # Debug設定
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
+# ALLOWED_HOSTS with proper whitespace handling
+hosts = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS = [host.strip() for host in hosts if host.strip()]
 
 
 # Application definition
@@ -337,8 +329,12 @@ else:
 # Sentry設定（エラー監視・通知）
 # =============================================
 
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
+try:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    SENTRY_AVAILABLE = True
+except ImportError:
+    SENTRY_AVAILABLE = False
 
 # Sentry誤検知フィルター（before_send関数）
 def before_send(event, hint):
@@ -376,7 +372,7 @@ def before_send(event, hint):
     return event  # その他のイベントは送信
 
 # 本番環境のみSentryを有効化
-if ENVIRONMENT == 'production':
+if ENVIRONMENT == 'production' and SENTRY_AVAILABLE:
     sentry_sdk.init(
         dsn=os.getenv('SENTRY_DSN', ''),
         integrations=[

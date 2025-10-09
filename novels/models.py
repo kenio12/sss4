@@ -1,8 +1,10 @@
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.utils import timezone
-from django.contrib.auth import get_user_model  # この行を追加
+from django.contrib.auth import get_user_model
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ジャンルの選択肢
 GENRE_CHOICES = [
@@ -69,7 +71,7 @@ class Novel(models.Model):
     initial = models.CharField(max_length=1, blank=True, null=True)  # 頭文字を保存
     content = models.TextField()
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='novels')
-    published_date = models.DateTimeField(default=timezone.now)  # 公開日はデフォルトで現在の日時を使用
+    published_date = models.DateTimeField(null=True, blank=True)  # 公開時に設定
 
     # 新しいフィールドを追加
     created_at = models.DateTimeField(auto_now_add=True)  # 作成日
@@ -103,7 +105,7 @@ class Novel(models.Model):
         """
         小説IDに基づいて0-9の色イン���ックスを返す
         """
-        return self.id % 10  # IDを10で割った余りを返す
+        return self.id % 10 if self.id else 0
 
     @property
     def likes_count(self):
@@ -118,15 +120,19 @@ class Novel(models.Model):
     def save(self, *args, **kwargs):
         # 文字数をcontentの長さに設定
         self.word_count = len(self.content)
-        
+
         # 現在時刻を取得
         now = timezone.now()
-        
+
         # 予約公開の処理
         if self.status == 'scheduled' and self.scheduled_at:
             if now >= self.scheduled_at:  # 現在時刻が予約時刻以降の場合のみ公開
                 self.status = 'published'
                 self.published_date = now
+
+        # 公開時にpublished_dateを設定（未設定の場合のみ）
+        if self.status == 'published' and not self.published_date:
+            self.published_date = now
         
         # 同タイトルゲームの処理（既存のコード）
         if self.is_same_title_game and self.status == 'published' and not self.same_title_event_month:
@@ -168,9 +174,14 @@ class Novel(models.Model):
         return GENRE_STYLES.get(self.genre, {'bg': '#A9A9A9', 'text': 'white'})
 
 class Like(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # 修正
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     novel = models.ForeignKey(Novel, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'novel'], name='unique_like_per_user')
+        ]
 
 class Comment(models.Model):
     novel = models.ForeignKey('Novel', on_delete=models.CASCADE, related_name='comments')
