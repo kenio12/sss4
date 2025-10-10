@@ -383,8 +383,17 @@ if ENVIRONMENT == 'production' and SENTRY_AVAILABLE:
         traces_sample_rate=0.0,
         # プロファイルサンプルレート（0%に設定 = プロファイリング完全オフ）
         profiles_sample_rate=0.0,
-        # 本番環境指定
-        environment="production",
+        # プロジェクト識別（novel_siteのエラーと明示）
+        environment="novel_site",
+        # タグ追加（エラー一覧で見やすく）
+        _experiments={
+            "auto_enabling_integrations": True
+        },
         # PII（個人情報）送信設定
         send_default_pii=False,
     )
+    # タグを全イベントに追加
+    from sentry_sdk import configure_scope
+    with configure_scope() as scope:
+        scope.set_tag("project", "novel_site")
+        scope.set_tag("app", "sss4")
