@@ -167,8 +167,12 @@ def novel_detail(request, novel_id):
     logger.debug("="*50)
     logger.debug(f"1. リクエストされたURL: {request.path}")
     logger.debug(f"2. novel_id: {novel_id}")
-    
-    novel = get_object_or_404(Novel.objects.select_related('author'), id=novel_id)
+
+    # N+1問題対策：author, original_author, maturi_gamesを事前取得
+    novel = get_object_or_404(
+        Novel.objects.select_related('author', 'original_author').prefetch_related('maturi_games'),
+        id=novel_id
+    )
     logger.debug(f"3. 取得された小説: ID={novel.id}, タイトル={novel.title}")
 
     # 祭り作品の判定をより詳細に
@@ -245,14 +249,14 @@ def novel_detail(request, novel_id):
         logger.debug(f"編集権限: {can_edit}")
         logger.debug("="*50)
 
-    # 未読コメント情報を取得
+    # 未読コメント情報を取得（N+1対策：select_related追加）
     latest_unread_novels = []
     if request.user.is_authenticated:
         latest_unread_novels = Novel.objects.filter(
             author=request.user,
             comments__is_read=False,
             comments__author__isnull=False
-        ).distinct().annotate(
+        ).select_related('author').distinct().annotate(
             unread_count=Count(
                 'comments',
                 filter=Q(comments__is_read=False) & ~Q(comments__author=request.user),
@@ -263,12 +267,12 @@ def novel_detail(request, novel_id):
         # デバッグ用：実際のSQL文を表示
         logger.debug(f"SQL Query: {latest_unread_novels.query}")
 
-        # デバッグ用：各コメントの詳細を表示
+        # デバッグ用：各コメントの詳細を表示（N+1対策：select_related追加）
         for unread_novel in latest_unread_novels:
             comments = Comment.objects.filter(
                 novel=unread_novel,
                 is_read=False
-            ).exclude(author=request.user)
+            ).exclude(author=request.user).select_related('author')
             logger.debug(f"Novel {unread_novel.id} unread comments:")
             for comment in comments:
                 logger.debug(f"- Comment {comment.id}: by {comment.author}, content: {comment.content}")
@@ -362,7 +366,12 @@ def novel_detail(request, novel_id):
 @require_POST
 def toggle_comment_read_status(request, comment_id):
     try:
-        comment = get_object_or_404(Comment, id=comment_id, novel__author=request.user)
+        # N+1対策：select_related追加
+        comment = get_object_or_404(
+            Comment.objects.select_related('novel__author', 'author'),
+            id=comment_id,
+            novel__author=request.user
+        )
         data = json.loads(request.body)
         comment.is_read = data.get('is_read', False)
         comment.save()
@@ -371,10 +380,10 @@ def toggle_comment_read_status(request, comment_id):
         cache_key = f'total_unread_comments_{request.user.id}'
         cache.delete(cache_key)
         
-        # 未読コメントのある小説の情報を更新して返す
+        # 未読コメントのある小説の情報を更新して返す（N+1対策：select_related追加）
         novels_with_unread = Novel.objects.filter(
             author=request.user
-        ).annotate(
+        ).select_related('author').annotate(
             unread_count=Count(
                 'comments',
                 filter=Q(
@@ -454,12 +463,12 @@ def check_unread_comments(request, novel_id):
     logger.debug(f"Checking unread comments for novel {novel_id}")
     logger.debug(f"Current user: {request.user.username}")
 
-    # 現在の小説以外で、未読コメントがある小説を探す
+    # 現在の小説以外で、未読コメントがある小説を探す（N+1対策：select_related追加）
     next_novel = Novel.objects.filter(
         author=request.user  # ユーザーが書いた小説
     ).exclude(
         id=novel_id  # 現在の小説を除外
-    ).annotate(
+    ).select_related('author').annotate(
         unread_count=Count(
             'comments',
             filter=Q(comments__is_read=False) & ~Q(comments__author=request.user)
@@ -482,7 +491,8 @@ from django.core.paginator import EmptyPage, PageNotAnInteger
 @login_required
 def load_more_comments(request, novel_id):
     page = request.GET.get('page')
-    comments_list = Comment.objects.filter(novel_id=novel_id).order_by('-created_at')
+    # N+1対策：select_related追加
+    comments_list = Comment.objects.filter(novel_id=novel_id).select_related('author').order_by('-created_at')
     paginator = Paginator(comments_list, 5)  # 1ページあたり5件のコメントを表示
 
     try:
@@ -503,7 +513,8 @@ def load_more_comments(request, novel_id):
 @login_required
 @require_POST
 def unpublish_novel(request, novel_id):
-    novel = get_object_or_404(Novel, pk=novel_id)
+    # N+1対策：select_related追加
+    novel = get_object_or_404(Novel.objects.select_related('author'), pk=novel_id)
     
     if novel.author != request.user:
         return HttpResponseForbidden("あなにはこの小を編集する権限がありません。")
@@ -786,7 +797,8 @@ User = get_user_model()  # この行も追加
 @login_required
 def post_comment(request, novel_id):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # ここを変更
-        novel = get_object_or_404(Novel, id=novel_id)
+        # N+1対策：select_related追加
+        novel = get_object_or_404(Novel.objects.select_related('author'), id=novel_id)
         form = CommentForm(request.POST)
         
         if form.is_valid():
@@ -844,7 +856,8 @@ def post_comment(request, novel_id):
 
 @require_POST
 def toggle_comment_read(request, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id)
+    # N+1対策：select_related追加
+    comment = get_object_or_404(Comment.objects.select_related('novel__author', 'author'), id=comment_id)
     if request.user != comment.novel.author:
         return JsonResponse({'success': False, 'error': '権限がありません'})
 
@@ -852,14 +865,14 @@ def toggle_comment_read(request, comment_id):
     comment.is_read = data.get('is_read', False)
     comment.save()
 
-    # 未読コメントのある小説を再取得
+    # 未読コメントのある小説を再取得（N+1対策：select_related追加）
     novels = Novel.objects.filter(
         author=request.user,
         comments__is_read=False,
         comments__author__isnull=False
     ).exclude(
         comments__author=request.user
-    ).annotate(
+    ).select_related('author').annotate(
         unread_count=Count('comments', filter=Q(comments__is_read=False))
     ).distinct()
 
@@ -962,24 +975,24 @@ class NovelPaginatedView(ListView):
 def novel_choice(request):
     if not request.user.is_authenticated:
         return redirect('accounts:login')
-    
-    # 作成中の小説を取得
+
+    # 作成中の小説を取得（N+1対策：select_related追加）
     drafts = Novel.objects.filter(
         author=request.user,
         status='draft'
-    ).order_by('-updated_at')
-    
-    # 公開予定の小説を取得（祭りの小説など）
+    ).select_related('author').order_by('-updated_at')
+
+    # 公開予定の小説を取得（祭りの小説など）（N+1対策：select_related, prefetch_related追加）
     scheduled = Novel.objects.filter(
         author=request.user,
         status='scheduled'
-    ).order_by('maturi_games__prediction_start_date')
-    
-    # 公開済みの小説を取得
+    ).select_related('author').prefetch_related('maturi_games').order_by('maturi_games__prediction_start_date')
+
+    # 公開済みの小説を取得（N+1対策：select_related追加）
     published = Novel.objects.filter(
         author=request.user,
         status='published'
-    ).order_by('-published_date')
+    ).select_related('author').order_by('-published_date')
 
     # 現在開催中の祭りを取得
     current_maturi_game = MaturiGame.find_current_games().first()

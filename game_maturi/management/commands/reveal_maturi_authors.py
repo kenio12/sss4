@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
         for game in finished_games:
             # 小説の作者を元に戻す
-            novels = Novel.objects.filter(maturi_game=game)
+            novels = game.maturi_novels.all()
             for novel in novels:
                 if novel.original_author:
                     novel.author = novel.original_author
