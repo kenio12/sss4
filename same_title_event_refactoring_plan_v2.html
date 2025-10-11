@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Same Title & Event Feature Refactoring Plan</title>
+    <title>同タイトル＆イベント機能改修計画書</title>
     <style>
         body {
             font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
@@ -88,26 +88,26 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎯 Same Title & Event Feature Refactoring Plan</h1>
-<p><strong>Created</strong>: 2025-10-11 (Sat)
-<strong>Refactoring Policy</strong>: イベント統一管理 - genreとeventを分離、拡張性の高い設計</p>
+        <h1>🎯 同タイトル＆イベント機能改修計画書</h1>
+<p><strong>作成日</strong>: 2025-10-11（土）
+<strong>改修方針</strong>: イベント統一管理 - genreとeventを分離、拡張性の高い設計</p>
 <hr />
-<h2>📋 Purpose of Refactoring</h2>
-<h3>Current Issues</h3>
+<h2>📋 改修の目的</h2>
+<h3>現状の問題</h3>
 <ul>
 <li>同タイトル作品が <code>genre='同タイトル'</code> → ジャンル情報が失われる</li>
 <li>祭りも <code>genre='祭り'</code> → イベントとジャンルが混在</li>
 <li>新イベント追加時にコード修正が必要</li>
 </ul>
-<h3>After Refactoring</h3>
+<h3>改修後</h3>
 <ul>
 <li><strong>genre</strong>: 恋愛、SF、ミステリー等（作品のジャンル）</li>
 <li><strong>event</strong>: 同タイトル、祭り、（空欄）（参加イベント）</li>
 <li>クロス集計可能：「恋愛×同タイトル」「SF×祭り」</li>
 </ul>
 <hr />
-<h2>🔧 Major Changes</h2>
-<h3>1️⃣ Data Structure (Novel Model)</h3>
+<h2>🔧 主要な変更点</h2>
+<h3>1️⃣ データ構造（Novel モデル）</h3>
 <pre><code class="language-python">class Novel(models.Model):
     # genreを通常ジャンルに戻す
     genre = models.CharField(
@@ -128,45 +128,45 @@
     # 既存フラグは保持（削除しない）
     is_same_title_game = models.BooleanField(default=False)
 </code></pre>
-<p><strong>Benefits</strong>:
+<p><strong>メリット</strong>:
 - ✅ SameTitleEventテーブル不要（シンプル）
 - ✅ 祭りと同タイトルを統一管理
 - ✅ 新イベント追加は choices に1行追加するだけ</p>
 <hr />
-<h3>2️⃣ UI Improvements</h3>
-<h4>List View (https://www.sss4.life/)</h4>
+<h3>2️⃣ UI改善</h3>
+<h4>一覧画面（https://www.sss4.life/）</h4>
 <pre><code>タイトル | ジャンル | イベント | 作者 | 投稿日
 ---------|---------|---------|------|-------
 恋の物語 | 恋愛    | 同タイトル | 太郎 | 2025-10-11
 夜の殺人 | ミステリー | 祭り  | 花子 | 2025-10-10
 日常の風景 | その他  |        | 次郎 | 2025-10-09
 </code></pre>
-<h4>Detail View (https://www.sss4.life/novels/1929/)</h4>
+<h4>詳細画面（https://www.sss4.life/novels/1929/）</h4>
 <pre><code>イベント：同タイトル　　ジャンル：恋愛
 
 [💡 俺もこのタイトルで作る]  ← 新ボタン
 </code></pre>
 <hr />
-<h2>🆕 New Features</h2>
-<h3>1. "Write with this Title" Button</h3>
+<h2>🆕 新機能一覧</h2>
+<h3>1. 「俺もこのタイトルで作る」ボタン</h3>
 <ul>
 <li>詳細画面に設置</li>
 <li>クリック → 投稿フォームに遷移</li>
 <li>タイトル・イベント自動入力</li>
 <li>ジャンルは選択可能</li>
 </ul>
-<h3>2. Entry System Abolition</h3>
+<h3>2. エントリー制廃止</h3>
 <ul>
 <li>誰でも同タイトル投稿可能</li>
 <li>既存のエントリー仕組みを削除</li>
 </ul>
-<h3>3. Notification Feature (Email)</h3>
+<h3>3. 通知機能（メール）</h3>
 <table>
 <thead>
 <tr>
-<th>Notification Type</th>
-<th>Timing</th>
-<th>Recipients</th>
+<th>通知種類</th>
+<th>送信タイミング</th>
+<th>宛先</th>
 </tr>
 </thead>
 <tbody>
@@ -192,68 +192,68 @@
 </tr>
 </tbody>
 </table>
-<h3>4. X (Twitter) Integration (Under Consideration)</h3>
+<h3>4. X（Twitter）連携（検討中）</h3>
 <ul>
 <li>公式アカウント作成</li>
 <li>同タイトル関連を自動ツイート</li>
 <li>※ Twitter API Pro契約が必要（月$5000〜）</li>
 </ul>
 <hr />
-<h2>📅 Implementation Schedule (Impact-Based Priority, 4 Phases)</h2>
+<h2>📅 実装スケジュール（影響度優先・4フェーズ）</h2>
 
-<h3>⚠️ Important: Implementation Policy Change</h3>
-<p><strong>Impact Analysis Results</strong>: <code>genre='祭り'</code> と <code>genre='同タイトル'</code> に依存するコードが <strong>50箇所以上</strong> 存在することが判明。</p>
-<p><strong>New Policy</strong>: 影響しない実装から段階的に進める（既存機能を壊さない）</p>
+<h3>⚠️ 重要：実装方針の変更</h3>
+<p><strong>影響調査の結果</strong>、<code>genre='祭り'</code> と <code>genre='同タイトル'</code> に依存するコードが <strong>50箇所以上</strong> 存在することが判明。</p>
+<p><strong>新方針</strong>：影響しない実装から段階的に進める（既存機能を壊さない）</p>
 
-<h3>🟢 Phase 1: Infrastructure Setup (2 days, Top Priority, No Impact)</h3>
+<h3>🟢 フェーズ1: 基盤整備（2日間・最優先・影響なし）</h3>
 <ul>
 <li>⏳ Novel.eventフィールド追加（blank=True, null=True）← 他の実装の前提</li>
 <li>⏳ EmailNotificationSettingsモデル作成 ← 通知機能の前提</li>
 <li>⏳ マイグレーション実行</li>
 </ul>
-<p><strong>Impact</strong>: 既存機能に影響なし（null許可なので既存データそのまま）</p>
+<p><strong>影響</strong>：既存機能に影響なし（null許可なので既存データそのまま）</p>
 
-<h3>🟢 Phase 2: New UI Implementation + Entry System Abolition (4 days, No Impact)</h3>
+<h3>🟢 フェーズ2: 新規UI実装 + エントリー制廃止（4日間・影響なし）</h3>
 <ul>
 <li>⏳ エントリー制廃止（規制を外すだけ・影響少）</li>
 <li>⏳ 「俺もこのタイトルで作る」ボタン実装</li>
 <li>⏳ 詳細画面にイベント表示追加（eventがある場合のみ）</li>
 <li>⏳ 一覧画面にイベント列追加（eventがある場合のみ）</li>
 </ul>
-<p><strong>Impact</strong>: 新規UI追加 + 投稿制限削除のみ、既存機能に影響なし</p>
-<p><strong>Entry System Abolition Details</strong>:</p>
+<p><strong>影響</strong>：新規UI追加 + 投稿制限削除のみ、既存機能に影響なし</p>
+<p><strong>エントリー制廃止の詳細</strong>：</p>
 <ul>
 <li>game_same_title/views.py: エントリーチェック削除（5箇所程度）</li>
 <li>テンプレート: エントリーボタン・エントリー済みユーザー一覧削除</li>
 <li>規制を外すだけなので、誰でも同タイトル投稿可能に</li>
 </ul>
 
-<h3>🟢 Phase 3: Notification Feature Implementation (5 days, New Feature)</h3>
+<h3>🟢 フェーズ3: 通知機能実装（5日間・新規機能）</h3>
 <ul>
 <li>⏳ 同タイトル募集通知（月初）</li>
 <li>⏳ 同タイトル提案通知（提案投稿時）</li>
 <li>⏳ 同タイトル決定通知（最初の投稿時）</li>
 <li>⏳ 配信停止機能</li>
 </ul>
-<p><strong>Impact</strong>: 新規機能のみ、既存機能に影響なし</p>
+<p><strong>影響</strong>：新規機能のみ、既存機能に影響なし</p>
 
-<h3>🔴 Phase 4: Gradual Migration (Future Implementation, Postponed, Careful)</h3>
+<h3>🔴 フェーズ4: 段階的移行（将来実装・後回し・慎重に）</h3>
 <ul>
 <li>⏸️ データ移行（genreは変更せず、eventのみ設定）</li>
 <li>⏸️ genre チェックを event チェックに段階的変更（50箇所）</li>
 <li>⏸️ novels/models.py line 142 削除（genre強制設定）</li>
 <li>⏸️ genre choices から '祭り'/'同タイトル' 削除</li>
 </ul>
-<p><strong>Impact</strong>: 既存機能に大きく影響、慎重に実装必要</p>
-<p><strong>Implementation Prerequisite</strong>: けーにもーんの承認後、十分なテストを経てから実装</p>
-<p><strong>Note</strong>: エントリー制廃止はフェーズ2で実装済み</p>
+<p><strong>影響</strong>：既存機能に大きく影響、慎重に実装必要</p>
+<p><strong>実装前提</strong>：けーにもーんの承認後、十分なテストを経てから実装</p>
+<p><strong>注意</strong>：エントリー制廃止はフェーズ2で実装済み</p>
 <hr />
-<h2>🔄 Data Migration Policy (Phase 4 Implementation, Gradual Migration)</h2>
+<h2>🔄 データ移行方針（フェーズ4で実装・段階的移行）</h2>
 
-<h3>⚠️ Important: Do Not Change genre</h3>
+<h3>⚠️ 重要：genreは変更しない</h3>
 <p>既存機能への影響を最小化するため、<strong>genreフィールドは変更せず</strong>、eventフィールドのみ設定する。</p>
 
-<h3>Phase 4-1: Data Migration (Keep genre)</h3>
+<h3>フェーズ4-1: データ移行（genreは維持）</h3>
 <pre><code class="language-python"># 既存の同タイトル作品
 for novel in Novel.objects.filter(is_same_title_game=True):
     novel.event = '同タイトル'
@@ -267,7 +267,7 @@ for novel in Novel.objects.filter(genre='祭り'):
     novel.save()
 </code></pre>
 
-<h3>Phase 4-2: Gradual Code Changes (50 locations)</h3>
+<h3>フェーズ4-2: コード段階的変更（50箇所）</h3>
 <p>各アプリのgenreチェックをeventチェックに段階的に変更：</p>
 <ul>
 <li>game_maturi/views.py（7箇所）</li>
@@ -277,46 +277,46 @@ for novel in Novel.objects.filter(genre='祭り'):
 <li>その他のテンプレート・ビュー（30箇所以上）</li>
 </ul>
 
-<h3>Phase 4-3: Final Adjustments</h3>
+<h3>フェーズ4-3: 最終調整</h3>
 <ul>
 <li>novels/models.py:142 削除（genre強制設定）</li>
 <li>genre choices から '祭り'/'同タイトル' 削除</li>
 <li>既存データのgenreを適切な値に変更</li>
 </ul>
 
-<p><strong>Important</strong>: <code>is_same_title_game=True</code> フラグは削除せず保持（互換性維持）</p>
+<p><strong>重要</strong>: <code>is_same_title_game=True</code> フラグは削除せず保持（互換性維持）</p>
 <hr />
-<h2>🎯 Expected Benefits</h2>
-<h3>1. Improved User Experience</h3>
+<h2>🎯 期待効果</h2>
+<h3>1. ユーザー体験向上</h3>
 <ul>
 <li>イベント×ジャンルで絞り込み可能</li>
 <li>「俺もこのタイトルで作る」で参加しやすい</li>
 </ul>
-<h3>2. Increased Participation</h3>
+<h3>2. 参加者増加</h3>
 <ul>
 <li>メール通知で再訪問促進</li>
 <li>エントリー制廃止で参加障壁を下げる</li>
 </ul>
-<h3>3. Management Efficiency</h3>
+<h3>3. 管理の効率化</h3>
 <ul>
 <li>イベント追加が容易（choices に1行追加）</li>
 <li>祭りと同タイトルを統一管理</li>
 </ul>
-<h3>4. Advanced Data Analysis</h3>
+<h3>4. データ分析の高度化</h3>
 <ul>
 <li>イベント別・ジャンル別のクロス集計</li>
 <li>「恋愛ジャンルの同タイトル参加率」等の分析</li>
 </ul>
 <hr />
-<h2>⚠️ Risks and Countermeasures</h2>
-<h3>Risk 1: Data Migration Failure</h3>
-<p><strong>Countermeasure</strong>: バックアップ取得、開発環境で十分テスト</p>
-<h3>Risk 2: User Confusion</h3>
-<p><strong>Countermeasure</strong>: お知らせページで改修内容説明、1週間ヘルプページ目立たせる</p>
-<h3>Risk 3: Email Notification Complaints</h3>
-<p><strong>Countermeasure</strong>: 配信停止ボタン必須、通知頻度は適切に設定</p>
+<h2>⚠️ リスクと対策</h2>
+<h3>リスク1: データ移行の失敗</h3>
+<p><strong>対策</strong>: バックアップ取得、開発環境で十分テスト</p>
+<h3>リスク2: 既存ユーザーの混乱</h3>
+<p><strong>対策</strong>: お知らせページで改修内容説明、1週間ヘルプページ目立たせる</p>
+<h3>リスク3: メール通知の苦情</h3>
+<p><strong>対策</strong>: 配信停止ボタン必須、通知頻度は適切に設定</p>
 <hr />
-<h2>✅ Completion Criteria</h2>
+<h2>✅ 完了条件</h2>
 <ol>
 <li>✅ データ移行完了（既存データが全て変換済み）</li>
 <li>✅ <code>is_same_title_game=True</code> フラグ保持確認</li>
@@ -326,7 +326,7 @@ for novel in Novel.objects.filter(genre='祭り'):
 <li>✅ 配信停止機能動作確認</li>
 </ol>
 <hr />
-<h2>🚀 Next Steps</h2>
+<h2>🚀 次のステップ</h2>
 <p>承認いただけましたら、フェーズ1から実装開始します！</p>
     </div>
 </body>
