@@ -465,12 +465,16 @@ def resend_activation(request):
     return render(request, 'accounts/resend_activation.html', {'email': email})
 
 
-def unsubscribe(request, user_id):
+def unsubscribe(request, token):
     """
     メール配信停止ビュー
-    通知設定を全てFalseにする
+    署名付きトークンを検証して通知設定を全てFalseにする
     """
+    from django.core import signing
+
     try:
+        # 署名付きトークンを検証（24時間有効）
+        user_id = signing.loads(token, salt='email_unsubscribe', max_age=86400)
         user = User.objects.get(id=user_id)
 
         # EmailNotificationSettingsが存在しない場合は作成
@@ -483,13 +487,23 @@ def unsubscribe(request, user_id):
         settings.same_title_decision = False
         settings.save()
 
-        logger.info(f'配信停止完了: {user.email}')
+        # 個人情報保護: メールアドレスをマスキング
+        masked_email = user.email[:3] + '***'
+        logger.info(f'配信停止完了: {masked_email}')
 
         return render(request, 'accounts/unsubscribe_complete.html', {
             'user': user
         })
 
+    except signing.SignatureExpired:
+        logger.error('配信停止失敗: トークンの有効期限が切れています')
+        return HttpResponse('配信停止リンクの有効期限が切れています（24時間）', status=400)
+
+    except signing.BadSignature:
+        logger.error('配信停止失敗: 無効なトークンです')
+        return HttpResponse('無効な配信停止リンクです', status=400)
+
     except User.DoesNotExist:
-        logger.error(f'配信停止失敗: ユーザーID {user_id} が見つかりません')
+        logger.error(f'配信停止失敗: ユーザーが見つかりません')
         return HttpResponse('ユーザーが見つかりません', status=404)
 

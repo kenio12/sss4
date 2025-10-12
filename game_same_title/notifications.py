@@ -3,11 +3,12 @@
 
 メール通知の送信を管理
 """
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
+from django.core.mail import send_mail, get_connection
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.core import signing
+from urllib.parse import quote
 import logging
 
 User = get_user_model()
@@ -17,10 +18,11 @@ logger = logging.getLogger(__name__)
 def get_unsubscribe_url(user):
     """
     配信停止URL生成
-    ユーザーごとの配信停止リンクを生成
+    署名付きトークンでセキュアな配信停止リンクを生成
     """
-    # 配信停止ページのURLを生成（実装は後で）
-    return f"{settings.BASE_URL}/accounts/unsubscribe/{user.id}/"
+    # 署名付きトークン生成（24時間有効）
+    token = signing.dumps(user.id, salt='email_unsubscribe')
+    return f"{settings.BASE_URL}/accounts/unsubscribe/{token}/"
 
 
 def send_same_title_recruitment_notification():
@@ -42,12 +44,17 @@ def send_same_title_recruitment_notification():
     sent_count = 0
     current_month = timezone.now().strftime('%Y年%m月')
 
-    for user in users:
-        try:
-            subject = f'【SSS4】{current_month}の同タイトルイベント募集開始！'
-            unsubscribe_url = get_unsubscribe_url(user)
+    # メール送信接続を再利用（効率化）
+    connection = get_connection()
+    connection.open()
 
-            message = f"""
+    try:
+        for user in users:
+            try:
+                subject = f'【SSS4】{current_month}の同タイトルイベント募集開始！'
+                unsubscribe_url = get_unsubscribe_url(user)
+
+                message = f"""
 {user.nickname} 様
 
 こんにちは！SSS4運営チームです。
@@ -69,24 +76,31 @@ def send_same_title_recruitment_notification():
 {unsubscribe_url}
 
 SSS4運営チーム
-            """.strip()
+                """.strip()
 
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email],
-                fail_silently=False,
-            )
-            sent_count += 1
-            logger.info(f'同タイトル募集通知送信成功: {user.email}')
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                    connection=connection,
+                )
+                sent_count += 1
+                # 個人情報保護: メールアドレスをマスキング
+                masked_email = user.email[:3] + '***'
+                logger.debug(f'同タイトル募集通知送信成功: {masked_email}')
 
-        except Exception as e:
-            logger.error(f'同タイトル募集通知送信失敗: {user.email} - {str(e)}')
-            continue
+            except Exception as e:
+                masked_email = user.email[:3] + '***'
+                logger.error(f'同タイトル募集通知送信失敗: {masked_email} - {str(e)}')
+                continue
 
-    logger.info(f'同タイトル募集通知送信完了: {sent_count}件')
-    return sent_count
+        logger.info(f'同タイトル募集通知送信完了: {sent_count}件')
+        return sent_count
+
+    finally:
+        connection.close()
 
 
 def send_same_title_proposal_notification(proposal):
@@ -108,12 +122,17 @@ def send_same_title_proposal_notification(proposal):
     sent_count = 0
     current_month = proposal.proposal_month.strftime('%Y年%m月')
 
-    for user in users:
-        try:
-            subject = f'【SSS4】新しいタイトル提案「{proposal.title}」が追加されました'
-            unsubscribe_url = get_unsubscribe_url(user)
+    # メール送信接続を再利用（効率化）
+    connection = get_connection()
+    connection.open()
 
-            message = f"""
+    try:
+        for user in users:
+            try:
+                subject = f'【SSS4】新しいタイトル提案「{proposal.title}」が追加されました'
+                unsubscribe_url = get_unsubscribe_url(user)
+
+                message = f"""
 {user.nickname} 様
 
 こんにちは！SSS4運営チームです。
@@ -135,24 +154,31 @@ def send_same_title_proposal_notification(proposal):
 {unsubscribe_url}
 
 SSS4運営チーム
-            """.strip()
+                """.strip()
 
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email],
-                fail_silently=False,
-            )
-            sent_count += 1
-            logger.info(f'同タイトル提案通知送信成功: {user.email}')
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                    connection=connection,
+                )
+                sent_count += 1
+                # 個人情報保護: メールアドレスをマスキング
+                masked_email = user.email[:3] + '***'
+                logger.debug(f'同タイトル提案通知送信成功: {masked_email}')
 
-        except Exception as e:
-            logger.error(f'同タイトル提案通知送信失敗: {user.email} - {str(e)}')
-            continue
+            except Exception as e:
+                masked_email = user.email[:3] + '***'
+                logger.error(f'同タイトル提案通知送信失敗: {masked_email} - {str(e)}')
+                continue
 
-    logger.info(f'同タイトル提案通知送信完了: {sent_count}件')
-    return sent_count
+        logger.info(f'同タイトル提案通知送信完了: {sent_count}件')
+        return sent_count
+
+    finally:
+        connection.close()
 
 
 def send_same_title_decision_notification(novel):
@@ -174,12 +200,19 @@ def send_same_title_decision_notification(novel):
     sent_count = 0
     current_month = timezone.now().strftime('%Y年%m月')
 
-    for user in users:
-        try:
-            subject = f'【SSS4】{current_month}の同タイトル一番槍が決定！'
-            unsubscribe_url = get_unsubscribe_url(user)
+    # メール送信接続を再利用（効率化）
+    connection = get_connection()
+    connection.open()
 
-            message = f"""
+    try:
+        for user in users:
+            try:
+                subject = f'【SSS4】{current_month}の同タイトル一番槍が決定！'
+                unsubscribe_url = get_unsubscribe_url(user)
+                # タイトルをURLエンコード（日本語・スペース対応）
+                encoded_title = quote(novel.title, safe='')
+
+                message = f"""
 {user.nickname} 様
 
 こんにちは！SSS4運営チームです。
@@ -195,7 +228,7 @@ def send_same_title_decision_notification(novel):
 {settings.BASE_URL}/novels/{novel.id}/
 
 ◆ 俺もこのタイトルで作る
-{settings.BASE_URL}/novels/post/?title={novel.title}
+{settings.BASE_URL}/novels/post/?title={encoded_title}
 
 あなたも同じタイトルで創作に挑戦してみませんか？
 
@@ -204,21 +237,28 @@ def send_same_title_decision_notification(novel):
 {unsubscribe_url}
 
 SSS4運営チーム
-            """.strip()
+                """.strip()
 
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email],
-                fail_silently=False,
-            )
-            sent_count += 1
-            logger.info(f'同タイトル決定通知送信成功: {user.email}')
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                    connection=connection,
+                )
+                sent_count += 1
+                # 個人情報保護: メールアドレスをマスキング
+                masked_email = user.email[:3] + '***'
+                logger.debug(f'同タイトル決定通知送信成功: {masked_email}')
 
-        except Exception as e:
-            logger.error(f'同タイトル決定通知送信失敗: {user.email} - {str(e)}')
-            continue
+            except Exception as e:
+                masked_email = user.email[:3] + '***'
+                logger.error(f'同タイトル決定通知送信失敗: {masked_email} - {str(e)}')
+                continue
 
-    logger.info(f'同タイトル決定通知送信完了: {sent_count}件')
-    return sent_count
+        logger.info(f'同タイトル決定通知送信完了: {sent_count}件')
+        return sent_count
+
+    finally:
+        connection.close()
