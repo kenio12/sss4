@@ -8,22 +8,54 @@ logger = logging.getLogger(__name__)
 
 # ジャンルの選択肢（同タイトル・祭りはeventに移動）
 GENRE_CHOICES = [
-    ('恋愛', '恋愛'),
-    ('SF', 'SF'),
-    ('ミステリー', 'ミステリー'),
-    ('ホラー', 'ホラー'),
+    ('レジェンド小説', 'レジェンド小説'),
+    ('初めましての挨拶', '初めましての挨拶'),
+    ('ジョーク', 'ジョーク'),
+    ('シリーズ', 'シリーズ'),
+    ('サスペンス', 'サスペンス'),
     ('ファンタジー', 'ファンタジー'),
-    ('その他', 'その他'),
+    ('恋愛', '恋愛'),
+    ('日常', '日常'),
+    ('雑談', '雑談'),
+    ('ミステリー', 'ミステリー'),
+    ('ノンフィクション', 'ノンフィクション'),
+    ('ホラー', 'ホラー'),
+    ('時代', '時代'),
+    ('未分類', '未分類'),
+    ('バトル', 'バトル'),
+    ('大会', '大会'),
+    ('コメディ', 'コメディ'),
+    ('オフ会', 'オフ会'),
+    ('歴史', '歴史'),
+    ('私小説', '私小説'),
+    ('官能', '官能'),
+    ('三題噺', '三題噺'),
 ]
 
 # ジャンルごとの色と文字色を定義
 GENRE_STYLES = {
-    '恋愛': {'bg': '#FF69B4', 'text': 'white'},  # ホットピンク
-    'SF': {'bg': '#4169E1', 'text': 'white'},  # ロイヤルブルー
-    'ミステリー': {'bg': '#483D8B', 'text': 'white'},  # ダークスレートブルー
-    'ホラー': {'bg': '#8B0000', 'text': 'white'},  # ダークレッド
+    'レジェンド小説': {'bg': '#FFD700', 'text': 'black'},  # ゴールド
+    '初めましての挨拶': {'bg': '#87CEEB', 'text': 'black'},  # スカイブルー
+    'ジョーク': {'bg': '#FFA500', 'text': 'white'},  # オレンジ
+    'シリーズ': {'bg': '#4682B4', 'text': 'white'},  # スティールブルー
+    'サスペンス': {'bg': '#696969', 'text': 'white'},  # ディムグレー
     'ファンタジー': {'bg': '#9370DB', 'text': 'white'},  # ミディアムパープル
-    'その他': {'bg': '#A9A9A9', 'text': 'white'},  # ダークグレー
+    '恋愛': {'bg': '#FF69B4', 'text': 'white'},  # ホットピンク
+    '日常': {'bg': '#90EE90', 'text': 'black'},  # ライトグリーン
+    '雑談': {'bg': '#DDA0DD', 'text': 'black'},  # プラム
+    'ミステリー': {'bg': '#483D8B', 'text': 'white'},  # ダークスレートブルー
+    'ノンフィクション': {'bg': '#8B4513', 'text': 'white'},  # サドルブラウン
+    'ホラー': {'bg': '#8B0000', 'text': 'white'},  # ダークレッド
+    '時代': {'bg': '#DAA520', 'text': 'black'},  # ゴールデンロッド
+    '未分類': {'bg': '#A9A9A9', 'text': 'white'},  # ダークグレー
+    'バトル': {'bg': '#DC143C', 'text': 'white'},  # クリムゾン
+    '大会': {'bg': '#FF6347', 'text': 'white'},  # トマト
+    'コメディ': {'bg': '#FFB6C1', 'text': 'black'},  # ライトピンク
+    'オフ会': {'bg': '#20B2AA', 'text': 'white'},  # ライトシーグリーン
+    '歴史': {'bg': '#CD853F', 'text': 'white'},  # ペルー
+    '私小説': {'bg': '#BC8F8F', 'text': 'white'},  # ロージーブラウン
+    '官能': {'bg': '#FF1493', 'text': 'white'},  # ディープピンク
+    '三題噺': {'bg': '#BA55D3', 'text': 'white'},  # ミディアムオーキッド
 }
 
 class Novel(models.Model):
@@ -43,7 +75,7 @@ class Novel(models.Model):
         ('published', '公開'),
     ]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
-    genre = models.CharField(max_length=100, choices=GENRE_CHOICES, default='その他')
+    genre = models.CharField(max_length=100, choices=GENRE_CHOICES)
 
     # イベントフィールド（新規追加）
     EVENT_CHOICES = [
