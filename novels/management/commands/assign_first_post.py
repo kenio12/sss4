@@ -8,11 +8,16 @@ class Command(BaseCommand):
     help = '同タイトル・同月で最初に投稿した小説に一番槍フラグを付与'
 
     def handle(self, *args, **options):
-        # 同タイトルイベントの小説を取得
+        # 同タイトルイベントの小説を取得（NULL除外・N+1対策）
         same_title_novels = Novel.objects.filter(
             event='同タイトル',
-            status='published'
-        ).exclude(same_title_event_month__isnull=True)
+            status='published',
+            published_date__isnull=False  # 🔥 NULL除外
+        ).exclude(
+            same_title_event_month__isnull=True
+        ).select_related('author').order_by(  # 🔥 N+1対策・明示的ソート
+            'title', 'same_title_event_month', 'published_date', 'pk'
+        )
 
         # タイトル + 月でグループ化
         title_month_groups = {}
@@ -27,8 +32,8 @@ class Command(BaseCommand):
 
         # 各グループで最初の投稿を特定
         for (title, month), novels in title_month_groups.items():
-            # 公開日時が最も早い小説を取得
-            earliest_novel = min(novels, key=lambda n: n.published_date)
+            # 公開日時が最も早い小説を取得（既にソート済み）
+            earliest_novel = novels[0]  # 🔥 最初の要素が最も早い
 
             for novel in novels:
                 if novel.id == earliest_novel.id:

@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth import get_user_model
@@ -130,25 +130,26 @@ class Novel(models.Model):
                 self.same_title_event_month = timezone.now().strftime('%Y-%m')
 
         # 🆕 一番槍判定
-        if self.event != '同タイトル':
-            # 同タイトルでない場合は一番槍フラグをクリア
+        if self.event != '同タイトル' or self.status != 'published':
+            # 同タイトルでない、または非公開の場合は一番槍フラグをクリア
             self.is_first_post = False
             self.first_post_acquired_at = None
         elif self.status == 'published':
             # 同タイトル + 公開状態の場合は一番槍判定
-            self._check_first_post()
+            with transaction.atomic():
+                self._check_first_post()
 
         super(Novel, self).save(*args, **kwargs)
 
     def _check_first_post(self):
-        """一番槍判定処理"""
-        # 同じタイトル + 同じ月の公開済み小説を検索
-        same_title_same_month = Novel.objects.filter(
+        """一番槍判定処理（競合対策付き）"""
+        # 同じタイトル + 同じ月の公開済み小説を検索（ロック取得）
+        same_title_same_month = Novel.objects.select_for_update().filter(
             title=self.title,
             event='同タイトル',
             same_title_event_month=self.same_title_event_month,
             status='published'
-        ).exclude(id=self.id)  # 自分自身は除外
+        ).exclude(id=self.id)
 
         # 既に他の投稿がある場合は一番槍ではない
         if same_title_same_month.exists():
@@ -157,7 +158,9 @@ class Novel(models.Model):
         else:
             # 最初の投稿 = 一番槍！
             self.is_first_post = True
-            self.first_post_acquired_at = timezone.now()
+            # 既に取得日時が設定されている場合は保持
+            if not self.first_post_acquired_at:
+                self.first_post_acquired_at = timezone.now()
 
     def __str__(self):
         return self.title  # ここを追加
