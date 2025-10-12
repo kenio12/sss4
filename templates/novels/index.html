@@ -168,13 +168,14 @@
                     const tr = document.createElement('tr');
                     tr.classList.add('fade-in');
 
-                    // 年月の表示処理（'YYYY-MM' → 'YYYY'、'YYYY' → 'YYYY'）
+                    // 年月の表示処理（'YYYY-MM' → 'YYYY年M月'、'YYYY' → 'YYYY'）
                     let eventMonth = '-';
                     if (novel.same_title_event_month) {
                         if (novel.same_title_event_month.includes('-')) {
-                            eventMonth = novel.same_title_event_month.split('-')[0];
+                            const [year, month] = novel.same_title_event_month.split('-');
+                            eventMonth = `${year}年${parseInt(month)}月`;
                         } else {
-                            eventMonth = novel.same_title_event_month;
+                            eventMonth = novel.same_title_event_month;  // 祭りイベントは年だけ
                         }
                     }
 
