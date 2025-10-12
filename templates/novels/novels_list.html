@@ -16,27 +16,28 @@
 
         .sticky-header {
             width: 100%;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
         }
 
         .sticky-header th,
         .sticky-header td {
-            padding: 8px 4px;
+            padding: 6px 2px;
             white-space: nowrap;
         }
 
-        /* 投稿日列を非表示 */
+        /* イベント列と投稿日列を非表示 */
+        .sticky-header th:nth-child(3),
+        .sticky-header td:nth-child(3),
         .sticky-header th:nth-child(6),
         .sticky-header td:nth-child(6) {
             display: none;
         }
 
-        /* 列幅調整 */
-        .sticky-header colgroup col:nth-child(1) { width: 15%; } /* 文字数 */
+        /* 列幅調整（4列のみ表示） */
+        .sticky-header colgroup col:nth-child(1) { width: 20%; } /* 文字数 */
         .sticky-header colgroup col:nth-child(2) { width: 20%; } /* ジャンル */
-        .sticky-header colgroup col:nth-child(3) { width: 15%; } /* イベント */
-        .sticky-header colgroup col:nth-child(4) { width: 35%; } /* 作品名 */
-        .sticky-header colgroup col:nth-child(5) { width: 15%; } /* 作家名 */
+        .sticky-header colgroup col:nth-child(4) { width: 40%; } /* 作品名 */
+        .sticky-header colgroup col:nth-child(5) { width: 20%; } /* 作家名 */
     }
 </style>
 
