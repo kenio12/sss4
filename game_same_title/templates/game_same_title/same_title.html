@@ -285,70 +285,7 @@
 
 </div>
 
-<!-- ログインしている場合のエントリーフォーム -->
-{% if user.is_authenticated %}
-  {% if not already_entered %}
-  <div class="entry-form" style="margin: 20px 30px; padding: 20px; background-color: #FFE5B4; border: 1px solid #B2E8F9;">
-    <h4 style="margin-bottom: 20px;">来月の同タイトルにエントリーしてみよう！</h4>
-    <p style="margin-bottom: 20px; padding-left: 20px !important;">エントリーされる方は下のエントリーするのボタンを押してください！</p>
-    <form method="post" action="{% url 'game_same_title:same_title_entry' %}">
-      {% csrf_token %}
-      <!-- ここにエントリに必要な入力フィールドを配置 -->
-      <button type="submit" class="btn btn-primary" onclick="return confirmEntry()", style="margin-top: 20px; font-size: 25px !important; background-color: #641E16 !important; margin-left: 20px !important;">エントリー</button>
-    </form>
-  </div>
-  {% else %}
-  <!-- エントリー済みのメッセージを表示 -->
-  <div class="entry-form" role="alert" style="margin: 20px 30px; padding: 20px; background-color:  #FFE5B4; border: 1px solid #B2E8F9;">
-    <h4><span style="font-family: BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">来月{{ next_month }}</span>の同タイトルへのエントリーが完了！</h4>
-    <p style="margin-left: 20px;"><span style="font-family: BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">{{ next_month }}</span>１日から開催されるので、ここに来て同タイトルの小説を執筆してください。</p>
-    <!-- エントリーしたユーザーのニックネームを表示 -->
-    <h4><span style="font-family: BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">来月の同タイトルへのエントリーを表明された勇者たち：</span></h4>
-    <ul>
-      {% for entry in already_entered_users %}
-        <li><strong>{{ entry.user.nickname }}</strong></li>
-      {% endfor %}
-    </ul>
-  </div>
-  {% endif %}
-{% else %}
-<div class="alert alert-info" role="alert" style="margin: 20px 30px; padding: 20px; background-color: #f0f8ff; border: 1px solid #B2E8F9;">
-  来月の同タイトルにエントリーするには、<a href="{% url 'accounts:login' %}">ログイン</a>または<a href="{% url 'accounts:signup' %}">サインアップ</a>してください。
-</div>
-{% endif %}
-
-
-
-{% if entered_last_month %}
-<style>
-  .entry-button {
-    display: inline-block;
-    margin-top: 20px;
-    margin-left: 20px;
-    font-size: 25px;
-    background-color: #641E16; /* ボタンの背景色 */
-    color: white; /* 文字色を白に設定 */
-    padding: 10px 20px;
-    text-decoration: none !important;
-    /* border: 1px solid #B2E8F9; */
-    border-radius: 5px; /* 角をもっと丸く */
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  }
-  .entry-button:hover {
-    background-color: #923c28; /* マウスオーバー時の色を少し明るく */
-    box-shadow: 0 0 8px 2px rgba(255,255,255,0.3); /* ボタン全体が少し明るように */
-    text-decoration: none !important;
-    color: white !important; 
-  }
-</style>
-
-<!-- 先月エントリーした人だけに表示される執筆フィールド -->
-<div class="entry-form" style="margin-top: 20px; background-color: #FFE5B4; border: 1px solid #B2E8F9;">
-  <h4>今月の同タイトル小説を執筆してみよう！</h4>
-  <label style="margin-left: 20px; display: block; margin-bottom: 10px;">エントリーしていた同タイトルが始まりました！さあ、思う存分書いてくれ！</label>
-  <a href="{% url 'game_same_title:post_or_edit_same_title' %}" class="entry-button">執筆開始！</a>
-</div> 
-{% endif %}
+<!-- エントリー制廃止により、この部分は削除されました -->
 
 <script>
   let nextPage = 2;
@@ -403,18 +340,7 @@
   }
 </script>
 
-<!-- エントリー成功の確認とアラート表示 -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-      function confirmEntry() {
-          return confirm('来月同タイトルを執筆することになります。問題ないですか？');
-      }
-
-      if ({{ entry_success|yesno:"true,false" }}) {
-          alert('エントリーが完了しました。');
-      }
-  });
-</script>
+<!-- エントリー制廃止により、この部分は削除されました -->
 
 <!-- Bootstrap CSSのリンク -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
