@@ -375,7 +375,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 <tr>
                     <td>{{ novel.word_count|intcomma }}</td>
                     <td>{{ novel.genre }}</td>
-                    <td>{{ novel.event|default:"-" }}</td>
+                    <td>
+                        {% if novel.event == "同作者競作" %}
+                            同
+                        {% elif novel.event == "祭り" %}
+                            祭
+                        {% elif novel.event %}
+                            {{ novel.event }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
                     <td>
                         {% if novel.event == "祭り" %}
                             {{ novel.published_date|date:"Y年" }}
