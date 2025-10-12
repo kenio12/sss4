@@ -218,13 +218,11 @@
             flex-wrap: wrap;
         }
 
-        /* スマホ時は年月・いいね・コメを非表示 */
-        .sticky-header thead th:nth-child(4),
-        .sticky-header tbody td:nth-child(4),
+        /* スマホ時はいいね・コメを非表示 */
+        .sticky-header thead th:nth-child(7),
+        .sticky-header tbody td:nth-child(7),
         .sticky-header thead th:nth-child(8),
-        .sticky-header tbody td:nth-child(8),
-        .sticky-header thead th:nth-child(9),
-        .sticky-header tbody td:nth-child(9) {
+        .sticky-header tbody td:nth-child(8) {
             display: none;
         }
     }
@@ -305,8 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <col style="width: 80px;">  <!-- 文字数 -->
                 <col style="width: 100px;"> <!-- ジャンル -->
                 <col style="width: 100px;"> <!-- イベント -->
-                <col style="width: 80px;">  <!-- 年月 -->
-                <col style="width: 250px;"> <!-- 作品名 -->
+                <col style="width: 330px;"> <!-- 作品名 -->
                 <col style="width: 120px;"> <!-- 作家名 -->
                 <col style="width: 100px;"> <!-- 投稿日 -->
                 <col style="width: 70px;">  <!-- いいね -->
@@ -330,12 +327,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'event' %}-{% endif %}event"
                            class="sort-header {% if 'event' in sort %}active{% endif %}">
                             イベント
-                        </a>
-                    </th>
-                    <th>
-                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'same_title_event_month' %}-{% endif %}same_title_event_month"
-                           class="sort-header {% if 'same_title_event_month' in sort %}active{% endif %}">
-                            年月
                         </a>
                     </th>
                     <th>
@@ -382,15 +373,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             祭
                         {% elif novel.event %}
                             {{ novel.event }}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if novel.event == "祭り" %}
-                            {{ novel.published_date|date:"Y年" }}
-                        {% elif novel.same_title_event_month %}
-                            {{ novel.same_title_event_month|format_event_month }}
                         {% else %}
                             -
                         {% endif %}
