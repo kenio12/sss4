@@ -230,7 +230,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="sss-genre">{{ novel.genre }}</div>
                 <div class="sss-event">{{ novel.event|default:"-" }}</div>
                 <div class="sss-month">
-                    {% if novel.same_title_event_month %}
+                    {% if novel.event == "祭り" %}
+                        {{ novel.published_date|date:"Y年" }}
+                    {% elif novel.same_title_event_month %}
                         {{ novel.same_title_event_month|format_event_month }}
                     {% else %}
                         -
@@ -275,7 +277,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="sss-genre">{{ novel.genre }}</div>
                         <div class="sss-event">{{ novel.event|default:"-" }}</div>
                         <div class="sss-month">
-                            {% if novel.same_title_event_month %}
+                            {% if novel.event == "祭り" %}
+                                {{ novel.published_date|date:"Y年" }}
+                            {% elif novel.same_title_event_month %}
                                 {{ novel.same_title_event_month|format_event_month }}
                             {% else %}
                                 -

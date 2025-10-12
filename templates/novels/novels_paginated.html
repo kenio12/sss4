@@ -349,7 +349,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>{{ novel.genre }}</td>
                     <td>{{ novel.event|default:"-" }}</td>
                     <td>
-                        {% if novel.same_title_event_month %}
+                        {% if novel.event == "祭り" %}
+                            {{ novel.published_date|date:"Y年" }}
+                        {% elif novel.same_title_event_month %}
                             {{ novel.same_title_event_month|format_event_month }}
                         {% else %}
                             -
