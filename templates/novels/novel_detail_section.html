@@ -18,6 +18,10 @@
             <span class="genre">{{ novel.get_genre_display }}</span>
             <span class="stats-divider">|</span>
         {% endif %}
+        {% if novel.event %}
+            <span class="event">イベント: {{ novel.event }}</span>
+            <span class="stats-divider">|</span>
+        {% endif %}
         <span class="word-count">文字数: {{ novel.word_count }}</span>
         <span class="stats-divider">|</span>
         <span class="comments-count">コメント: {{ novel.comments.count }}</span>
