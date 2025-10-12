@@ -1,10 +1,42 @@
 {% load static %}
 {% load humanize %}
-{% load novel_filters %} 
+{% load novel_filters %}
 
 <style>
     .sticky-header th {
         border-top: 0.1px solid #999; /* 黒の横線を追加 */
+    }
+
+    /* スマホ表示調整（768px以下） */
+    @media (max-width: 768px) {
+        .novels-list-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .sticky-header {
+            width: 100%;
+            font-size: 0.85rem;
+        }
+
+        .sticky-header th,
+        .sticky-header td {
+            padding: 8px 4px;
+            white-space: nowrap;
+        }
+
+        /* 投稿日列を非表示 */
+        .sticky-header th:nth-child(6),
+        .sticky-header td:nth-child(6) {
+            display: none;
+        }
+
+        /* 列幅調整 */
+        .sticky-header colgroup col:nth-child(1) { width: 15%; } /* 文字数 */
+        .sticky-header colgroup col:nth-child(2) { width: 20%; } /* ジャンル */
+        .sticky-header colgroup col:nth-child(3) { width: 15%; } /* イベント */
+        .sticky-header colgroup col:nth-child(4) { width: 35%; } /* 作品名 */
+        .sticky-header colgroup col:nth-child(5) { width: 15%; } /* 作家名 */
     }
 </style>
 
