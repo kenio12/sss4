@@ -47,7 +47,7 @@
                     <td>
                         <a href="{% url 'accounts:view_other_profile' novel.author.id %}">{{ novel.author.nickname }}</a>
                         {% if ichiban_yari_info|get_item:month_key == novel %}
-                            <span class="ichiban-yari-badge">一番槍！</span>
+                            <span class="first-post-badge">🏆 一番槍</span>
                         {% endif %}
                     </td>
                     <td>{{ novel.published_date|date:"Y/m/d" }}</td>
@@ -65,28 +65,40 @@
     .ichiban-yari {
         background-color: #fff3cd;  /* 薄い黄色の背景 */
     }
-    .ichiban-yari-badge {
+
+    /* 一番槍バッジのスタイル（home.htmlと統一） */
+    .first-post-badge {
         display: inline-block;
-        background-color: #ffc107;  /* 金色の背景 */
-        color: #000;
-        padding: 2px 8px;
-        border-radius: 12px;
+        padding: 4px 12px;
         margin-left: 10px;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        background: transparent;
+        border-radius: 20px;
+        font-size: 0.85em;
         font-weight: bold;
-        font-size: 0.9em;
+        white-space: nowrap;
+        height: auto !important;
+        line-height: normal !important;
+        transition: transform 0.2s ease, background 0.2s ease;
     }
-    
+
+    .first-post-badge:hover {
+        transform: translateY(-2px);
+        background: rgba(220, 53, 69, 0.1);
+    }
+
     .proposer-name {
         color: #666;
         font-size: 0.9em;
         margin-left: 10px;
     }
-    
+
     .sticky-header {
         width: 100%;
         border-collapse: collapse;
     }
-    
+
     .sticky-header th {
         background-color: #f8f9fa;
         position: sticky;
@@ -95,7 +107,7 @@
         padding: 10px;
         border-bottom: 2px solid #dee2e6;
     }
-    
+
     .sticky-header td {
         padding: 10px;
         border-bottom: 1px solid #dee2e6;
