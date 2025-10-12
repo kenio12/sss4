@@ -1,4 +1,5 @@
 {% load static %}
+{% load novel_filters %}
 
 <div class="container custom-container-margin">
     <!-- 作家名セクション -->
@@ -22,13 +23,22 @@
             <span class="event">イベント: {{ novel.event }}</span>
             <span class="stats-divider">|</span>
         {% endif %}
+        {% if novel.same_title_event_month %}
+            <span class="event-month">{{ novel.same_title_event_month|format_event_month }}</span>
+            <span class="stats-divider">|</span>
+        {% endif %}
         <span class="word-count">文字数: {{ novel.word_count }}</span>
         <span class="stats-divider">|</span>
         <span class="comments-count">コメント: {{ novel.comments.count }}</span>
     </div>
 
     <!-- タイトルセクション -->
-    <h2 class="novel-title card-title">{{ novel.title }}</h2>
+    <h2 class="novel-title card-title">
+        {{ novel.title }}
+        {% if novel.is_first_post %}
+            <span class="first-post-badge">🏆 一番槍</span>
+        {% endif %}
+    </h2>
 
     <!-- 編集ボタンを追加 -->
     {% if user.is_authenticated and can_edit %}

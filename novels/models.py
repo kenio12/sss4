@@ -58,6 +58,21 @@ class Novel(models.Model):
     same_title_event_month = models.CharField(max_length=7, blank=True, null=True)
     afterword = models.TextField(blank=True, null=True)  # 後書きフィールド
 
+    # 🆕 一番槍フラグ
+    is_first_post = models.BooleanField(
+        default=False,
+        verbose_name="一番槍",
+        help_text="同タイトル・同月で最初に投稿したか"
+    )
+
+    # 🆕 一番槍取得日時
+    first_post_acquired_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="一番槍取得日時",
+        help_text="一番槍フラグが付与された日時"
+    )
+
     # sssのデータ注入時、一時的にコメントアウトしていた
     original_author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -114,7 +129,35 @@ class Novel(models.Model):
             if not self.pk and not self.same_title_event_month:
                 self.same_title_event_month = timezone.now().strftime('%Y-%m')
 
+        # 🆕 一番槍判定
+        if self.event != '同タイトル':
+            # 同タイトルでない場合は一番槍フラグをクリア
+            self.is_first_post = False
+            self.first_post_acquired_at = None
+        elif self.status == 'published':
+            # 同タイトル + 公開状態の場合は一番槍判定
+            self._check_first_post()
+
         super(Novel, self).save(*args, **kwargs)
+
+    def _check_first_post(self):
+        """一番槍判定処理"""
+        # 同じタイトル + 同じ月の公開済み小説を検索
+        same_title_same_month = Novel.objects.filter(
+            title=self.title,
+            event='同タイトル',
+            same_title_event_month=self.same_title_event_month,
+            status='published'
+        ).exclude(id=self.id)  # 自分自身は除外
+
+        # 既に他の投稿がある場合は一番槍ではない
+        if same_title_same_month.exists():
+            self.is_first_post = False
+            self.first_post_acquired_at = None
+        else:
+            # 最初の投稿 = 一番槍！
+            self.is_first_post = True
+            self.first_post_acquired_at = timezone.now()
 
     def __str__(self):
         return self.title  # ここを追加

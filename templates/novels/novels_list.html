@@ -1,5 +1,6 @@
 {% load static %}
-{% load humanize %} 
+{% load humanize %}
+{% load novel_filters %} 
 
 <style>
     .sticky-header th {
@@ -11,11 +12,12 @@
     <table class="sticky-header">
         <colgroup>
             <col style="width: 8%;"> <!-- 文字数の列の幅 -->
-            <col style="width: 15%;"> <!-- ジャンルの列の幅 -->
-            <col style="width: 12%;"> <!-- イベントの列の幅 -->
-            <col style="width: 30%;"> <!-- 作品名の列の幅 -->
-            <col style="width: 17%;"> <!-- 作家名の列の幅 -->
-            <col style="width: 18%;"> <!-- 投稿日の列の幅 -->
+            <col style="width: 12%;"> <!-- ジャンルの列の幅 -->
+            <col style="width: 10%;"> <!-- イベントの列の幅 -->
+            <col style="width: 12%;"> <!-- 年月の列の幅 -->
+            <col style="width: 28%;"> <!-- 作品名の列の幅 -->
+            <col style="width: 15%;"> <!-- 作家名の列の幅 -->
+            <col style="width: 15%;"> <!-- 投稿日の列の幅 -->
         </colgroup>
         <thead>
             <tr>
@@ -27,6 +29,9 @@
                 </th>
                 <th data-sort="event">
                     <a href="?sort_by=event&order={% if order == 'asc' %}desc{% else %}asc{% endif %}">イベント</a>
+                </th>
+                <th data-sort="same_title_event_month">
+                    <a href="?sort_by=same_title_event_month&order={% if order == 'asc' %}desc{% else %}asc{% endif %}">年月</a>
                 </th>
                 <th data-sort="title">
                     <a href="?sort_by=title&order={{ next_order }}">作品名</a>
@@ -46,9 +51,19 @@
                 <td>{{ novel.genre }}</td>
                 <td>{{ novel.event|default:"-" }}</td>
                 <td>
-                        <a href="{% url 'novels:novel_detail' novel.id %}">
-                            {{ novel.title }}
-                        </a>
+                    {% if novel.same_title_event_month %}
+                        {{ novel.same_title_event_month|format_event_month }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'novels:novel_detail' novel.id %}">
+                        {{ novel.title }}
+                    </a>
+                    {% if novel.is_first_post %}
+                        <span class="first-post-badge">🏆 一番槍</span>
+                    {% endif %}
                 </td>
                 <td>{{ novel.author.nickname }}</td>
                 <td>{{ novel.published_date }}</td>
