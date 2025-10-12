@@ -10,10 +10,20 @@
     border-radius: 20px;
     font-size: 0.85em;
     font-weight: bold;
+    white-space: nowrap;
     transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .first-post-badge:hover {
     transform: translateY(-2px);
     background: rgba(220, 53, 69, 0.1);
+}
+
+/* スマホ用の一番槍バッジ */
+@media screen and (max-width: 768px) {
+    .first-post-badge {
+        font-size: 0.9em;
+        padding: 4px 10px;
+        margin-left: 8px;
+    }
 }
