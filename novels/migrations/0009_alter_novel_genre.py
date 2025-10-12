@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('novels', '0008_alter_novel_genre'),
+        ('novels', '0007_novel_first_post_acquired_at_novel_is_first_post'),
     ]
 
     operations = [
