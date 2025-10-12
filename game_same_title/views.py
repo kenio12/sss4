@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
-from .models import TitleProposal, SameTitleEntry
+from .models import TitleProposal
 import logging
 from novels.models import Novel
 from .forms import NovelForm, CommentForm
@@ -17,16 +17,7 @@ logger = logging.getLogger(__name__)
 from django.utils import timezone
 from datetime import timedelta
 
-def check_entered_last_month(user):
-    today = timezone.localtime(timezone.now())
-    last_month_start = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
-    last_month_start = last_month_start.replace(day=1)
-    last_month_end = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(seconds=1)
-    return SameTitleEntry.objects.filter(
-        user=user,
-        month__gte=last_month_start,
-        month__lte=last_month_end
-    ).exists()
+# エントリー制廃止により check_entered_last_month 関数を削除
 
 def get_next_month_str():
     next_month = (timezone.now() + relativedelta(months=+1)).month
@@ -38,7 +29,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 from datetime import timedelta
-from .models import Novel, MonthlySameTitleInfo, TitleProposal, SameTitleEntry
+from .models import Novel, MonthlySameTitleInfo, TitleProposal
 import logging
 import json
 
@@ -115,39 +106,31 @@ def same_title(request, page=1):
         existing_proposals = TitleProposal.objects.filter(
             proposer=proposer,
             proposed_at__gte=current_month_date,
-            proposed_at__lt=current_month_end 
+            proposed_at__lt=current_month_end
         )
-        already_entered = SameTitleEntry.objects.filter(user=request.user, month=current_month_date).exists()
-        entered_last_month = check_entered_last_month(request.user)
+        # エントリー制廃止により削除: already_entered, entered_last_month, already_entered_users
 
         last_month = current_month_date - relativedelta(months=1)
         title_candidates = [
             {'title': candidate.title, 'proposer_nickname': candidate.proposer.nickname}
             for candidate in TitleProposal.objects.filter(proposal_month__year=last_month.year, proposal_month__month=last_month.month)
         ]
-        already_entered_users = SameTitleEntry.objects.filter(month=current_month_date).select_related('user__profile')
     else:
         existing_proposals = []
-        already_entered = False
-        entered_last_month = False
         title_candidates = []
-        already_entered_users = []
 
     next_month = get_next_month_str()
-    entry_success = request.session.pop('entry_success', None)
+    # エントリー制廃止により entry_success を削除
 
     return render(request, 'game_same_title/same_title.html', {
         'existing_proposals': existing_proposals,
-        'already_entered': already_entered,
-        'entered_last_month': entered_last_month,
+        # エントリー制廃止により削除: already_entered, entered_last_month, entry_success, already_entered_users
         'next_month': next_month,
-        'entry_success': entry_success,
         'decided_title': decided_title,
         'title_candidates': title_candidates,
         'page_obj': page_obj,
-        'already_entered_users': already_entered_users,
         'same_title_novels': page_obj.object_list,
-        'title_proposals': title_proposals,  # 提案者情報を追加
+        'title_proposals': title_proposals,
     })
 
 # 過去の同タイトル一覧を表示する新しい関数
@@ -240,14 +223,13 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from .models import SameTitleEntry
 
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
-from .models import TitleProposal, SameTitleEntry
+from .models import TitleProposal
 import datetime
 
 from dateutil.relativedelta import relativedelta
@@ -259,56 +241,13 @@ logger = logging.getLogger(__name__)
 from dateutil.relativedelta import relativedelta
 from django.contrib import messages  # 必要なインポートを追加
 
-@login_required
-def entry_for_same_title(request):
-    current_month = timezone.now().date().replace(day=1)
-    already_entered = SameTitleEntry.objects.filter(user=request.user, month=current_month).exists()
-    
-    next_month_str = get_next_month_str()
-
-    # 先月の初日と最終日を計算
-    last_month_start = current_month - relativedelta(months=1)
-    last_month_end = last_month_start + relativedelta(months=1, days=-1)
-
-    # 先月のイトル提案を取得
-    existing_proposals = TitleProposal.objects.filter(
-        proposer=request.user,
-        proposed_at__gte=last_month_start,
-        proposed_at__lte=last_month_end
-    )
-
-    # ログに先月の初日と最終日を出力
-    logger.debug(f"先月の初日: {last_month_start}, 最終日: {last_month_end}")
-
-    if request.method == 'POST':
-        if not already_entered:
-            SameTitleEntry.objects.create(user=request.user, month=current_month)
-            messages.success(request, 'エントリーが完了しました。')  # 成功メッセージを追加
-            request.session['entry_success'] = True
-            return redirect(reverse('game_same_title:same_title'))
-        else:
-            messages.error(request, 'すでにエントリー済みです。')  # エラーメッセージを追加
-            return render(request, 'game_same_title/same_title.html', {
-                'already_entered': True,
-                'next_month': next_month_str,
-                'existing_proposals': existing_proposals,
-            })
-    else:
-        context = {
-            'already_entered': already_entered,
-            'next_month': next_month_str,
-            'existing_proposals': existing_proposals,
-        }
-        if 'entry_success' in request.session:
-            context['entry_success'] = request.session.pop('entry_success', None)
-
-        return render(request, 'game_same_title/same_title.html', context)
+# エントリー制廃止により entry_for_same_title view を削除
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
-from .models import TitleProposal, SameTitleEntry
+from .models import TitleProposal
 from .forms import NovelForm  # 必要なフォームをインポート
 from django.shortcuts import render, redirect
 from django.http import HttpResponseForbidden
@@ -347,9 +286,7 @@ def post_or_edit_same_title(request, novel_id=None):
     User = get_user_model()  # カスタムユーザーモデル取得
     current_month_same_title_info = get_current_month_same_title_info()
 
-
-    if not check_entered_last_month(request.user):
-        return HttpResponseForbidden("先月エントリーしていないため、このページにはクセスできせん。")
+    # エントリー制廃止により check_entered_last_month のアクセス制限を削除
 
     # 前月の初日と最終日を計算
     current_month = timezone.now().date().replace(day=1)
