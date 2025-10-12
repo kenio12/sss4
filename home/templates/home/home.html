@@ -228,9 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="sss-novel-row pc-view">
                 <div class="sss-date">{{ novel.published_date|date:"Y/m/d" }}</div>
                 <div class="sss-genre">{{ novel.genre }}</div>
-                <div class="sss-event">
-                    {% if novel.event == "同タイトル" %}同{% elif novel.event == "祭り" %}祭{% else %}{{ novel.event|default:"-" }}{% endif %}
-                </div>
+                <div class="sss-event">{{ novel.event|default:"-" }}</div>
                 <div class="sss-month">
                     {% if novel.event == "祭り" %}
                         {{ novel.published_date|date:"Y年" }}
@@ -251,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="sss-link sss-title" style="color: #007bff !important;">
                     <a href="{% url 'novels:novel_detail' novel.id %}" style="color: #007bff !important;">{{ novel.title }}</a>
                     {% if novel.is_first_post %}
-                        <span class="first-post-badge">🗡️</span>
+                        <span class="first-post-badge">🏆 一番槍</span>
                     {% endif %}
                 </div>
             </div>
