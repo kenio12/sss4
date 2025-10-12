@@ -292,11 +292,15 @@ document.addEventListener('DOMContentLoaded', function() {
     {% if page_obj.object_list|length > 0 %}
         <table class="sticky-header">
             <colgroup>
-                <col style="width: 250px;"> <!-- 列1: 作品名 -->
-                <col style="width: 150px;"> <!-- 列2: ジャンル/作家名 -->
-                <col style="width: 150px;"> <!-- 列3: イベント/投稿日 -->
-                <col style="width: 100px;"> <!-- 列4: 年月 -->
-                <col style="width: 80px;">  <!-- 列5: いいね/コメ -->
+                <col style="width: 80px;">  <!-- 文字数 -->
+                <col style="width: 100px;"> <!-- ジャンル -->
+                <col style="width: 100px;"> <!-- イベント -->
+                <col style="width: 80px;">  <!-- 年月 -->
+                <col style="width: 250px;"> <!-- 作品名 -->
+                <col style="width: 120px;"> <!-- 作家名 -->
+                <col style="width: 100px;"> <!-- 投稿日 -->
+                <col style="width: 70px;">  <!-- いいね -->
+                <col style="width: 70px;">  <!-- コメ -->
             </colgroup>
             <thead>
                 <tr>
@@ -325,14 +329,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         </a>
                     </th>
                     <th>
-                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'likes' %}-{% endif %}likes"
-                           class="sort-header {% if 'likes' in sort %}active{% endif %}">
-                            いいね
-                        </a>
-                    </th>
-                </tr>
-                <tr>
-                    <th>
                         <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'title' %}-{% endif %}title"
                            class="sort-header {% if 'title' in sort %}active{% endif %}">
                             作品名
@@ -350,7 +346,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             投稿日
                         </a>
                     </th>
-                    <th colspan="2">
+                    <th>
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'likes' %}-{% endif %}likes"
+                           class="sort-header {% if 'likes' in sort %}active{% endif %}">
+                            いいね
+                        </a>
+                    </th>
+                    <th>
                         <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'comments' %}-{% endif %}comments"
                            class="sort-header {% if 'comments' in sort %}active{% endif %}">
                             コメ
@@ -360,8 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </thead>
             <tbody>
                 {% for novel in page_obj %}
-                <!-- 1行目：文字数、ジャンル、イベント、年月、いいね -->
-                <tr class="novel-row-1">
+                <tr>
                     <td>{{ novel.word_count|intcomma }}</td>
                     <td>{{ novel.genre }}</td>
                     <td>{{ novel.event|default:"-" }}</td>
@@ -374,11 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             -
                         {% endif %}
                     </td>
-                    <td>{{ novel.likes_count }}</td>
-                </tr>
-                <!-- 2行目：タイトル、作家名、投稿日、コメ -->
-                <tr class="novel-row-2">
-                    <td class="title-cell">
+                    <td>
                         <a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title }}</a>
                         {% if novel.is_first_post %}
                             <span class="first-post-badge">🗡️ 一番槍</span>
@@ -392,7 +389,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         {% endif %}
                     </td>
                     <td>{{ novel.published_date|date:"Y/m/d" }}</td>
-                    <td colspan="2">{{ novel.comments_count }}</td>
+                    <td>{{ novel.likes_count }}</td>
+                    <td>{{ novel.comments_count }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
