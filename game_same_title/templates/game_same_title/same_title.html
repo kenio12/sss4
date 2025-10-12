@@ -216,6 +216,16 @@
       <h4 style="margin-bottom: 20px;">
         同タイトルの提案者や！：<span class="highlighted">{{ decided_title.proposer_nickname }}</span>
       </h4>
+
+      {% if user.is_authenticated %}
+        <a href="{% url 'game_same_title:same_title_post' %}" class="btn btn-success btn-lg" style="margin-top: 20px; font-size: 25px;">
+          「{{ decided_title.title }}」で小説を書く
+        </a>
+      {% else %}
+        <div class="alert alert-info" role="alert" style="margin-top: 20px;">
+          同タイトルで小説を書くには、<a href="{% url 'accounts:login' %}">ログイン</a>または<a href="{% url 'accounts:signup' %}">サインアップ</a>してください。
+        </div>
+      {% endif %}
     </div>
   {% else %}
   <div style="position: relative; padding-left: 15px;">
