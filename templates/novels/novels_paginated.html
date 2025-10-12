@@ -46,6 +46,9 @@
         padding: 12px 10px;
         border-bottom: 1px solid #eee;
         vertical-align: middle;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     /* ソートヘッダーのスタイル改善 */
@@ -277,15 +280,15 @@ document.addEventListener('DOMContentLoaded', function() {
     {% if page_obj.object_list|length > 0 %}
         <table class="sticky-header">
             <colgroup>
-                <col>
-                <col>
-                <col>
-                <col>
-                <col>
-                <col>
-                <col>
-                <col>
-                <col>
+                <col style="width: 80px;">  <!-- 文字数 -->
+                <col style="width: 100px;"> <!-- ジャンル -->
+                <col style="width: 100px;"> <!-- イベント -->
+                <col style="width: 80px;">  <!-- 年月 -->
+                <col style="width: 250px;"> <!-- 作品名 -->
+                <col style="width: 120px;"> <!-- 作家名 -->
+                <col style="width: 100px;"> <!-- 投稿日 -->
+                <col style="width: 70px;">  <!-- いいね -->
+                <col style="width: 70px;">  <!-- コメ -->
             </colgroup>
             <thead>
                 <tr>
