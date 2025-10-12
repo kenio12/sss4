@@ -767,6 +767,7 @@ def novels_paginated(request):
         'id', 'title', 'word_count',
         'author_id', 'author__nickname',
         'published_date', 'genre', 'event',
+        'same_title_event_month', 'is_first_post',
         'likes_count', 'comments_count'
     )
 

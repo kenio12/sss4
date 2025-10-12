@@ -11,8 +11,8 @@ def modulo(value, arg):
 @register.filter
 def format_event_month(value):
     """
-    'YYYY-MM' 形式の文字列を 'YYYY年M月' 形式に変換
-    例: '2025-09' → '2025年9月'
+    'YYYY-MM' または 'YYYY' 形式の文字列を 'YYYY' 形式に変換
+    例: '2025-09' → '2025', '2025' → '2025'
     date/datetime オブジェクトにも対応
     """
     if not value:
@@ -20,23 +20,20 @@ def format_event_month(value):
 
     # 🔥 date/datetime オブジェクト対応
     if isinstance(value, (date, datetime)):
-        value = value.strftime('%Y-%m')
+        return value.strftime('%Y')
 
     # 🔥 前後空白除去
     if isinstance(value, str):
         value = value.strip()
 
     try:
-        year, month = value.split('-')
-        month_int = int(month)
-
-        # 🔥 月の妥当性チェック (1-12)
-        if not (1 <= month_int <= 12):
-            return value  # 不正な月の場合は元の値を返す
-
-        # 月の先頭の0を削除（09 → 9）
-        month = str(month_int)
-        return f"{year}年{month}月"
+        # ハイフンがある場合は年のみ抽出、ない場合はそのまま返す
+        if '-' in value:
+            year, _ = value.split('-', 1)  # 最初のハイフンで分割
+            return year
+        else:
+            # 年だけの場合はそのまま返す
+            return value
     except (ValueError, AttributeError):
         # エラーが発生した場合は元の値を返す
         return value
