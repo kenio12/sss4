@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}配信停止完了 - 超短編小説会Ⅳ{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12 max-w-2xl">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">配信停止完了</h1>
+            <div class="text-green-600 text-6xl mb-4">
+                ✓
+            </div>
+        </div>
+
+        <div class="text-center text-gray-700 space-y-4">
+            <p class="text-lg">
+                {{ user.nickname }} 様
+            </p>
+
+            <p>
+                同タイトルイベント関連のメール配信を停止しました。
+            </p>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 my-6">
+                <p class="text-sm text-gray-600">
+                    配信停止した通知：
+                </p>
+                <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                    <li>• 同タイトル募集通知（月初1日）</li>
+                    <li>• 同タイトル提案通知（新規提案時）</li>
+                    <li>• 同タイトル決定通知（一番槍決定時）</li>
+                </ul>
+            </div>
+
+            <p class="text-sm text-gray-600">
+                再度メール配信を希望される場合は、プロフィール設定から通知設定を変更してください。
+            </p>
+
+            <div class="mt-8">
+                <a href="{% url 'home:home' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                    トップページへ戻る
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

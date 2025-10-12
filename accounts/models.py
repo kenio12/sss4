@@ -162,3 +162,47 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)  # first_login defaults to True
 
+class EmailNotificationSettings(models.Model):
+    """
+    メール通知設定モデル
+    ユーザーごとの通知設定を管理
+    """
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='notification_settings'
+    )
+
+    # 同タイトルイベント関連通知
+    same_title_recruitment = models.BooleanField(
+        default=True,
+        verbose_name='同タイトル募集通知',
+        help_text='月初（1日）に送信される同タイトル募集通知'
+    )
+    same_title_proposal = models.BooleanField(
+        default=True,
+        verbose_name='同タイトル提案通知',
+        help_text='タイトル提案時に送信される通知'
+    )
+    same_title_decision = models.BooleanField(
+        default=True,
+        verbose_name='同タイトル決定通知',
+        help_text='月の最初の投稿時に送信される通知'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'メール通知設定'
+        verbose_name_plural = 'メール通知設定'
+
+    def __str__(self):
+        return f'{self.user.nickname} の通知設定'
+
+@receiver(post_save, sender=User)
+def create_notification_settings(sender, instance, created, **kwargs):
+    """ユーザー作成時に通知設定を自動作成"""
+    if created:
+        EmailNotificationSettings.objects.create(user=instance)
+

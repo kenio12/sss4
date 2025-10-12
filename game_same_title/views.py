@@ -177,6 +177,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from datetime import timedelta
 from .models import TitleProposal
+from .notifications import send_same_title_proposal_notification, send_same_title_decision_notification
 
 from django.utils import timezone
 
@@ -189,7 +190,7 @@ def create_title_proposal(request):
 
     # 現在の月の提案を取得
     existing_proposals = TitleProposal.objects.filter(
-        proposer=proposer, 
+        proposer=proposer,
         proposed_at__gte=current_month_start,
         proposed_at__lte=current_month_end
     )
@@ -203,12 +204,14 @@ def create_title_proposal(request):
             titles = [request.POST.get(f'title{i}') for i in range(1, 4)]
             for title in titles:
                 if title:
-                    TitleProposal.objects.create(
-                        proposer=proposer, 
-                        title=title, 
+                    created_proposal = TitleProposal.objects.create(
+                        proposer=proposer,
+                        title=title,
                         proposed_at=timezone.now().date(),  # 時間情報を除外して日付のみを保存
                         proposal_month=current_month_start
                     )
+                    # タイトル提案通知を送信
+                    send_same_title_proposal_notification(created_proposal)
             messages.success(request, '提案が成功しました。')
             return redirect('game_same_title:same_title')
         else:
@@ -434,6 +437,8 @@ def post_or_edit_same_title(request, novel_id=None):
                                 month=current_month,
                                 novel=novel
                             )
+                            # 一番槍決定通知を送信
+                            send_same_title_decision_notification(novel)
                             messages.success(request, 'やったね！あんたが今月の一番槍や！')
                         return redirect('game_same_title:same_title')
 

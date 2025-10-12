@@ -38,4 +38,5 @@ urlpatterns = [
     path('members/', MemberListView.as_view(), name='member_list'),
     path('password_change/', CustomPasswordChangeView.as_view(), name='password_change'),
     path('resend-activation/', views.resend_activation, name='resend_activation'),
+    path('unsubscribe/<int:user_id>/', views.unsubscribe, name='unsubscribe'),
 ]

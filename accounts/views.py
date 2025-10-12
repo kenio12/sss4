@@ -464,4 +464,32 @@ def resend_activation(request):
     # GETリクエストの場合、フォームを表示
     return render(request, 'accounts/resend_activation.html', {'email': email})
 
-    
+
+def unsubscribe(request, user_id):
+    """
+    メール配信停止ビュー
+    通知設定を全てFalseにする
+    """
+    try:
+        user = User.objects.get(id=user_id)
+
+        # EmailNotificationSettingsが存在しない場合は作成
+        from .models import EmailNotificationSettings
+        settings, created = EmailNotificationSettings.objects.get_or_create(user=user)
+
+        # 全ての通知をオフ
+        settings.same_title_recruitment = False
+        settings.same_title_proposal = False
+        settings.same_title_decision = False
+        settings.save()
+
+        logger.info(f'配信停止完了: {user.email}')
+
+        return render(request, 'accounts/unsubscribe_complete.html', {
+            'user': user
+        })
+
+    except User.DoesNotExist:
+        logger.error(f'配信停止失敗: ユーザーID {user_id} が見つかりません')
+        return HttpResponse('ユーザーが見つかりません', status=404)
+
