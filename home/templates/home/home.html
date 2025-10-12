@@ -705,8 +705,8 @@ document.addEventListener('DOMContentLoaded', function() {
         color: #007bff !important;
         display: flex !important;
         align-items: center !important;
-        line-height: 20px !important;
-        height: 20px !important;
+        line-height: normal !important;
+        min-height: 20px !important;
     }
 
     /* 一番槍バッジのスタイル */
@@ -721,6 +721,9 @@ document.addEventListener('DOMContentLoaded', function() {
         border-radius: 20px;
         font-size: 0.85em;
         font-weight: bold;
+        white-space: nowrap;
+        height: auto !important;
+        line-height: normal !important;
         transition: transform 0.2s ease, background 0.2s ease;
     }
 
