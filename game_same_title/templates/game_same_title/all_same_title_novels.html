@@ -25,13 +25,24 @@
                 {% with month_key=novel.published_date|date:"Y-m" %}
                 <tr {% if ichiban_yari_info|get_item:month_key == novel %}class="ichiban-yari"{% endif %}>
                     <td>
-                        {% if novel.genre == "同タイトル" %}
-                            同タイ
-                        {% elif novel.genre == "旧同タイトル" %}
-                            旧同タイ
-                        {% else %}
-                            {{ novel.genre }}
-                        {% endif %}
+                        <span class="pc-view">
+                            {% if novel.genre == "同タイトル" %}
+                                同タイ
+                            {% elif novel.genre == "旧同タイトル" %}
+                                旧同タイ
+                            {% else %}
+                                {{ novel.genre }}
+                            {% endif %}
+                        </span>
+                        <span class="sp-view">
+                            {% if novel.genre == "同タイトル" %}
+                                同
+                            {% elif novel.genre == "旧同タイトル" %}
+                                旧同
+                            {% else %}
+                                {{ novel.genre }}
+                            {% endif %}
+                        </span>
                     </td>
                     <td>{{ novel.word_count|intcomma }}</td>
                     <td>
@@ -111,6 +122,23 @@
     .sticky-header td {
         padding: 10px;
         border-bottom: 1px solid #dee2e6;
+    }
+
+    /* PC/スマホ表示切り替え */
+    .pc-view {
+        display: inline;
+    }
+    .sp-view {
+        display: none;
+    }
+
+    @media screen and (max-width: 768px) {
+        .pc-view {
+            display: none;
+        }
+        .sp-view {
+            display: inline;
+        }
     }
 </style>
 {% endblock %} 
