@@ -167,18 +167,19 @@
         display: inline-block;
         padding: 4px 12px;
         margin-left: 10px;
-        background: linear-gradient(135deg, #B8860B 0%, #8B6508 100%);
-        color: #fff;
+        /* シンプルなデザイン：枠線のみ */
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        background: transparent;
         border-radius: 20px;
         font-size: 0.85em;
         font-weight: bold;
-        box-shadow: 0 2px 4px rgba(184, 134, 11, 0.3);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.2s ease, background 0.2s ease;
     }
 
     .first-post-badge:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(184, 134, 11, 0.4);
+        background: rgba(220, 53, 69, 0.1);
     }
 
     /* レスポンシブ対応の改善 */
@@ -360,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>
                         <a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title|truncatechars:15 }}</a>
                         {% if novel.is_first_post %}
-                            <span class="first-post-badge">🏆 一番槍</span>
+                            <span class="first-post-badge">🗡️ 一番槍</span>
                         {% endif %}
                     </td>
                     <td>
