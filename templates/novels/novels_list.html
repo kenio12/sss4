@@ -14,8 +14,7 @@
             <col style="width: 8%;"> <!-- 文字数の列の幅 -->
             <col style="width: 12%;"> <!-- ジャンルの列の幅 -->
             <col style="width: 10%;"> <!-- イベントの列の幅 -->
-            <col style="width: 12%;"> <!-- 年月の列の幅 -->
-            <col style="width: 28%;"> <!-- 作品名の列の幅 -->
+            <col style="width: 40%;"> <!-- 作品名の列の幅 -->
             <col style="width: 15%;"> <!-- 作家名の列の幅 -->
             <col style="width: 15%;"> <!-- 投稿日の列の幅 -->
         </colgroup>
@@ -29,9 +28,6 @@
                 </th>
                 <th data-sort="event">
                     <a href="?sort_by=event&order={% if order == 'asc' %}desc{% else %}asc{% endif %}">イベント</a>
-                </th>
-                <th data-sort="same_title_event_month">
-                    <a href="?sort_by=same_title_event_month&order={% if order == 'asc' %}desc{% else %}asc{% endif %}">年月</a>
                 </th>
                 <th data-sort="title">
                     <a href="?sort_by=title&order={{ next_order }}">作品名</a>
@@ -50,13 +46,6 @@
                 <td>{{ novel.word_count }}</td>
                 <td>{{ novel.genre }}</td>
                 <td>{{ novel.event|default:"-" }}</td>
-                <td>
-                    {% if novel.same_title_event_month %}
-                        {{ novel.same_title_event_month|format_event_month }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
                 <td>
                     <a href="{% url 'novels:novel_detail' novel.id %}">
                         {{ novel.title }}
