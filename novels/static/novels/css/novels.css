@@ -11,6 +11,8 @@
     font-size: 0.85em;
     font-weight: bold;
     white-space: nowrap;
+    height: auto !important;
+    line-height: normal !important;
     transition: transform 0.2s ease, background 0.2s ease;
 }
 
