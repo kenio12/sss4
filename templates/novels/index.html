@@ -168,17 +168,6 @@
                     const tr = document.createElement('tr');
                     tr.classList.add('fade-in');
 
-                    // 年月の表示処理（'YYYY-MM' → 'YYYY年M月'、'YYYY' → 'YYYY'）
-                    let eventMonth = '-';
-                    if (novel.same_title_event_month) {
-                        if (novel.same_title_event_month.includes('-')) {
-                            const [year, month] = novel.same_title_event_month.split('-');
-                            eventMonth = `${year}年${parseInt(month)}月`;
-                        } else {
-                            eventMonth = novel.same_title_event_month;  // 祭りイベントは年だけ
-                        }
-                    }
-
                     // 一番槍バッジ
                     const firstPostBadge = novel.is_first_post ? '<span class="first-post-badge">🗡️ 一番槍</span>' : '';
 
@@ -186,7 +175,6 @@
                     <td><span class="full-cell-link">${novel.word_count}</span></td>
                     <td>${novel.genre || '未分類'}</td>
                     <td>${novel.event || '-'}</td>
-                    <td>${eventMonth}</td>
                     <td>
                         <a class="full-cell-link" href="/novels/${novel.id}/" style="display: block; text-decoration: none; height: 100%; width: 100%;">
                             ${novel.title} ${firstPostBadge}
