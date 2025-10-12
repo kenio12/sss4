@@ -660,7 +660,9 @@ def index(request):
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         novels = list(page_obj.object_list.values(
-            'id', 'title', 'word_count', 'author__id', 'author__nickname', 'published_date', 'genre', 'likes_count', 'comments_count'
+            'id', 'title', 'word_count', 'author__id', 'author__nickname', 'published_date', 'genre', 'event',
+            'same_title_event_month', 'is_first_post',
+            'likes_count', 'comments_count'
         ))
         
         for novel in novels:
