@@ -217,6 +217,16 @@
         .pagination {
             flex-wrap: wrap;
         }
+
+        /* スマホ時は年月・いいね・コメを非表示 */
+        .sticky-header thead th:nth-child(4),
+        .sticky-header tbody td:nth-child(4),
+        .sticky-header thead th:nth-child(8),
+        .sticky-header tbody td:nth-child(8),
+        .sticky-header thead th:nth-child(9),
+        .sticky-header tbody td:nth-child(9) {
+            display: none;
+        }
     }
 
     /* 「次へ」ボタンの文字色を白に */
