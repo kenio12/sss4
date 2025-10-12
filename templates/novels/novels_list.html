@@ -45,7 +45,7 @@
             <tr>
                 <td>{{ novel.word_count }}</td>
                 <td>{{ novel.genre }}</td>
-                <td>{{ novel.event|default:"-" }}</td>
+                <td>{{ novel.event|default:"" }}</td>
                 <td>
                     <a href="{% url 'novels:novel_detail' novel.id %}">
                         {{ novel.title }}
