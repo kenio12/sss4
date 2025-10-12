@@ -758,9 +758,9 @@ def novels_paginated(request):
 
     # values()はソート後に適用
     novels_list = novels_list.values(
-        'id', 'title', 'word_count', 
+        'id', 'title', 'word_count',
         'author_id', 'author__nickname',
-        'published_date', 'genre',
+        'published_date', 'genre', 'event',
         'likes_count', 'comments_count'
     )
 

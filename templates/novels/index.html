@@ -170,6 +170,7 @@
                     tr.innerHTML = `
                     <td><span class="full-cell-link">${novel.word_count}</span></td>
                     <td>${novel.genre || '未分類'}</td>
+                    <td>${novel.event || '-'}</td>
                     <td>
                         <a class="full-cell-link" href="/novels/${novel.id}/" style="display: block; text-decoration: none; height: 100%; width: 100%;">
                             ${novel.title}
