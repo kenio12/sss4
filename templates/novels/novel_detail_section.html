@@ -48,6 +48,15 @@
         {% endif %}
     {% endif %}
 
+    <!-- 「俺もこのタイトルで作る」ボタン（同タイトルイベントの小説のみ表示） -->
+    {% if novel.event == '同タイトル' and user.is_authenticated %}
+        <div class="same-title-button-container" style="margin-top: 15px; margin-bottom: 15px; margin-left: 0.5rem;">
+            <a href="{% url 'novels:post_novel' %}?title={{ novel.title|urlencode }}" class="btn same-title-button" style="display: inline-flex; align-items: center; height: 38px; line-height: 26px; padding: 5px 15px; font-size: 20px; border-radius: 20px; background-color: #ff6b6b; color: white; text-decoration: none; transition: background-color 0.3s;">
+                <span>俺もこのタイトルで作る</span>
+            </a>
+        </div>
+    {% endif %}
+
     <div class="novel-content novel-content-detail">
         <p style="font-size: 25px;">{{ novel.content|linebreaksbr }}</p>
     </div>
