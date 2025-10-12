@@ -63,9 +63,10 @@ class NovelForm(forms.ModelForm):
             ('コメディ', 'コメディ'),
             ('歴史', '歴史'),
             ('私小説', '私小説'),
+            ('その他', 'その他'),
         ],
         widget=forms.Select(attrs={
-            'class': 'form-control', 
+            'class': 'form-control',
             'style': 'max-width: 300px; font-size: 36px; height: 38px;'
         })
     )
