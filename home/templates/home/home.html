@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load novel_filters %}
 
 {% block title %}ホーム{% endblock %}
 
@@ -227,6 +228,14 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="sss-novel-row pc-view">
                 <div class="sss-date">{{ novel.published_date|date:"Y/m/d" }}</div>
                 <div class="sss-genre">{{ novel.genre }}</div>
+                <div class="sss-event">{{ novel.event|default:"-" }}</div>
+                <div class="sss-month">
+                    {% if novel.same_title_event_month %}
+                        {{ novel.same_title_event_month|format_event_month }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </div>
                 <div class="sss-count">{{ novel.word_count }}文字</div>
                 <div class="sss-link sss-author">
                     {% if novel.author %}
@@ -237,6 +246,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="sss-link sss-title" style="color: #007bff !important;">
                     <a href="{% url 'novels:novel_detail' novel.id %}" style="color: #007bff !important;">{{ novel.title }}</a>
+                    {% if novel.is_first_post %}
+                        <span class="first-post-badge">🏆 一番槍</span>
+                    {% endif %}
                 </div>
             </div>
 
@@ -245,6 +257,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="sss-header-row">
                     <div class="sss-link sss-title">
                         <a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title }}</a>
+                        {% if novel.is_first_post %}
+                            <span class="first-post-badge">🏆 一番槍</span>
+                        {% endif %}
                     </div>
                     <div class="sss-link sss-author">
                         {% if novel.author %}
@@ -258,6 +273,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="sss-date">{{ novel.published_date|date:"Y/m/d" }}</div>
                     <div class="sss-meta">
                         <div class="sss-genre">{{ novel.genre }}</div>
+                        <div class="sss-event">{{ novel.event|default:"-" }}</div>
+                        <div class="sss-month">
+                            {% if novel.same_title_event_month %}
+                                {{ novel.same_title_event_month|format_event_month }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
                         <div class="sss-count">{{ novel.word_count }}文字</div>
                     </div>
                 </div>
@@ -655,6 +678,18 @@ document.addEventListener('DOMContentLoaded', function() {
         color: #28a745 !important;
     }
 
+    .sss-event {
+        flex: 0 0 80px !important;
+        font-size: 0.9em !important;
+        color: #dc3545 !important;
+    }
+
+    .sss-month {
+        flex: 0 0 100px !important;
+        font-size: 0.9em !important;
+        color: #6c757d !important;
+    }
+
     .sss-count {
         flex: 0 0 80px !important;
         font-size: 0.9em !important;
@@ -668,6 +703,25 @@ document.addEventListener('DOMContentLoaded', function() {
         align-items: center !important;
         line-height: 20px !important;
         height: 20px !important;
+    }
+
+    /* 一番槍バッジのスタイル */
+    .first-post-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        margin-left: 10px;
+        background: linear-gradient(135deg, #B8860B 0%, #8B6508 100%);
+        color: #fff;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(184, 134, 11, 0.3);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .first-post-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(184, 134, 11, 0.4);
     }
 
     .sss-author {
@@ -754,9 +808,30 @@ document.addEventListener('DOMContentLoaded', function() {
             font-size: 0.85em !important;
         }
 
+        .sss-event {
+            flex: 0 0 auto !important;
+            white-space: nowrap !important;
+            font-size: 0.85em !important;
+            margin-left: 5px !important;
+        }
+
+        .sss-month {
+            flex: 0 0 auto !important;
+            white-space: nowrap !important;
+            font-size: 0.85em !important;
+            margin-left: 5px !important;
+        }
+
         .sss-date {
             font-size: 0.85em !important;
             white-space: nowrap !important;
+        }
+
+        /* スマホ用の一番槍バッジ */
+        .first-post-badge {
+            font-size: 0.75em;
+            padding: 2px 8px;
+            margin-left: 5px;
         }
     }
 
