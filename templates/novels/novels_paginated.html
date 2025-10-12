@@ -1,6 +1,7 @@
 <!-- novels/novels_paginated.html -->
 {% extends 'base.html' %}
 {% load humanize %}
+{% load novel_filters %}
 {% block body_class %}novels-paginated{% endblock %}
 
 {% block extra_head %}
@@ -161,6 +162,25 @@
         font-weight: 600;
     }
 
+    /* 一番槍バッジのスタイル */
+    .first-post-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        margin-left: 10px;
+        background: linear-gradient(135deg, #B8860B 0%, #8B6508 100%);
+        color: #fff;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(184, 134, 11, 0.3);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .first-post-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(184, 134, 11, 0.4);
+    }
+
     /* レスポンシブ対応の改善 */
     @media (max-width: 768px) {
         .filter-options {
@@ -261,6 +281,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <col>
                 <col>
                 <col>
+                <col>
+                <col>
             </colgroup>
             <thead>
                 <tr>
@@ -274,6 +296,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'genre' %}-{% endif %}genre"
                            class="sort-header {% if 'genre' in sort %}active{% endif %}">
                             ジャンル
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'event' %}-{% endif %}event"
+                           class="sort-header {% if 'event' in sort %}active{% endif %}">
+                            イベント
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if request.GET.urlencode %}{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}sort={% if sort == 'same_title_event_month' %}-{% endif %}same_title_event_month"
+                           class="sort-header {% if 'same_title_event_month' in sort %}active{% endif %}">
+                            年月
                         </a>
                     </th>
                     <th>
@@ -313,7 +347,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 <tr>
                     <td>{{ novel.word_count|intcomma }}</td>
                     <td>{{ novel.genre }}</td>
-                    <td><a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title|truncatechars:15 }}</a></td>
+                    <td>{{ novel.event|default:"-" }}</td>
+                    <td>
+                        {% if novel.same_title_event_month %}
+                            {{ novel.same_title_event_month|format_event_month }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title|truncatechars:15 }}</a>
+                        {% if novel.is_first_post %}
+                            <span class="first-post-badge">🏆 一番槍</span>
+                        {% endif %}
+                    </td>
                     <td>
                         {% if novel.author__nickname %}
                             <a href="{% url 'accounts:view_other_profile' novel.author_id %}">{{ novel.author__nickname|truncatechars:8 }}</a>
