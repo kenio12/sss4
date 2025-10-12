@@ -292,11 +292,11 @@ document.addEventListener('DOMContentLoaded', function() {
     {% if page_obj.object_list|length > 0 %}
         <table class="sticky-header">
             <colgroup>
-                <col style="width: 120px;"> <!-- 列1 -->
-                <col style="width: 150px;"> <!-- 列2 -->
-                <col style="width: 150px;"> <!-- 列3 -->
-                <col style="width: 120px;"> <!-- 列4 -->
-                <col style="width: 120px;"> <!-- 列5 -->
+                <col style="width: 250px;"> <!-- 列1: 作品名 -->
+                <col style="width: 150px;"> <!-- 列2: ジャンル/作家名 -->
+                <col style="width: 150px;"> <!-- 列3: イベント/投稿日 -->
+                <col style="width: 100px;"> <!-- 列4: 年月 -->
+                <col style="width: 80px;">  <!-- 列5: いいね/コメ -->
             </colgroup>
             <thead>
                 <tr>
