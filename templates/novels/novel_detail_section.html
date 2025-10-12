@@ -33,12 +33,14 @@
     </div>
 
     <!-- タイトルセクション -->
-    <h2 class="novel-title card-title">
-        {{ novel.title }}
+    <div class="title-section">
+        <h2 class="novel-title card-title">
+            {{ novel.title }}
+        </h2>
         {% if novel.is_first_post %}
             <span class="first-post-badge">🗡️ 一番槍</span>
         {% endif %}
-    </h2>
+    </div>
 
     <!-- 編集ボタンを追加 -->
     {% if user.is_authenticated and can_edit %}
@@ -134,6 +136,25 @@
 
     .novel-title {
         clear: both !important;
+    }
+
+    /* タイトルセクションのレイアウト */
+    .title-section {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: 0.5rem !important;
+        margin-bottom: 15px;
+    }
+
+    .title-section .novel-title {
+        margin: 0 !important;
+    }
+
+    /* 一番槍バッジ */
+    .first-post-badge {
+        font-size: 0.8em;
+        white-space: nowrap;
     }
 </style>
 
