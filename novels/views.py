@@ -649,14 +649,7 @@ def index(request):
     # 現在の並び替え状態に基づいての状態を決定
     next_order = 'asc' if order == 'desc' else 'desc'
 
-    # ソート後にvalues()でフィールドを明示的に指定（novels-paginatedと同じ）
-    novels_list = novels_list.values(
-        'id', 'title', 'word_count',
-        'author__id', 'author__nickname',
-        'published_date', 'genre', 'event',
-        'same_title_event_month', 'is_first_post',
-        'likes_count', 'comments_count'
-    )
+    # SSR用にはモデルインスタンスのまま（.values()は使わない）
 
 # 遅延読み込みの手続き・・かっこいいが。
 
@@ -666,8 +659,14 @@ def index(request):
     page_obj = paginator.get_page(page_number)
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        # すでにvalues()で辞書のリストになってるから、そのまま使う
-        novels = list(page_obj.object_list)
+        # Ajax用に.values()で辞書形式に変換
+        novels = list(page_obj.object_list.values(
+            'id', 'title', 'word_count',
+            'author__id', 'author__nickname',
+            'published_date', 'genre', 'event',
+            'same_title_event_month', 'is_first_post',
+            'likes_count', 'comments_count'
+        ))
 
         for novel in novels:
             novel['published_date'] = novel['published_date'].strftime("%Y年%m%d日")
