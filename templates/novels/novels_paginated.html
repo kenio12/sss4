@@ -46,9 +46,18 @@
         padding: 12px 10px;
         border-bottom: 1px solid #eee;
         vertical-align: middle;
-        white-space: nowrap;
+    }
+
+    /* タイトルセルは2行表示 */
+    .title-cell {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
+        line-height: 1.4;
+        max-height: calc(1.4em * 2);
+        white-space: normal;
     }
 
     /* ソートヘッダーのスタイル改善 */
@@ -363,8 +372,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             -
                         {% endif %}
                     </td>
-                    <td>
-                        <a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title|truncatechars:15 }}</a>
+                    <td class="title-cell">
+                        <a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title }}</a>
                         {% if novel.is_first_post %}
                             <span class="first-post-badge">🗡️ 一番槍</span>
                         {% endif %}
