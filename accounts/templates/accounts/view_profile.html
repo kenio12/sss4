@@ -177,15 +177,84 @@
                 <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
                     {% if novel.genre %}
                         {% with style=novel.get_genre_style %}
-                            <span class="genre-badge" style="background-color: {{ style.bg }}; color: {{ style.text }}; display: inline-block !important; padding: 4px 15px !important; border-radius: 50px !important; font-weight: bold !important; font-size: 0.95em !important; margin-right: 12px !important; box-shadow: 0 3px 6px rgba(0,0,0,0.2) !important; transition: all 0.3s ease !important; border: 2px solid rgba(255,255,255,0.2) !important; letter-spacing: 0.5px !important; min-width: 70px !important; text-align: center !important;">{{ novel.get_genre_display }}</span> | 
+                            <span class="genre-badge" style="background-color: {{ style.bg }}; color: {{ style.text }}; display: inline-block !important; padding: 4px 15px !important; border-radius: 50px !important; font-weight: bold !important; font-size: 0.95em !important; margin-right: 12px !important; box-shadow: 0 3px 6px rgba(0,0,0,0.2) !important; transition: all 0.3s ease !important; border: 2px solid rgba(255,255,255,0.2) !important; letter-spacing: 0.5px !important; min-width: 70px !important; text-align: center !important;">{{ novel.get_genre_display }}</span> |
                         {% endwith %}
                     {% endif %}
-                    文字数: {{ novel.word_count }} | 
+                    文字数: {{ novel.word_count }} |
                     投稿日: {{ novel.created_at|date:"Y年m月d日" }}
                 </div>
             </div>
         </a>
     {% endfor %}
+</div>
+
+<!-- 🆕 イベント実績セクション（Step 3 & 4） -->
+<div class="full-width-adjust" style="margin-bottom: 30px;">
+    <h3 style="color: #e67e22; font-size: 1.5em; margin-bottom: 20px;">🎯 イベント実績</h3>
+
+    <!-- 一番槍獲得歴 -->
+    <div style="margin-bottom: 25px;">
+        <h4 style="color: #27ae60; font-size: 1.2em; margin-bottom: 10px;">🏆 一番槍獲得歴</h4>
+        {% if ichiban_yari_records %}
+            {% for record in ichiban_yari_records %}
+            <div style="padding: 12px; background: #e8f8f5; border-left: 4px solid #27ae60; border-radius: 8px; margin-bottom: 8px;">
+                <span style="font-weight: bold; color: #16a085;">{{ record.same_title_event_month|date:"Y年m月" }}</span>
+                <span style="margin: 0 10px;">「{{ record.title }}」</span>
+                <span style="font-size: 1.3em;">🏆</span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: #95a5a6; font-style: italic;">まだ一番槍を取っていません</p>
+        {% endif %}
+    </div>
+
+    <!-- 一番盾獲得歴 -->
+    <div style="margin-bottom: 25px;">
+        <h4 style="color: #3498db; font-size: 1.2em; margin-bottom: 10px;">🛡️ 一番盾獲得歴</h4>
+        {% if ichiban_tate_records %}
+            {% for record in ichiban_tate_records %}
+            <div style="padding: 12px; background: #ebf5fb; border-left: 4px solid #3498db; border-radius: 8px; margin-bottom: 8px;">
+                <span style="font-weight: bold; color: #2874a6;">{{ record.month }}</span>
+                <span style="margin: 0 10px;">「{{ record.title }}」</span>
+                <span style="font-size: 1.3em;">🛡️</span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: #95a5a6; font-style: italic;">まだ一番盾を取っていません</p>
+        {% endif %}
+    </div>
+
+    <!-- 同タイトル崩れ歴 -->
+    <div style="margin-bottom: 25px;">
+        <h4 style="color: #e74c3c; font-size: 1.2em; margin-bottom: 10px;">💔 同タイトル崩れ歴</h4>
+        {% if same_title_failure_records %}
+            {% for record in same_title_failure_records %}
+            <div style="padding: 12px; background: #fadbd8; border-left: 4px solid #e74c3c; border-radius: 8px; margin-bottom: 8px;">
+                <span style="font-weight: bold; color: #c0392b;">{{ record.same_title_event_month|date:"Y年m月" }}</span>
+                <span style="margin: 0 10px;">「{{ record.title }}」</span>
+                <span style="font-size: 1.3em;">💔</span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: #95a5a6; font-style: italic;">同タイトル崩れ歴はありません</p>
+        {% endif %}
+    </div>
+
+    <!-- 祭り参加歴 -->
+    <div style="margin-bottom: 25px;">
+        <h4 style="color: #9b59b6; font-size: 1.2em; margin-bottom: 10px;">🎪 祭り参加歴</h4>
+        {% if maturi_records %}
+            {% for record in maturi_records %}
+            <div style="padding: 12px; background: #f4ecf7; border-left: 4px solid #9b59b6; border-radius: 8px; margin-bottom: 8px;">
+                <span style="font-weight: bold; color: #7d3c98;">{{ record.published_date|date:"Y年m月" }}</span>
+                <span style="margin: 0 10px;">「{{ record.title }}」</span>
+                <span style="font-size: 1.3em;">🎪</span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: #95a5a6; font-style: italic;">祭りに参加していません</p>
+        {% endif %}
+    </div>
 </div>
 
 

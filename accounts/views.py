@@ -270,7 +270,7 @@ def view_profile(request):
         models.Q(author=request.user) | models.Q(original_author=request.user),
         status='draft'
     ).order_by('-created_at')
-    
+
     published = Novel.objects.filter(
         models.Q(author=request.user) | models.Q(original_author=request.user),
         status='published'
@@ -299,6 +299,35 @@ def view_profile(request):
     # ここで 'is_index_page' を追加する
     is_index_page = request.path == '/'  # トップページのパスに応じて変更するかもしれん
 
+    # 🆕 イベント履歴データを取得（Step 3 & 4）
+    # 一番槍獲得歴
+    ichiban_yari_records = Novel.objects.filter(
+        models.Q(author=request.user) | models.Q(original_author=request.user),
+        is_first_post=True,
+        event='同タイトル',
+        status='published'
+    ).order_by('-same_title_event_month')
+
+    # 一番盾獲得歴（MonthlySameTitleInfoから取得）
+    from game_same_title.models import MonthlySameTitleInfo
+    ichiban_tate_records = MonthlySameTitleInfo.objects.filter(
+        proposer=request.user
+    ).order_by('-month')
+
+    # 同タイトル崩れ歴
+    same_title_failure_records = Novel.objects.filter(
+        models.Q(author=request.user) | models.Q(original_author=request.user),
+        is_same_title_failure=True,
+        status='published'
+    ).order_by('-same_title_event_month')
+
+    # 祭り参加歴
+    maturi_records = Novel.objects.filter(
+        models.Q(author=request.user) | models.Q(original_author=request.user),
+        event='祭り',
+        status='published'
+    ).order_by('-published_date')
+
     context = {
         'profile': profile,
         'drafts': drafts,
@@ -309,7 +338,12 @@ def view_profile(request):
         'selected_writer_novels': selected_writer_novels,
         'selected_writer_id': selected_writer_id,
         'selected_writer_nickname': selected_writer_nickname,
-        'is_index_page': is_index_page
+        'is_index_page': is_index_page,
+        # 🆕 イベント履歴を追加
+        'ichiban_yari_records': ichiban_yari_records,
+        'ichiban_tate_records': ichiban_tate_records,
+        'same_title_failure_records': same_title_failure_records,
+        'maturi_records': maturi_records,
     }
 
     return render(request, 'accounts/view_profile.html', context)
