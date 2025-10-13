@@ -61,18 +61,51 @@
                 </div>
             </div>
 
-            <div>
-                <strong>参考まで：</strong>
-                <ul class="titles-list">
-                    {% if titles %}
-                        {% for title in titles %}
-                        <li>{{ title }}</li>
-                        {% endfor %}
-                    {% else %}
-                        <li>{{ year }}年の同タイトルは、まだありません。</li>
-                    {% endif %}
-                </ul>
-            </div>
+            <!-- 🆕 Step 4: 今年の同タイトル提案一覧（参考表示） -->
+            <section class="reference-section" style="margin: 30px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #3498db;">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;">📊 参考：今年の同タイトル提案一覧</h3>
+                <p style="color: #7f8c8d; margin-bottom: 20px;">今年（{{ current_year }}年）に提案された同タイトル候補です。一番槍タイトルは🏆マークで表示されます。</p>
+
+                {% if yearly_proposals %}
+                <div class="table-responsive">
+                    <table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <thead>
+                            <tr style="background: #34495e; color: white;">
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #2c3e50;">年月</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #2c3e50;">タイトル</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #2c3e50;">提案者</th>
+                                <th style="padding: 12px; text-align: center; border-bottom: 2px solid #2c3e50;">状態</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for proposal in yearly_proposals %}
+                            <tr style="{% if proposal.is_ichiban_yari %}background: #fff3cd;{% else %}background: white;{% endif %} border-bottom: 1px solid #dee2e6;">
+                                <td style="padding: 12px;">{{ proposal.proposal_month|date:"Y年m月" }}</td>
+                                <td style="padding: 12px; font-weight: {% if proposal.is_ichiban_yari %}bold{% else %}normal{% endif %};">
+                                    {{ proposal.title }}
+                                    {% if proposal.is_ichiban_yari %}
+                                    <span style="font-size: 1.2em; margin-left: 8px;">🏆</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 12px;">
+                                    {% include 'gallery/includes/nickname_badge.html' with user=proposal.proposer %}
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    {% if proposal.is_ichiban_yari %}
+                                    <span style="display: inline-block; padding: 4px 12px; background: #ffc107; color: #000; border-radius: 12px; font-size: 0.85em; font-weight: bold;">一番槍</span>
+                                    {% else %}
+                                    <span style="display: inline-block; padding: 4px 12px; background: #6c757d; color: white; border-radius: 12px; font-size: 0.85em;">提案済み</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p style="color: #7f8c8d; text-align: center; padding: 20px;">{{ current_year }}年の同タイトル提案はまだありません。</p>
+                {% endif %}
+            </section>
 
             <h2 class="phrase-heading">次に語句を入力してください</h2>
             <div class="excel-like-container">
