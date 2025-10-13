@@ -203,7 +203,7 @@
 
 
 <div style="margin-top: 20px; margin-left: 30px; margin-right: 30px; padding: 20px; background-color: #f0f8ff; border: 1px solid #B2E8F9;">
-  
+
   {% if decided_title %}
     <div style="position: relative; padding-left: 15px;">
       <h4 style="margin-bottom: 20px;">
@@ -216,24 +216,44 @@
       <h4 style="margin-bottom: 20px;">
         同タイトルの提案者や！：<span class="highlighted">{{ decided_title.proposer_nickname }}</span>
       </h4>
+    </div>
 
-      {% if user.is_authenticated %}
-        <a href="{% url 'game_same_title:same_title_post' %}" class="btn btn-success btn-lg" style="margin-top: 20px; font-size: 25px;">
+    <!-- 一番槍が決まった後：2つの選択肢 -->
+    {% if user.is_authenticated %}
+      <div style="margin-top: 20px;">
+        <a href="{% url 'game_same_title:post_or_edit_same_title' %}" class="btn btn-success btn-lg" style="font-size: 25px; margin-right: 10px;">
           「{{ decided_title.title }}」で小説を書く
         </a>
-      {% else %}
-        <div class="alert alert-info" role="alert" style="margin-top: 20px;">
-          同タイトルで小説を書くには、<a href="{% url 'accounts:login' %}">ログイン</a>または<a href="{% url 'accounts:signup' %}">サインアップ</a>してください。
-        </div>
-      {% endif %}
-    </div>
+        <a href="{% url 'game_same_title:all_same_title_novels' %}" class="btn btn-primary btn-lg" style="font-size: 25px;">
+          過去の同タイトルで書く
+        </a>
+      </div>
+    {% else %}
+      <div class="alert alert-info" role="alert" style="margin-top: 20px;">
+        同タイトルで小説を書くには、<a href="{% url 'accounts:login' %}">ログイン</a>または<a href="{% url 'accounts:signup' %}">サインアップ</a>してください。
+      </div>
+    {% endif %}
+
   {% else %}
-  <div style="position: relative; padding-left: 15px;">
-    <h4 style="margin-bottom: 20px;">
-      <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: #8ecae6;"></div>
-      今月の同タイトルはまだ決定されておりません。
-    </h4>
-  </div>
+    <div style="position: relative; padding-left: 15px;">
+      <h4 style="margin-bottom: 20px;">
+        <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: #8ecae6;"></div>
+        今月の同タイトルはまだ決定されておりません。
+      </h4>
+    </div>
+
+    <!-- 一番槍が決まる前：同タイトルで書くボタン -->
+    {% if user.is_authenticated %}
+      <div style="margin-top: 20px;">
+        <a href="{% url 'game_same_title:post_or_edit_same_title' %}" class="btn btn-success btn-lg" style="font-size: 25px;">
+          同タイトルで小説を書く（一番槍を狙う）
+        </a>
+      </div>
+    {% else %}
+      <div class="alert alert-info" role="alert" style="margin-top: 20px;">
+        同タイトルで小説を書くには、<a href="{% url 'accounts:login' %}">ログイン</a>または<a href="{% url 'accounts:signup' %}">サインアップ</a>してください。
+      </div>
+    {% endif %}
   {% endif %}
   
   <h4 style="position: relative; padding-left: 15px;">

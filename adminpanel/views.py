@@ -22,21 +22,36 @@ def is_admin(user):
 @login_required
 @user_passes_test(is_admin)
 def maturi_game_setup(request):
+    from game_same_title.models import TitleProposal  # TitleProposal追加インポート
+
     User = get_user_model()
     game = None  # 新規作成時はNone
     entrants = []  # 新規作成時は空のリスト
-    
-    # titlesの初期化をif-else文の外に移動
+
+    # 🆕 Step 4: 今年の同タイトル提案一覧を取得（提案者情報・一番槍情報付き）
     selected_year = datetime.datetime.now().year
-    titles = MonthlySameTitleInfo.objects.filter(month__startswith=str(selected_year)).values_list('title', flat=True)
-    
+
+    # 今年の全提案タイトルを取得
+    yearly_proposals = TitleProposal.objects.filter(
+        proposal_month__year=selected_year
+    ).select_related('proposer').order_by('-proposal_month')
+
+    # 各提案に一番槍情報を追加
+    for proposal in yearly_proposals:
+        # この提案タイトルが一番槍になったか確認
+        monthly_info = MonthlySameTitleInfo.objects.filter(
+            month=proposal.proposal_month.strftime('%Y-%m'),
+            title=proposal.title
+        ).first()
+        proposal.is_ichiban_yari = monthly_info is not None
+
     if request.method == 'POST':
         form = MaturiGameForm(request.POST)
         if form.is_valid():
             try:
                 # フォームの基本情報を保存
                 maturi_game = form.save()
-                
+
                 # 12個の語句を処理
                 phrases = []
                 for i in range(1, 13):
@@ -45,11 +60,11 @@ def maturi_game_setup(request):
                         phrase_text = re.sub(r'\s+', '', phrase_text)
                         phrase, created = Phrase.objects.get_or_create(text=phrase_text)
                         phrases.append(phrase)
-                
+
                 # 語句を追加
                 if phrases:
                     maturi_game.phrases.add(*phrases)
-                
+
                 messages.success(request, '祭りの設定を完了しました！')
                 return redirect('adminpanel:maturi_setting_list')
             except Exception as e:
@@ -63,7 +78,8 @@ def maturi_game_setup(request):
 
     context = {
         'form': form,
-        'titles': titles,
+        'yearly_proposals': yearly_proposals,  # 🆕 提案一覧を追加
+        'current_year': selected_year,  # 🆕 現在の年を追加
         'errors': form.errors if hasattr(form, 'errors') else None,
         'all_users': User.objects.all(),
         'game': game,
