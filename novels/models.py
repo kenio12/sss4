@@ -105,6 +105,13 @@ class Novel(models.Model):
         help_text="一番槍フラグが付与された日時"
     )
 
+    # 🆕 同タイトル崩れフラグ（2025-10-13追加）
+    is_same_title_failure = models.BooleanField(
+        default=False,
+        verbose_name="同タイトル崩れ",
+        help_text="一番槍確定後、別タイトルで投稿した作品"
+    )
+
     # sssのデータ注入時、一時的にコメントアウトしていた
     original_author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
