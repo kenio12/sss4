@@ -122,6 +122,16 @@ class Novel(models.Model):
 
     scheduled_at = models.DateTimeField(null=True, blank=True)  # 予約公開日時
 
+    class Meta:
+        constraints = [
+            # 🆕 一番槍は同タイトル・同月で1件のみ（データベースレベル保証）
+            models.UniqueConstraint(
+                fields=['title', 'same_title_event_month'],
+                condition=models.Q(event='同タイトル', status='published', is_first_post=True),
+                name='unique_first_post_per_month'
+            )
+        ]
+
     @property
     def color_index(self):
         """
@@ -168,17 +178,25 @@ class Novel(models.Model):
             if not self.pk and not self.same_title_event_month:
                 self.same_title_event_month = timezone.now().strftime('%Y-%m')
 
-        # 🆕 一番槍判定
+        # 🆕 一番槍判定（TOCTOU競合対策：トランザクション内でsave完了）
         if self.event != '同タイトル' or self.status != 'published':
             # 同タイトルでない、または非公開の場合は一番槍フラグをクリア
             self.is_first_post = False
             self.first_post_acquired_at = None
+            super(Novel, self).save(*args, **kwargs)
         elif self.status == 'published':
             # 同タイトル + 公開状態の場合は一番槍判定
             with transaction.atomic():
+                # まず自分のレコードを確定させる（他の並列処理が参照できるように）
+                super(Novel, self).save(*args, **kwargs)
+                # 一番槍判定を実行（select_for_update()でロック）
                 self._check_first_post()
-
-        super(Novel, self).save(*args, **kwargs)
+                # フラグ更新を保存
+                super(Novel, self).save(update_fields=[
+                    'is_first_post', 'first_post_acquired_at', 'is_same_title_failure'
+                ])
+        else:
+            super(Novel, self).save(*args, **kwargs)
 
     def _check_first_post(self):
         """一番槍判定＋同タイトル崩れ判定処理（競合対策付き）"""
