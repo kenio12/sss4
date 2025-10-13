@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px; text-align: center;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 40px; background-color: #fff3cd; border: 3px solid #ffc107; border-radius: 10px;">
+        <h1 style="color: #856404; font-size: 2.5rem; margin-bottom: 20px;">
+            🚧 工事中 🚧
+        </h1>
+        <p style="font-size: 1.5rem; color: #856404; margin-bottom: 30px;">
+            {{ message }}
+        </p>
+        <p style="font-size: 1.2rem; color: #666;">
+            現在、同タイトルゲームの大規模リニューアル作業を行っています。<br>
+            より楽しく、より参加しやすいシステムに生まれ変わります！<br>
+            しばらくお待ちください。
+        </p>
+        <div style="margin-top: 40px;">
+            <a href="{% url 'home:home' %}" class="btn btn-primary" style="font-size: 1.2rem; padding: 15px 30px;">
+                ホームに戻る
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

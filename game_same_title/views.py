@@ -41,6 +41,11 @@ import json
 from django.utils.dateformat import DateFormat
 
 def same_title(request, page=1):
+    # 🚧 工事中メッセージ表示
+    return render(request, 'game_same_title/under_construction.html', {
+        'message': '現在、同タイトルは改修工事中です。お待ち願います。'
+    })
+
     current_month_date = timezone.now().date().replace(day=1)
     current_year = current_month_date.year
     current_month = current_month_date.month
