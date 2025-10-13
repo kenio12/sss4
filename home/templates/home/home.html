@@ -265,6 +265,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="sss-info-row">
+                    <div class="sss-author">
+                        {% if novel.author %}
+                            <a href="{% url 'accounts:view_other_profile' user_id=novel.author.id %}">{{ novel.author.nickname }}</a>
+                        {% else %}
+                            <span>作者不明</span>
+                        {% endif %}
+                    </div>
+                    <div class="sss-date">{{ novel.published_date|date:"Y/m/d" }}</div>
+                </div>
+                <div class="sss-info-row">
+                    <div class="sss-count">{{ novel.word_count }}文字</div>
+                    <div class="sss-genre">{{ novel.genre }}</div>
                     <div class="sss-event">
                         {% if novel.event == "同タイトル" %}同{% elif novel.event == "祭り" %}祭{% else %}{{ novel.event|default:"-" }}{% endif %}
                     </div>
