@@ -181,7 +181,7 @@ class Novel(models.Model):
         super(Novel, self).save(*args, **kwargs)
 
     def _check_first_post(self):
-        """一番槍判定処理（競合対策付き）"""
+        """一番槍判定＋同タイトル崩れ判定処理（競合対策付き）"""
         # 同じタイトル + 同じ月の公開済み小説を検索（ロック取得）
         same_title_same_month = Novel.objects.select_for_update().filter(
             title=self.title,
@@ -200,6 +200,22 @@ class Novel(models.Model):
             # 既に取得日時が設定されている場合は保持
             if not self.first_post_acquired_at:
                 self.first_post_acquired_at = timezone.now()
+
+        # 🆕 同タイトル崩れ判定
+        # 同じ月に一番槍が既に確定している場合、別タイトルで投稿したら崩れ
+        first_spear_exists = Novel.objects.filter(
+            event='同タイトル',
+            same_title_event_month=self.same_title_event_month,
+            is_first_post=True,
+            status='published'
+        ).exclude(id=self.id).exists()
+
+        if first_spear_exists and not self.is_first_post:
+            # 一番槍が既に確定していて、自分が一番槍でない場合は「同タイトル崩れ」
+            self.is_same_title_failure = True
+        else:
+            # 一番槍が未確定 or 自分が一番槍の場合は崩れではない
+            self.is_same_title_failure = False
 
     def __str__(self):
         return self.title  # ここを追加

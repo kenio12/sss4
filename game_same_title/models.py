@@ -18,22 +18,6 @@ class TitleProposal(models.Model):
         return f"{self.title} ({self.proposal_month.strftime('%Y-%m')})"
 
 
-from django.conf import settings
-from django.db import models
-
-class SameTitleEntry(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")
-    month = models.DateField(verbose_name="エントリー月")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="エントリー日時")
-
-
-    class Meta:
-        unique_together = ('user', 'month')
-
-    def __str__(self):
-        return f"{self.user}が{self.month}にエントリー"
-
-
 from django.db import models
 
 class MonthlySameTitleInfo(models.Model):
