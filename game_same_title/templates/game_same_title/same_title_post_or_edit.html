@@ -2,9 +2,16 @@
 {% load static %}
 
 {% block content %}
-{% if edit %}
-
-{% include 'novels/novel_detail_section.html' with novel=novel is_published=is_published hide_edit_button=True %}
+{% if edit and novel.content %}
+    <div class="novel-detail-section">
+        {% include 'novels/novel_detail_section.html' with novel=novel is_published=is_published hide_edit_button=True %}
+    </div>
+    <hr style="margin-top: 0;">
+    <p class="toggle-message" id="message-warning" style="display:none;">
+        ↑こんな感じの仕上がりや！　気に入らへんのなら下↓の欄で編集してやー
+        <button class="toggle-message-button">非表示</button>
+    </p>
+{% endif %}
 
 <style>
     .form-group label {
@@ -94,6 +101,16 @@
     <select class="form-control" id="{{ form.initial.id_for_label }}" name="{{ form.initial.name }}">
         {% for choice_value, choice_label in form.initial.field.choices %}
             <option value="{{ choice_value }}" {% if form.initial.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- ジャンル選択フィールド -->
+<div class="form-group">
+    <label for="{{ form.genre.id_for_label }}" style="margin-bottom: 15px;">ジャンル</label>
+    <select class="form-control" id="{{ form.genre.id_for_label }}" name="{{ form.genre.name }}">
+        {% for choice_value, choice_label in form.genre.field.choices %}
+            <option value="{{ choice_value }}" {% if form.genre.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
         {% endfor %}
     </select>
 </div>

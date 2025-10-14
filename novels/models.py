@@ -7,6 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # ジャンルの選択肢（同タイトル・祭りはeventに移動）
+# 注：「旧同タイトル」「旧祭り」は過去データ用に存在するが、新規選択肢には表示しない
 GENRE_CHOICES = [
     ('レジェンド小説', 'レジェンド小説'),
     ('初めましての挨拶', '初めましての挨拶'),
@@ -56,6 +57,9 @@ GENRE_STYLES = {
     '私小説': {'bg': '#BC8F8F', 'text': 'white'},  # ロージーブラウン
     '官能': {'bg': '#FF1493', 'text': 'white'},  # ディープピンク
     '三題噺': {'bg': '#BA55D3', 'text': 'white'},  # ミディアムオーキッド
+    # 🔥 歴史的ジャンル（表示用のみ、新規選択肢には表示しない）🔥
+    '旧同タイトル': {'bg': '#228B22', 'text': 'white'},  # フォレストグリーン
+    '旧祭り': {'bg': '#FFA500', 'text': 'black'},  # オレンジ
 }
 
 class Novel(models.Model):

@@ -11,11 +11,18 @@ from django import forms
 from django.utils import timezone
 from datetime import timedelta
 from utils.constants import INITIAL_CHOICES
+from novels.models import GENRE_CHOICES
 
 class NovelForm(ModelForm):
     initial = forms.ChoiceField(choices=INITIAL_CHOICES, label='イニシャル', required=False)
     is_same_title_game = forms.BooleanField(label='同タイトル', required=False, initial=True)
     status = forms.CharField(widget=forms.HiddenInput(), required=False, initial='published')
+    genre = forms.ChoiceField(
+        choices=GENRE_CHOICES,
+        label='ジャンル',
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
     def clean(self):
         """バリデーション時に同タイトル設定を強制"""
@@ -55,7 +62,7 @@ class NovelForm(ModelForm):
 
     class Meta:
         model = Novel
-        fields = ['title', 'content', 'is_same_title_game', 'initial', 'status']
+        fields = ['title', 'content', 'is_same_title_game', 'initial', 'genre', 'status']
 
 
 class CommentForm(forms.ModelForm):
