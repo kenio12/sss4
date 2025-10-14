@@ -969,6 +969,106 @@ for proposal in all_proposals:
 |------|----------|---------|
 | 2025-10-13 | 1.0 FINAL | 初版作成（全7項目統合版） |
 | 2025-10-14 | 1.1 | 一番槍判定ロジック追記（same_title_event_month基準、タイトル選択制限） |
+| 2025-10-14 | 1.2 | 「俺もこのタイトルで作る」ボタン表示条件修正、募集タイトル除外 |
+
+---
+
+## 🔥🔥🔥 12. 「俺もこのタイトルで作る」ボタン表示条件（2025-10-14追記・超重要）
+
+### 背景
+- けーにもーんの指摘により、ボタン表示条件を修正
+- 未公開（draft）の編集画面にボタンが表示されてた問題を解決
+
+### ボタン表示の絶対ルール
+
+#### 表示条件
+「俺もこのタイトルで作る」ボタンは以下の条件を**全て満たす場合のみ**表示:
+
+1. **公開済み（status='published'）の小説であること**
+2. **同タイトルゲーム（event='同タイトル'）であること**
+3. **ログインしていること（user.is_authenticated）**
+
+#### 表示場所
+- **小説詳細画面のみ**（novel_detail.html / novel_detail_section.html）
+- 編集画面（post_or_edit_novel.html）には表示しない
+
+#### 自分の小説でもOK
+- **自分が公開した同タイトル小説でもボタンを表示**
+- 理由：創作意欲が高まり、同じタイトルでもう一度書きたくなることがある
+
+#### 具体例：山田さんのケース
+1. 山田さんが今月の同タイトルで一番槍「恋の物語」を公開投稿
+2. 山田さん自身が自分の公開した小説の詳細画面を見る
+3. 「俺もこのタイトルで作る」ボタンが表示される
+4. ボタンをクリックすると、同じタイトル「恋の物語」でもう一度新しい小説を書ける
+
+### 実装コード
+
+**テンプレート**: `templates/novels/novel_detail_section.html`
+
+```django
+<!-- 「俺もこのタイトルで作る」ボタン（公開済みの同タイトル小説の詳細画面のみ表示） -->
+{% if novel.event == '同タイトル' and novel.status == 'published' and user.is_authenticated %}
+    <div class="same-title-button-container" style="margin-top: 15px; margin-bottom: 15px; margin-left: 0.5rem;">
+        <a href="{% url 'novels:post_novel' %}?title={{ novel.title|urlencode }}" class="btn same-title-button" style="display: inline-flex; align-items: center; height: 38px; line-height: 26px; padding: 5px 15px; font-size: 20px; border-radius: 20px; background-color: #ff6b6b; color: white; text-decoration: none; transition: background-color 0.3s;">
+            <span>俺もこのタイトルで作る</span>
+        </a>
+    </div>
+{% endif %}
+```
+
+### 修正前の問題点
+1. **未公開（draft）の編集画面にもボタンが表示**
+   - 保存しただけの下書き状態でボタンが出てた
+   - 自分の編集画面に「俺もこのタイトルで作る」ボタンはおかしい
+
+2. **status チェックなし**
+   - `novel.event == '同タイトル'` だけで判定してた
+   - `novel.status == 'published'` 条件が欠けてた
+
+### 修正後の仕様
+1. **公開済み（published）の詳細画面のみ表示**
+2. **自分の小説でも他人の小説でも、公開されてればOK**
+3. **未公開（draft）の編集画面には表示しない**
+
+---
+
+## 🔥🔥🔥 13. 過去の同タイトル一覧から募集タイトル除外（2025-10-14追記・超重要）
+
+### 背景
+- けーにもーんの指摘により、「募集します」を含むタイトルを除外
+- これは小説ではなく募集告知なので、同タイトル一覧から除外すべき
+
+### 除外ルール
+
+#### 除外対象
+- **タイトルに「募集します」を含む投稿**
+- これらは同タイトルゲームの募集告知であり、小説ではない
+
+#### 実装コード
+
+**View**: `game_same_title/views.py` の `all_same_title_novels` 関数
+
+```python
+def all_same_title_novels(request):
+    """
+    過去の同タイトル小説を全て表示
+    「募集します」を含むタイトルは除外
+    """
+    novels = Novel.objects.filter(
+        is_same_title_game=True,
+        status='published'
+    ).exclude(
+        title__contains='募集します'  # 🆕 募集告知を除外
+    ).order_by('-published_date').select_related('author')
+
+    # ... （以降のコードは省略）
+```
+
+### 効果
+- **過去の同タイトル一覧が整理される**
+- **募集告知（小説ではない）が表示されなくなる**
+- **ユーザーが本当の小説だけを見れる**
 
 ---
 
