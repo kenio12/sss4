@@ -66,19 +66,26 @@
 
 <!-- タイトルフィールド -->
 <div class="form-group">
-    <label for="{{ form.title.id_for_label }}" style="margin-bottom: 15px;">タイトル（最初、自分の提案は選択肢出てきません）</label>
-    <select class="form-control" id="{{ form.title.id_for_label }}" name="{{ form.title.name }}">
-        <!-- デフォルトオプションを常に最初に表示 -->
-        <option value="">選択してください</option>
-        {% if current_month_same_title_info and current_month_same_title_info.title %}
-            <!-- 現在の月のタイトルがある場合、それを選択肢に追加 -->
-            <option value="{{ current_month_same_title_info.title }}" {% if form.title.value == current_month_same_title_info.title %}selected{% endif %}>{{ current_month_same_title_info.title }}</option>
-        {% endif %}
-        <!-- 前月の提案されたタイトルを選択肢に追加（自分の提案は除外済み） -->
-        {% for proposal in last_month_proposals %}
-            <option value="{{ proposal.title }}" {% if form.title.value == proposal.title %}selected{% endif %}>{{ proposal.title }}</option>
-        {% endfor %}
-    </select>
+    {% if current_month_same_title_info and current_month_same_title_info.title %}
+        <!-- 一番槍が決まった後：タイトル固定表示 -->
+        <label style="margin-bottom: 15px;">タイトル（今月の同タイトル）</label>
+        <div style="padding: 10px; background-color: #f0f8ff; border: 2px solid #8ecae6; border-radius: 5px; font-size: 1.2rem; font-weight: bold;">
+            {{ current_month_same_title_info.title }}
+        </div>
+        <!-- hidden inputで値を送信 -->
+        <input type="hidden" id="{{ form.title.id_for_label }}" name="{{ form.title.name }}" value="{{ current_month_same_title_info.title }}">
+    {% else %}
+        <!-- 一番槍が決まる前：タイトル選択 -->
+        <label for="{{ form.title.id_for_label }}" style="margin-bottom: 15px;">タイトル（最初、自分の提案は選択肢出てきません）</label>
+        <select class="form-control" id="{{ form.title.id_for_label }}" name="{{ form.title.name }}">
+            <!-- デフォルトオプションを常に最初に表示 -->
+            <option value="">選択してください</option>
+            <!-- 前月の提案されたタイトルを選択肢に追加（自分の提案は除外済み） -->
+            {% for proposal in last_month_proposals %}
+                <option value="{{ proposal.title }}" {% if form.title.value == proposal.title %}selected{% endif %}>{{ proposal.title }}</option>
+            {% endfor %}
+        </select>
+    {% endif %}
 </div>
 
 <!-- イニシャル選択フィールド -->
