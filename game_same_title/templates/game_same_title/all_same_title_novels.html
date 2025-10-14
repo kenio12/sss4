@@ -46,7 +46,7 @@
                     <td>{{ novel.word_count|intcomma }}</td>
                     <td>
                         <a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title }}</a>
-                        {% if novel.id in ichiban_yari_ids %}
+                        {% if novel.id in ichiban_yari_ids and novel.same_title_event_month %}
                             {% with proposal=monthly_proposals|get_item:novel.same_title_event_month %}
                                 {% if proposal %}
                                     <span class="proposer-name">(提案者: {{ proposal.proposer.nickname }})</span>
