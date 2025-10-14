@@ -530,7 +530,7 @@ def post_or_edit_same_title(request, novel_id=None):
     }
 
     # デバッグ用のログ出力を追加
-    logger.debug(f"前月の提案数: {last_month_proposals.count()}")
+    logger.debug(f"前月の提案数: {len(last_month_proposals)}")
     logger.debug(f"JSONデータ: {last_month_proposals_json}")
 
     # フォームのタイトルフィールドの値をログに出力
