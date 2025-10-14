@@ -326,11 +326,14 @@ def post_or_edit_same_title(request, novel_id=None):
         if proposal.proposer == request.user:
             continue
 
-        proposal_month = proposal.proposal_month.strftime('%Y-%m')
+        # 🔥🔥🔥 same_title_event_month（提案月の翌月）を計算 🔥🔥🔥
+        proposal_date = proposal.proposal_month
+        event_month_date = proposal_date + relativedelta(months=1)
+        event_month = event_month_date.strftime('%Y-%m')
 
         # この月に一番槍がいるか確認
         ichiban_yari_info = next(
-            (info for info in months_with_ichiban_yari if info[0] == proposal_month),
+            (info for info in months_with_ichiban_yari if info[0] == event_month),
             None
         )
 
