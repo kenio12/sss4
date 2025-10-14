@@ -218,14 +218,11 @@
       </h4>
     </div>
 
-    <!-- 一番槍が決まった後：2つの選択肢 -->
+    <!-- 一番槍が決まった後：今月のタイトルで書く -->
     {% if user.is_authenticated %}
       <div style="margin-top: 20px;">
-        <a href="{% url 'game_same_title:post_or_edit_same_title' %}" class="btn btn-success btn-lg" style="font-size: 25px; margin-right: 10px;">
+        <a href="{% url 'game_same_title:post_or_edit_same_title' %}" class="btn btn-success btn-lg" style="font-size: 25px;">
           「{{ decided_title.title }}」で小説を書く
-        </a>
-        <a href="{% url 'game_same_title:all_same_title_novels' %}" class="btn btn-primary btn-lg" style="font-size: 25px;">
-          過去の同タイトルで書く
         </a>
       </div>
     {% else %}
@@ -309,7 +306,7 @@
         </tbody>
     </table>
 </div>
-<a href="{% url 'game_same_title:all_same_title_novels' %}" class="btn btn-primary" style="margin-top: 20px;">過去の同タイトルも見る</a>
+<a href="{% url 'game_same_title:all_same_title_novels' %}" class="btn btn-primary" style="margin-top: 20px;">過去の同タイトルを見る</a>
 
 </div>
 
