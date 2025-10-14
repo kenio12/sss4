@@ -310,33 +310,50 @@ def post_or_edit_same_title(request, novel_id=None):
 
     # エントリー制廃止により check_entered_last_month のアクセス制限を削除
 
-    # 前月の初日と最終日を計算
+    # 🔥🔥🔥 過去の全提案を取得（前月だけやなくて全部）🔥🔥🔥
     current_month = timezone.now().date().replace(day=1)
-    last_month_start = current_month - relativedelta(months=1)
-    last_month_end = current_month - timedelta(days=1)
 
-    # 前月のタイトル提案を取得
-    last_month_proposals = TitleProposal.objects.filter(
-        proposal_month__gte=last_month_start,
-        proposal_month__lte=last_month_end
-    ).exclude(proposer=request.user)  # 自分の提案は除外
+    # 🔥 一番槍が既にいる月を特定 🔥
+    months_with_ichiban_yari = MonthlySameTitleInfo.objects.values_list('month', 'title')
+
+    # 🔥 全ての過去の提案を取得 🔥
+    all_proposals = TitleProposal.objects.all().select_related('proposer')
+
+    # 🔥 タイトル選択肢を生成（一番槍制限適用）🔥
+    last_month_proposals = []
+    for proposal in all_proposals:
+        # 自分の提案は除外
+        if proposal.proposer == request.user:
+            continue
+
+        proposal_month = proposal.proposal_month.strftime('%Y-%m')
+
+        # この月に一番槍がいるか確認
+        ichiban_yari_info = next(
+            (info for info in months_with_ichiban_yari if info[0] == proposal_month),
+            None
+        )
+
+        if ichiban_yari_info:
+            # 一番槍がいる月 → 一番槍のタイトルのみ選択可能
+            if proposal.title == ichiban_yari_info[1]:
+                last_month_proposals.append(proposal)
+        else:
+            # 一番槍がいない月 → 全ての提案から選択可能
+            last_month_proposals.append(proposal)
 
     # デバッグ情報を詳しく出力
     logger.info("=== デバッグ情報 開始 ===")
-    logger.info(f"前月の期間: {last_month_start} から {last_month_end}")
-    logger.info(f"前月の提案数: {last_month_proposals.count()}")
-    
-    # 実際のSQLクエリを確認
-    logger.info("実行されるSQL:")
-    logger.info(str(last_month_proposals.query))
-    
+    logger.info(f"全提案数: {len(all_proposals)}")
+    logger.info(f"選択可能な提案数（一番槍制限適用後）: {len(last_month_proposals)}")
+
     # 各提案の詳細を確認
     for proposal in last_month_proposals:
         logger.info(f"提案詳細: ID={proposal.id}, タイトル={proposal.title}, "
                    f"提案者={proposal.proposer}, 提案日={proposal.proposed_at}, "
                    f"提案月={proposal.proposal_month}")
 
-    # JSONシリアライズの確認
+    # JSONシリアライズの確認（リストに変換してから）
     last_month_proposals_json = serializers.serialize('json', last_month_proposals)
     logger.info(f"JSONデータ: {last_month_proposals_json}")
 
