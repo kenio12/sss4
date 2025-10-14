@@ -146,33 +146,45 @@ def all_same_title_novels(request):
         is_same_title_game=True,
         status='published'
     ).order_by('-published_date').select_related('author')
-    
-    # 月ごとの提案者情報と一番槍情報を MonthlySameTitleInfo から取得
+
+    # 🔥 一番槍判定：各タイトル・各月で最古の投稿を特定 🔥
+    from collections import defaultdict
+    ichiban_yari_ids = set()
+
+    # タイトル・月ごとにグループ化
+    novels_by_title_month = defaultdict(list)
+    for novel in novels:
+        month_key = novel.published_date.strftime('%Y-%m')
+        title_month_key = (novel.title, month_key)
+        novels_by_title_month[title_month_key].append(novel)
+
+    # 各グループで最古の投稿を特定
+    for (title, month), group_novels in novels_by_title_month.items():
+        earliest_novel = min(group_novels, key=lambda n: n.published_date)
+        ichiban_yari_ids.add(earliest_novel.id)
+
+    # 月ごとの提案者情報を取得
     monthly_info = MonthlySameTitleInfo.objects.all().select_related('proposer', 'novel')
     monthly_proposals = {}
-    ichiban_yari_info = {}
-    
-    # 各月の情報を整理
+
     for info in monthly_info:
         month_key = info.month
         monthly_proposals[month_key] = {
             'proposer': info.proposer,
             'title': info.title
         }
-        # 一番槍情報を設定
-        ichiban_yari_info[month_key] = info.novel
-    
+
     # ページネーション
     paginator = Paginator(novels, 20)
     page = request.GET.get('page', 1)
     page_obj = paginator.get_page(page)
-    
+
     context = {
         'page_obj': page_obj,
         'monthly_proposals': monthly_proposals,
-        'ichiban_yari_info': ichiban_yari_info,
+        'ichiban_yari_ids': ichiban_yari_ids,  # 一番槍のIDリストを渡す
     }
-    
+
     return render(request, 'game_same_title/all_same_title_novels.html', context)
 
 from django.contrib import messages
