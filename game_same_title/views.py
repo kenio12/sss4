@@ -141,10 +141,12 @@ def same_title(request, page=1):
 # 過去の同タイトル一覧を表示する新しい関数
 @login_required
 def all_same_title_novels(request):
-    # is_same_title_game=True のノベルのみを取得
+    # is_same_title_game=True のノベルのみを取得（「募集します」を含むタイトルを除外）
     novels = Novel.objects.filter(
         is_same_title_game=True,
         status='published'
+    ).exclude(
+        title__contains='募集します'
     ).order_by('-published_date').select_related('author')
 
     # 🔥 一番槍判定：各タイトル・各イベント月で最古の投稿を特定 🔥
