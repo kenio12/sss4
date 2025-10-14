@@ -871,11 +871,104 @@ class Migration(migrations.Migration):
 
 ---
 
+## 🔥🔥🔥 11. 一番槍判定ロジック（2025-10-14追記・超重要）
+
+### 背景
+- けーにもーんの指示により、一番槍判定ロジックを完全確定
+
+### 一番槍判定の絶対ルール
+
+#### ルール1：same_title_event_monthで判定
+- **投稿日の月ではなく、same_title_event_month（提案月の翌月）で判定**
+- 例：2025年4月に提案されたタイトル → 2025年5月が対象月（same_title_event_month='2025-05'）
+
+#### ルール2：過去の提案も執筆可能
+- **2025年10月に2025年5月のタイトルを書いても、2025年5月の一番槍候補になる**
+- 投稿日に関係なく、same_title_event_monthで一番槍を決定
+
+#### ルール3：最も早いpublished_dateが一番槍
+- 同じsame_title_event_month・同じタイトルで複数投稿がある場合
+- 最も早いpublished_dateの投稿が一番槍
+
+#### ルール4：一番槍がいる月はタイトル固定
+- **すでに一番槍がいる月は、その一番槍のタイトルでしか書けない**
+- 例：2025年5月に「恋の物語」で一番槍が決定
+  - ✅ 2025年10月に「恋の物語」で執筆 → 2025年5月の同タイトル参加者
+  - ❌ 2025年10月に「夜の殺人」で執筆 → 2025年5月のタイトルではないため不可
+
+### 実装ロジック
+
+#### all_same_title_novels view（一番槍表示）
+```python
+# タイトル・イベント月ごとにグループ化
+novels_by_title_event_month = defaultdict(list)
+for novel in novels:
+    # same_title_event_month（提案月の翌月）でグループ化
+    event_month = novel.same_title_event_month
+    if event_month:
+        title_month_key = (novel.title, event_month)
+        novels_by_title_event_month[title_month_key].append(novel)
+
+# 各グループで最古のpublished_dateの投稿を特定
+for (title, event_month), group_novels in novels_by_title_event_month.items():
+    earliest_novel = min(group_novels, key=lambda n: n.published_date)
+    ichiban_yari_ids.add(earliest_novel.id)
+```
+
+#### post_or_edit_same_title view（タイトル選択制限）
+```python
+# 過去の全提案を取得
+all_proposals = TitleProposal.objects.all().select_related('proposer')
+
+# 一番槍が既にいる月を特定
+months_with_ichiban_yari = MonthlySameTitleInfo.objects.values_list('month', 'title')
+
+# タイトル選択肢を生成
+title_choices = []
+for proposal in all_proposals:
+    proposal_month = proposal.proposal_month.strftime('%Y-%m')
+
+    # この月に一番槍がいるか確認
+    ichiban_yari_info = next(
+        (info for info in months_with_ichiban_yari if info[0] == proposal_month),
+        None
+    )
+
+    if ichiban_yari_info:
+        # 一番槍がいる月 → 一番槍のタイトルのみ選択可能
+        if proposal.title == ichiban_yari_info[1]:
+            title_choices.append((proposal.title, proposal.title))
+    else:
+        # 一番槍がいない月 → 全ての提案から選択可能
+        title_choices.append((proposal.title, proposal.title))
+```
+
+### 具体例
+
+#### ケース1：過去のタイトルを今から書く
+- 2017年4月に「夢老い人」が提案される（same_title_event_month='2017-04'）
+- 2017年4月15日にユーザーAが投稿 → 一番槍
+- 2025年10月14日にユーザーBが「夢老い人」で投稿 → 2017年4月の同タイトル参加者（一番槍ではない）
+
+#### ケース2：一番槍がいない月のタイトルを選ぶ
+- 2025年5月に「恋の物語」「夜の殺人」「朝の光」が提案される
+- まだ誰も投稿していない
+- ユーザーAは3つのタイトルから自由に選べる
+- ユーザーAが「恋の物語」で投稿 → 一番槍確定
+
+#### ケース3：一番槍がいる月のタイトルを選ぶ
+- 2025年5月に「恋の物語」で一番槍が決定済み
+- ユーザーBは「恋の物語」のみ選択可能
+- 「夜の殺人」「朝の光」は選択不可（一番槍がいない別タイトル）
+
+---
+
 ## 📝 10. 変更履歴
 
 | 日付 | バージョン | 変更内容 |
 |------|----------|---------|
 | 2025-10-13 | 1.0 FINAL | 初版作成（全7項目統合版） |
+| 2025-10-14 | 1.1 | 一番槍判定ロジック追記（same_title_event_month基準、タイトル選択制限） |
 
 ---
 
