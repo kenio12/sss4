@@ -413,7 +413,8 @@ def post_or_edit_same_title(request, novel_id=None):
                     if form.is_valid():
                         novel.content = form.cleaned_data['content']
                         novel.status = 'published'  # ステータスをpublishedに設定
-                        novel.save(update_fields=['content', 'status'])  # ステータスも更新対象に追加
+                        novel.published_date = timezone.now()  # 🆕 公開日時を設定
+                        novel.save(update_fields=['content', 'status', 'published_date'])  # 🆕 published_dateを追加
                         messages.success(request, '小説が更新され、公開されました。')
                         return redirect('game_same_title:same_title')
                 elif action == 'delete':
@@ -425,9 +426,10 @@ def post_or_edit_same_title(request, novel_id=None):
                     if form.is_valid():
                         novel.content = form.cleaned_data['content']
                         novel.status = 'published'  # ステータスをpublishedに設定
+                        novel.published_date = timezone.now()  # 🆕 公開日時を設定
                         if not novel.is_same_title_game:
                             novel.genre = "同タイトル崩れ"
-                        novel.save(update_fields=['content', 'status','is_same_title_game',"genre"])  # ステータスも更新対象に追加
+                        novel.save(update_fields=['content', 'status', 'published_date', 'is_same_title_game', 'genre'])  # 🆕 published_dateを追加
                         messages.success(request, '小説が更新され、公開されました。')
                         if not existing_entry and novel.is_same_title_game:
                             user_instance = User.objects.get(username=novel.author.username)
