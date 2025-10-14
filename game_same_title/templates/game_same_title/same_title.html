@@ -168,9 +168,11 @@
   <p style="margin-bottom: 20px;">毎月最大３つまでタイトルを提案できます。入力して、提案するボタンを押してください！</p>
   <form method="post" action="{% url 'game_same_title:create_title_proposal' %}">
     {% csrf_token %}
+    <ul style="margin-left: 30px;">
     {% for proposal in existing_proposals %}
     <li>{{ proposal.title }}</li>
     {% endfor %}
+    </ul>
     
     {% if existing_proposals.count == 0 %}
     <!-- まだ何も提案されていない場合、3つの入力フィールドを表示 -->
