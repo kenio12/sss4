@@ -47,7 +47,7 @@
                     <td>
                         <a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title }}</a>
                         {% if novel.id in ichiban_yari_ids %}
-                            {% with month_key=novel.published_date|date:"Y-m" proposal=monthly_proposals|get_item:month_key %}
+                            {% with proposal=monthly_proposals|get_item:novel.same_title_event_month %}
                                 {% if proposal %}
                                     <span class="proposer-name">(提案者: {{ proposal.proposer.nickname }})</span>
                                 {% endif %}
