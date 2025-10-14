@@ -57,7 +57,7 @@
                     <td>
                         <a href="{% url 'accounts:view_other_profile' novel.author.id %}">{{ novel.author.nickname }}</a>
                         {% if novel.id in ichiban_yari_ids %}
-                            <span class="first-post-badge">🏆 一番槍</span>
+                            <span class="first-post-badge" onclick="showBadgeModal('一番槍')" style="cursor: pointer;">🏆 一番槍</span>
                         {% endif %}
                     </td>
                     <td>{{ novel.published_date|date:"Y/m/d" }}</td>
@@ -69,6 +69,57 @@
 
     {% include "game_same_title/includes/pagination.html" %}
 </div>
+
+<!-- バッジ説明モーダル -->
+<div class="modal fade" id="badgeModal" tabindex="-1" aria-labelledby="badgeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="badgeModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body" id="badgeModalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showBadgeModal(badgeType) {
+    const modal = new bootstrap.Modal(document.getElementById('badgeModal'));
+    const modalTitle = document.getElementById('badgeModalLabel');
+    const modalBody = document.getElementById('badgeModalBody');
+
+    if (badgeType === '一番槍') {
+        modalTitle.textContent = '🏆 一番槍とは？';
+        modalBody.innerHTML = `
+            <p><strong>一番槍</strong>は、同じタイトル・同じ月で最初に投稿された作品に贈られる称号です。</p>
+            <ul>
+                <li>同タイトルゲームで提案されたタイトルに対して、最初に作品を投稿した作者が獲得</li>
+                <li>1つの月・1つのタイトルにつき1人だけが獲得可能</li>
+                <li>投稿日時が早い順に判定されます</li>
+            </ul>
+            <p class="text-muted mb-0">※一番槍を獲得すると、作品一覧で黄色の背景色で表示されます。</p>
+        `;
+    } else if (badgeType === '一番盾') {
+        modalTitle.textContent = '🛡️ 一番盾とは？';
+        modalBody.innerHTML = `
+            <p><strong>一番盾</strong>は、同じタイトル・同じ月で2番目に投稿された作品に贈られる称号です。</p>
+            <ul>
+                <li>同タイトルゲームで提案されたタイトルに対して、2番目に作品を投稿した作者が獲得</li>
+                <li>1つの月・1つのタイトルにつき1人だけが獲得可能</li>
+                <li>投稿日時が早い順に判定されます</li>
+            </ul>
+            <p class="text-muted mb-0">※一番盾は一番槍に次ぐ栄誉ある称号です。</p>
+        `;
+    }
+
+    modal.show();
+}
+</script>
 
 <style>
     .ichiban-yari {
