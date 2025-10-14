@@ -485,6 +485,9 @@ def post_or_edit_same_title(request, novel_id=None):
             })
         form = NovelForm(initial=initial_data)
 
+    # 🆕 can_edit 判定を追加（自分の小説かつログイン中）
+    can_edit = request.user.is_authenticated and novel and novel.author == request.user
+
     context = {
         'form': form,
         'novel': novel,
@@ -495,6 +498,7 @@ def post_or_edit_same_title(request, novel_id=None):
         'is_same_title_game': is_same_title_game,
         'is_locked': is_locked,
         'last_month_proposals_json': last_month_proposals_json,
+        'can_edit': can_edit,  # 🆕 can_editを追加
     }
 
     # デバッグ用のログ出力を追加
