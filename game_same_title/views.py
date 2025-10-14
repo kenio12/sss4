@@ -147,19 +147,21 @@ def all_same_title_novels(request):
         status='published'
     ).order_by('-published_date').select_related('author')
 
-    # 🔥 一番槍判定：各タイトル・各月で最古の投稿を特定 🔥
+    # 🔥 一番槍判定：各タイトル・各イベント月で最古の投稿を特定 🔥
     from collections import defaultdict
     ichiban_yari_ids = set()
 
-    # タイトル・月ごとにグループ化
-    novels_by_title_month = defaultdict(list)
+    # タイトル・イベント月ごとにグループ化
+    novels_by_title_event_month = defaultdict(list)
     for novel in novels:
-        month_key = novel.published_date.strftime('%Y-%m')
-        title_month_key = (novel.title, month_key)
-        novels_by_title_month[title_month_key].append(novel)
+        # same_title_event_month（提案月の翌月）でグループ化
+        event_month = novel.same_title_event_month
+        if event_month:
+            title_month_key = (novel.title, event_month)
+            novels_by_title_event_month[title_month_key].append(novel)
 
-    # 各グループで最古の投稿を特定
-    for (title, month), group_novels in novels_by_title_month.items():
+    # 各グループで最古のpublished_dateの投稿を特定
+    for (title, event_month), group_novels in novels_by_title_event_month.items():
         earliest_novel = min(group_novels, key=lambda n: n.published_date)
         ichiban_yari_ids.add(earliest_novel.id)
 
