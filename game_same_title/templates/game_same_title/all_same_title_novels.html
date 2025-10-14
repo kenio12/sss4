@@ -57,7 +57,7 @@
                     <td>
                         <a href="{% url 'accounts:view_other_profile' novel.author.id %}">{{ novel.author.nickname }}</a>
                         {% if novel.id in ichiban_yari_ids %}
-                            <span class="first-post-badge" onclick="showBadgeModal('一番槍')" style="cursor: pointer;">🏆 一番槍</span>
+                            <span class="first-post-badge" onclick="showBadgeModal('一番槍')" style="cursor: pointer;">🗡️ 一番槍</span>
                         {% endif %}
                     </td>
                     <td>{{ novel.published_date|date:"Y/m/d" }}</td>
@@ -94,7 +94,7 @@ function showBadgeModal(badgeType) {
     const modalBody = document.getElementById('badgeModalBody');
 
     if (badgeType === '一番槍') {
-        modalTitle.textContent = '🏆 一番槍とは？';
+        modalTitle.textContent = '🗡️ 一番槍とは？';
         modalBody.innerHTML = `
             <p><strong>一番槍</strong>は、同じタイトル・同じ月で最初に投稿された作品に贈られる称号です。</p>
             <ul>

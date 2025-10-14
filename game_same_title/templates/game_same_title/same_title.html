@@ -210,13 +210,13 @@
     <div style="position: relative; padding-left: 15px;">
       <h4 style="margin-bottom: 20px;">
         <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: #8ecae6;"></div>
-        今月の一番槍はこの方や！：<span class="highlighted">{{ decided_title.novel.author.nickname }}</span>
+        今月の一番槍はこの方や！：<span class="highlighted">{{ decided_title.novel.author.nickname }}</span> <span class="first-post-badge" onclick="showBadgeModal('一番槍')" style="cursor: pointer;">🗡️ 一番槍</span>
       </h4>
       <h4 style="margin-bottom: 20px;">
         今月の同タイトルや！：<span class="highlighted">{{ decided_title.title }}</span>
       </h4>
       <h4 style="margin-bottom: 20px;">
-        同タイトルの提案者や！（🛡️ 一番盾）：<span class="highlighted">{{ decided_title.proposer_nickname }}</span>
+        同タイトルの提案者や！：<span class="highlighted">{{ decided_title.proposer_nickname }}</span> <span class="first-post-badge" onclick="showBadgeModal('一番盾')" style="cursor: pointer;">🛡️ 一番盾</span>
       </h4>
     </div>
 
@@ -391,8 +391,77 @@
         font-weight: bold;
         font-size: 0.9em;
     }
+
+    /* 統一された一番槍バッジスタイル */
+    .first-post-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        margin-left: 10px;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        background: transparent;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: bold;
+        white-space: nowrap;
+        transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .first-post-badge:hover {
+        transform: translateY(-2px);
+        background: rgba(220, 53, 69, 0.1);
+    }
 </style>
 
+<!-- バッジ説明モーダル -->
+<div class="modal fade" id="badgeModal" tabindex="-1" aria-labelledby="badgeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="badgeModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body" id="badgeModalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<script>
+function showBadgeModal(badgeType) {
+    const modal = new bootstrap.Modal(document.getElementById('badgeModal'));
+    const modalTitle = document.getElementById('badgeModalLabel');
+    const modalBody = document.getElementById('badgeModalBody');
+
+    if (badgeType === '一番槍') {
+        modalTitle.textContent = '🗡️ 一番槍とは？';
+        modalBody.innerHTML = `
+            <p><strong>一番槍</strong>は、同じタイトル・同じ月で最初に投稿された作品に贈られる称号です。</p>
+            <ul>
+                <li>同タイトルゲームで提案されたタイトルに対して、最初に作品を投稿した作者が獲得</li>
+                <li>1つの月・1つのタイトルにつき1人だけが獲得可能</li>
+                <li>投稿日時が早い順に判定されます</li>
+            </ul>
+            <p class="text-muted mb-0">※一番槍を獲得すると、作品一覧で黄色の背景色で表示されます。</p>
+        `;
+    } else if (badgeType === '一番盾') {
+        modalTitle.textContent = '🛡️ 一番盾とは？';
+        modalBody.innerHTML = `
+            <p><strong>一番盾</strong>は、同じタイトル・同じ月で2番目に投稿された作品に贈られる称号です。</p>
+            <ul>
+                <li>同タイトルゲームで提案されたタイトルに対して、2番目に作品を投稿した作者が獲得</li>
+                <li>1つの月・1つのタイトルにつき1人だけが獲得可能</li>
+                <li>投稿日時が早い順に判定されます</li>
+            </ul>
+            <p class="text-muted mb-0">※一番盾は一番槍に次ぐ栄誉ある称号です。</p>
+        `;
+    }
+
+    modal.show();
+}
+</script>
 
 {% endblock %}
