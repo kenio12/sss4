@@ -29,15 +29,14 @@ class NovelForm(ModelForm):
         cleaned_data = super().clean()
         # 同タイトルフラグを強制的に True に
         cleaned_data['is_same_title_game'] = True
-        # ジャンルも '同タイトル' に固定
-        cleaned_data['genre'] = '同タイトル'
+        # 🔥 ジャンルはユーザー選択のまま（変更しない）
         return cleaned_data
 
     def save(self, commit=True):
         """保存時に同タイトル関連の設定を強制"""
         novel = super().save(commit=False)
         novel.is_same_title_game = True
-        novel.genre = '同タイトル'
+        # 🔥 ジャンルはユーザー選択のまま（変更しない）
         
         # 新規作成時のみ月を設定（既存の月は変更しない）
         if not novel.pk and not novel.same_title_event_month:

@@ -374,9 +374,7 @@ def post_or_edit_same_title(request, novel_id=None):
             if form.is_valid():
                 new_novel = form.save(commit=False)
                 new_novel.author = request.user
-                if new_novel.is_same_title_game:
-                    new_novel.genre = '同タイトル'
-                    print("Genre set to 同タイトル")
+                # 🔥 ジャンルはユーザー選択のまま（変更しない）
                 new_novel.save()
                 # 正しいURL名を使用してリダイレクト
                 return redirect(reverse('game_same_title:post_or_edit_same_title_with_id', kwargs={'novel_id': new_novel.id}))
@@ -394,8 +392,7 @@ def post_or_edit_same_title(request, novel_id=None):
             current_month = timezone.now().strftime('%Y-%m')
             if not novel.same_title_event_month and novel.is_same_title_game:
                 novel.same_title_event_month = current_month
-            if not novel.genre and novel.is_same_title_game:  # genreが空で同タイトルゲームがtrueの場合のみ
-                novel.genre = '同タイトル'  # genreに「同タイトル」を設定
+            # 🔥 ジャンルはユーザー選択のまま（変更しない）
             existing_entry = MonthlySameTitleInfo.objects.filter(month=current_month).first()
 
             if is_locked:
@@ -427,9 +424,8 @@ def post_or_edit_same_title(request, novel_id=None):
                         novel.content = form.cleaned_data['content']
                         novel.status = 'published'  # ステータスをpublishedに設定
                         novel.published_date = timezone.now()  # 🆕 公開日時を設定
-                        if not novel.is_same_title_game:
-                            novel.genre = "同タイトル崩れ"
-                        novel.save(update_fields=['content', 'status', 'published_date', 'is_same_title_game', 'genre'])  # 🆕 published_dateを追加
+                        # 🔥 ジャンルはユーザー選択のまま（変更しない）
+                        novel.save(update_fields=['content', 'status', 'published_date', 'is_same_title_game'])  # 🆕 published_dateを追加
                         messages.success(request, '小説が更新され、公開されました。')
                         if not existing_entry and novel.is_same_title_game:
                             user_instance = User.objects.get(username=novel.author.username)
