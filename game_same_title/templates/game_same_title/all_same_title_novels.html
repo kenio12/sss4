@@ -22,8 +22,7 @@
             </thead>
             <tbody>
                 {% for novel in page_obj %}
-                {% with month_key=novel.published_date|date:"Y-m" %}
-                <tr {% if ichiban_yari_info|get_item:month_key == novel %}class="ichiban-yari"{% endif %}>
+                <tr {% if novel.id in ichiban_yari_ids %}class="ichiban-yari"{% endif %}>
                     <td>
                         <span class="pc-view">
                             {% if novel.genre == "同タイトル" %}
@@ -47,8 +46,8 @@
                     <td>{{ novel.word_count|intcomma }}</td>
                     <td>
                         <a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title }}</a>
-                        {% if ichiban_yari_info|get_item:month_key == novel %}
-                            {% with proposal=monthly_proposals|get_item:month_key %}
+                        {% if novel.id in ichiban_yari_ids %}
+                            {% with month_key=novel.published_date|date:"Y-m" proposal=monthly_proposals|get_item:month_key %}
                                 {% if proposal %}
                                     <span class="proposer-name">(提案者: {{ proposal.proposer.nickname }})</span>
                                 {% endif %}
@@ -57,13 +56,12 @@
                     </td>
                     <td>
                         <a href="{% url 'accounts:view_other_profile' novel.author.id %}">{{ novel.author.nickname }}</a>
-                        {% if ichiban_yari_info|get_item:month_key == novel %}
+                        {% if novel.id in ichiban_yari_ids %}
                             <span class="first-post-badge">🏆 一番槍</span>
                         {% endif %}
                     </td>
                     <td>{{ novel.published_date|date:"Y/m/d" }}</td>
                 </tr>
-                {% endwith %}
                 {% endfor %}
             </tbody>
         </table>
