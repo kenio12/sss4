@@ -55,6 +55,19 @@ def post_or_edit_novel(request, novel_id=None):
             saved_novel = form.save(commit=False)
             saved_novel.word_count = len(form.cleaned_data['content'].split())
 
+            # 🔥🔥🔥 同タイトル情報を設定（超重要！）🔥🔥🔥
+            if not novel_id:
+                # 新規作成時：今月の一番槍タイトルを取得
+                from game_same_title.models import MonthlySameTitleInfo
+                current_month = timezone.now().strftime('%Y-%m')
+                monthly_info = MonthlySameTitleInfo.objects.filter(month=current_month).first()
+                if monthly_info:
+                    # 同タイトルゲームとして保存
+                    saved_novel.is_same_title_game = True
+                    saved_novel.event = '同タイトル'
+                    saved_novel.same_title_event_month = current_month
+                    logger.info(f"同タイトル設定: title={monthly_info.title}, month={current_month}")
+
             if action == 'publish':
                 saved_novel.status = 'published'
             elif action == 'draft':
