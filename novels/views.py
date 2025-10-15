@@ -71,9 +71,6 @@ def post_or_edit_novel(request, novel_id=None):
             logger.debug(f"Form errors: {form.errors}")
             return render(request, 'novels/post_or_edit_novel.html', {'form': form, 'novel': novel, 'edit': edit_mode, 'can_edit': True})
     else:
-        # URL パラメータから title を取得
-        initial_title = request.GET.get('title', '')
-
         # 🔥 同タイトル情報を取得 🔥
         same_title_info = None
         if novel and novel.is_same_title_game and novel.same_title_event_month:
@@ -83,11 +80,7 @@ def post_or_edit_novel(request, novel_id=None):
                 'title': novel.title
             }
 
-        if initial_title and not edit_mode:
-            # 新規作成時のみ、パラメータのタイトルを初期値として設定
-            form = NovelForm(instance=novel, initial={'title': initial_title})
-        else:
-            form = NovelForm(instance=novel)
+        form = NovelForm(instance=novel)
         return render(request, 'novels/post_or_edit_novel.html', {
             'form': form,
             'novel': novel,

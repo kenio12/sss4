@@ -773,10 +773,19 @@
                         {% endfor %}
                     </select>
             {% elif field.name == 'title' %}
-                <!-- タイトル入力フィールドの横に文字数カウンターを追加 -->
+                <!-- タイトル入力フィールド：同タイトル情報がある場合は固定表示 -->
                 <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
-                <input type="text" id="title" name="title" class="form-control full-width" value="{{ form.title.value|default_if_none:'' }}" required>
-                <div id="titleWordCount" style="position: absolute; right: 10px; top: 0; color: black;">0 / 30文字</div>
+                {% if same_title_info %}
+                    <!-- 一番槍確定後：タイトル固定表示（編集不可） -->
+                    <div style="padding: 10px; background-color: #f0f8ff; border: 2px solid #8ecae6; border-radius: 5px; font-size: 1.1rem; font-weight: 600;">
+                        {{ same_title_info.title }}
+                    </div>
+                    <input type="hidden" name="title" value="{{ same_title_info.title }}">
+                {% else %}
+                    <!-- 通常時：タイトル入力可能 -->
+                    <input type="text" id="title" name="title" class="form-control full-width" value="{{ form.title.value|default_if_none:'' }}" required>
+                    <div id="titleWordCount" style="position: absolute; right: 10px; top: 0; color: black;">0 / 30文字</div>
+                {% endif %}
             {% elif field.name == 'content' %}
                 <!-- 小説の内容入力フィールドの横に既存の文字数カウンターを追加 -->
                 <label for="{{ field.id_for_label }}" class="label-spacing">{{ field.label }}</label>
