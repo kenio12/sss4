@@ -63,7 +63,7 @@
     <!-- 「俺もこのタイトルで作る」ボタン（公開済みの同タイトル小説の詳細画面のみ表示） -->
     {% if novel.event == '同タイトル' and novel.status == 'published' and user.is_authenticated %}
         <div class="same-title-button-container" style="margin-top: 15px; margin-bottom: 15px; margin-left: 0.5rem;">
-            <a href="{% url 'novels:post_novel' %}?title={{ novel.title|urlencode }}" class="btn same-title-button" style="display: inline-flex; align-items: center; height: 38px; line-height: 26px; padding: 5px 15px; font-size: 20px; border-radius: 20px; background-color: #ff6b6b; color: white; text-decoration: none; transition: background-color 0.3s;">
+            <a href="{% url 'novels:post_novel' %}" class="btn same-title-button" style="display: inline-flex; align-items: center; height: 38px; line-height: 26px; padding: 5px 15px; font-size: 20px; border-radius: 20px; background-color: #ff6b6b; color: white; text-decoration: none; transition: background-color 0.3s;">
                 <span>俺もこのタイトルで作る</span>
             </a>
         </div>

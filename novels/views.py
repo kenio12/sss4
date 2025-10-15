@@ -74,11 +74,23 @@ def post_or_edit_novel(request, novel_id=None):
         # 🔥 同タイトル情報を取得 🔥
         same_title_info = None
         if novel and novel.is_same_title_game and novel.same_title_event_month:
+            # 編集時：既存の同タイトル情報を取得
             same_title_info = {
                 'year': novel.same_title_event_month[:4],
                 'month': novel.same_title_event_month[5:7],
                 'title': novel.title
             }
+        elif not novel_id:
+            # 新規作成時：今月の一番槍タイトルを取得
+            from game_same_title.models import MonthlySameTitleInfo
+            current_month = timezone.now().strftime('%Y-%m')
+            monthly_info = MonthlySameTitleInfo.objects.filter(month=current_month).first()
+            if monthly_info:
+                same_title_info = {
+                    'year': current_month[:4],
+                    'month': current_month[5:7],
+                    'title': monthly_info.title
+                }
 
         form = NovelForm(instance=novel)
         return render(request, 'novels/post_or_edit_novel.html', {
