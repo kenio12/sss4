@@ -28,6 +28,11 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
         username = email  # usernameにemailの値を設定
+
+        # 仮メールアドレス（@example.com）の場合はemail_confirmedをFalseに設定
+        if '@example.com' in email.lower() or email.startswith('user_'):
+            extra_fields.setdefault('email_confirmed', False)
+
         user = self.model(email=email, username=username, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -69,7 +74,7 @@ class User(AbstractUser):
         (OLD_SSS_WRITER, '旧SSS作家'),
     )
 
-    email_confirmed = models.BooleanField(default=False)  # 新しいフィールドを追加
+    email_confirmed = models.BooleanField(default=True)  # 新しいフィールドを追加（デフォルトTrue）
     user_type = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES, default=FREE_MEMBER)  # デフォルト値を無料会員に変更
     email = models.EmailField('email address', unique=True)  # メールアドレスをユニークに設定
     nickname = models.CharField(max_length=50, unique=True, null=False, blank=False)
