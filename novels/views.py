@@ -90,7 +90,7 @@ def post_or_edit_novel(request, novel_id=None):
             form.save_m2m()
 
             if action == 'publish':
-                return redirect(reverse_lazy('novels:novels_paginated'))
+                return redirect(reverse_lazy('home:home'))
             else:
                 return redirect('novels:edit_novel', novel_id=saved_novel.id)
         else:
