@@ -974,6 +974,7 @@ for proposal in all_proposals:
 | 2025-10-13 | 1.0 FINAL | 初版作成（全7項目統合版） |
 | 2025-10-14 | 1.1 | 一番槍判定ロジック追記（same_title_event_month基準、タイトル選択制限） |
 | 2025-10-14 | 1.2 | 「俺もこのタイトルで作る」ボタン表示条件修正、募集タイトル除外 |
+| 2025-10-15 | 1.3 | **🔥 URL日本語パラメータ完全削除（けーにもーん指示）** - ボタンURLから`?title={{ novel.title\|urlencode }}`削除、MonthlySameTitleInfoから今月の一番槍タイトルを自動取得する仕様に変更 |
 
 ---
 
@@ -982,6 +983,7 @@ for proposal in all_proposals:
 ### 背景
 - けーにもーんの指摘により、ボタン表示条件を修正
 - 未公開（draft）の編集画面にボタンが表示されてた問題を解決
+- **🔥 2025-10-15追記**: けーにもーんの「日本語URL絶対ダメ！」指示により、URLパラメータを完全削除
 
 ### ボタン表示の絶対ルール
 
@@ -1004,7 +1006,9 @@ for proposal in all_proposals:
 1. 山田さんが今月の同タイトルで一番槍「恋の物語」を公開投稿
 2. 山田さん自身が自分の公開した小説の詳細画面を見る
 3. 「俺もこのタイトルで作る」ボタンが表示される
-4. ボタンをクリックすると、同じタイトル「恋の物語」でもう一度新しい小説を書ける
+4. ボタンをクリックすると、新規作成ページに遷移（**URLパラメータなし**）
+5. view関数がMonthlySameTitleInfoから今月の一番槍タイトル「恋の物語」を自動取得
+6. テンプレートで固定青枠表示（編集不可）
 
 ### 実装コード
 
@@ -1014,7 +1018,7 @@ for proposal in all_proposals:
 <!-- 「俺もこのタイトルで作る」ボタン（公開済みの同タイトル小説の詳細画面のみ表示） -->
 {% if novel.event == '同タイトル' and novel.status == 'published' and user.is_authenticated %}
     <div class="same-title-button-container" style="margin-top: 15px; margin-bottom: 15px; margin-left: 0.5rem;">
-        <a href="{% url 'novels:post_novel' %}?title={{ novel.title|urlencode }}" class="btn same-title-button" style="display: inline-flex; align-items: center; height: 38px; line-height: 26px; padding: 5px 15px; font-size: 20px; border-radius: 20px; background-color: #ff6b6b; color: white; text-decoration: none; transition: background-color 0.3s;">
+        <a href="{% url 'novels:post_novel' %}" class="btn same-title-button" style="display: inline-flex; align-items: center; height: 38px; line-height: 26px; padding: 5px 15px; font-size: 20px; border-radius: 20px; background-color: #ff6b6b; color: white; text-decoration: none; transition: background-color 0.3s;">
             <span>俺もこのタイトルで作る</span>
         </a>
     </div>
@@ -1034,6 +1038,7 @@ for proposal in all_proposals:
 1. **公開済み（published）の詳細画面のみ表示**
 2. **自分の小説でも他人の小説でも、公開されてればOK**
 3. **未公開（draft）の編集画面には表示しない**
+4. **🔥 URL日本語パラメータなし（2025-10-15追記）**: ボタンURLから`?title={{ novel.title|urlencode }}`を完全削除、代わりにview関数でMonthlySameTitleInfoから今月の一番槍タイトルを自動取得
 
 ---
 

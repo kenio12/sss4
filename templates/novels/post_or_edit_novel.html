@@ -888,9 +888,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateLastSavedData() {
+        var titleElement = document.querySelector('input[name="title"]');
         lastSavedData = {
             novel_id: document.getElementById('novelId').value,
-            title: document.getElementById('title').value,
+            title: titleElement ? titleElement.value : '',
             content: document.getElementById('content').value,
             genre: document.getElementById('genre').value,
             initial: document.getElementById('initial').value
@@ -903,9 +904,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function hasDataChanged() {
+        var titleElement = document.querySelector('input[name="title"]');
         var currentData = {
             novel_id: document.getElementById('novelId').value,
-            title: document.getElementById('title').value,
+            title: titleElement ? titleElement.value : '',
             content: document.getElementById('content').value,
             genre: document.getElementById('genre').value,
             initial: document.getElementById('initial').value
@@ -915,14 +917,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function autoSave() {
         var novelId = document.getElementById('novelId').value;
-        var titleElement = document.getElementById('title');
+        var titleElement = document.querySelector('input[name="title"]');
         var contentElement = document.getElementById('content');
         var genreElement = document.getElementById('genre');
         var initialElement = document.getElementById('initial');
 
         var currentData = {
             novel_id: novelId,
-            title: titleElement.value,
+            title: titleElement ? titleElement.value : '',
             content: contentElement.value,
             genre: genreElement.value,
             initial: initialElement.value
@@ -970,14 +972,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 文字数カウンターの更新関数
     function updateWordCount() {
-        var titleElement = document.getElementById('title');
+        var titleElement = document.querySelector('input[name="title"]');
         var contentElement = document.getElementById('content');
-        var titleCount = titleElement.value.length;
+        var titleCount = titleElement ? titleElement.value.length : 0;
         var contentCount = contentElement.value.length;
         var titleWordCountElement = document.getElementById('titleWordCount');
         var footerWordCountElement = document.getElementById('footerWordCount');
 
-        if (titleWordCountElement) {
+        if (titleWordCountElement && titleElement && titleElement.id === 'title') {
             titleWordCountElement.textContent = `${titleCount} / 30文字`;
         }
         if (footerWordCountElement) {
@@ -986,7 +988,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 入力イベント文字数カウンターの更新を追加
-    document.getElementById('title').addEventListener('input', updateWordCount);
+    var titleInput = document.querySelector('input[name="title"]');
+    if (titleInput) {
+        titleInput.addEventListener('input', updateWordCount);
+    }
     document.getElementById('content').addEventListener('input', updateWordCount);
 
     // ページ読み込み時にも文字数を更新
