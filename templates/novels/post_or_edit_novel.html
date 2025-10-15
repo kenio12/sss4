@@ -814,14 +814,10 @@
 
         <!-- 下書きとして保存ボタン -->
         {% if edit %}
-            {% if novel.maturi_games.all or novel.is_same_title_game %}
+            {% if novel.maturi_games.all %}
                 <div class="alert alert-warning" role="alert" style="margin: 20px 0;">
                     <i class="fas fa-exclamation-triangle"></i>
-                    {% if novel.maturi_games.all %}
-                        <strong>この作品は祭り作品です。</strong> 編集は祭り専用の画面から行ってください。
-                    {% else %}
-                        <strong>この作品は同タイトル作品です。</strong> 編集は同タイトル専用の画面から行ってください。
-                    {% endif %}
+                    <strong>この作品は祭り作品です。</strong> 編集は祭り専用の画面から行ってください。
                 </div>
             {% else %}
                 <p class="toggle-message" id="message-warning2" style="display:none;">

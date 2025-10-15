@@ -68,10 +68,23 @@ def post_or_edit_novel(request, novel_id=None):
                     saved_novel.same_title_event_month = current_month
                     logger.info(f"同タイトル設定: title={monthly_info.title}, month={current_month}")
 
-            if action == 'publish':
-                saved_novel.status = 'published'
-            elif action == 'draft':
-                saved_novel.status = 'draft'
+            # 🔥🔥🔥 同タイトル作品のステータス変更制御（2025-10-15）🔥🔥🔥
+            if novel_id and saved_novel.is_same_title_game:
+                # 編集時：同タイトル作品が公開済みの場合、draft に戻すのを禁止
+                if novel.status == 'published' and action == 'draft':
+                    logger.warning(f"同タイトル作品のステータス変更禁止: novel_id={novel_id}, 公開→作成中への変更は不可")
+                    # ステータスを元のまま維持
+                    saved_novel.status = novel.status
+                elif action == 'publish':
+                    saved_novel.status = 'published'
+                elif action == 'draft':
+                    saved_novel.status = 'draft'
+            else:
+                # 通常作品または新規作成時
+                if action == 'publish':
+                    saved_novel.status = 'published'
+                elif action == 'draft':
+                    saved_novel.status = 'draft'
 
             saved_novel.save()
             form.save_m2m()
