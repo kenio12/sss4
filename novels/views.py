@@ -70,16 +70,18 @@ def post_or_edit_novel(request, novel_id=None):
 
             # 🔥🔥🔥 同タイトル情報を設定（超重要！）🔥🔥🔥
             if not novel_id:
-                # 新規作成時：今月の一番槍タイトルを取得
-                from game_same_title.models import MonthlySameTitleInfo
+                # 新規作成時：タイトル提案があれば同タイトルゲーム扱い
+                from game_same_title.models import TitleProposal
                 current_month = timezone.now().strftime('%Y-%m')
-                monthly_info = MonthlySameTitleInfo.objects.filter(month=current_month).first()
-                if monthly_info:
+
+                # タイトル提案が存在するかチェック
+                title_proposal = TitleProposal.objects.filter(title=saved_novel.title).first()
+                if title_proposal:
                     # 同タイトルゲームとして保存
                     saved_novel.is_same_title_game = True
                     saved_novel.event = '同タイトル'
                     saved_novel.same_title_event_month = current_month
-                    logger.info(f"同タイトル設定: title={monthly_info.title}, month={current_month}")
+                    logger.info(f"同タイトル設定: title={saved_novel.title}, month={current_month}")
 
             # 🔥🔥🔥 同タイトル作品のステータス変更制御（2025-10-15）🔥🔥🔥
             if novel_id and saved_novel.is_same_title_game:
