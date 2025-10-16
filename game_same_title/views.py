@@ -444,7 +444,7 @@ def post_or_edit_same_title(request, novel_id=None):
                             send_same_title_decision_notification(novel)
                             messages.success(request, 'やったね！あんたが今月の一番槍や！')
                         elif existing_entry and novel.is_same_title_game:
-                            # 🔥 追随投稿の場合：順位を計算して3・5・7番目なら讃え通知 🔥
+                            # 🔥 追随投稿の場合：順位を計算して全員に通知（2番目以降全員） 🔥
                             current_year = timezone.now().year
                             current_month_num = timezone.now().month
 
@@ -460,10 +460,10 @@ def post_or_edit_same_title(request, novel_id=None):
                             # 現在の投稿の順位を特定（1-indexed）
                             rank = list(same_title_novels.values_list('id', flat=True)).index(novel.id) + 1
 
-                            # 3・5・7番目の場合のみ讃え通知を送信
-                            if rank in [3, 5, 7]:
+                            # 2番目以降全員に通知送信（1番目は一番槍通知で送信済み）
+                            if rank >= 2:
                                 send_same_title_follower_praise_notification(novel, rank)
-                                logger.info(f'追随讃え通知送信: {novel.title} - {rank}番目')
+                                logger.info(f'追随通知送信: {novel.title} - {rank}番目')
                         return redirect('game_same_title:same_title')
 
                 elif action == 'draft' or action == 'rest':

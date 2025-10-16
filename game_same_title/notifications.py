@@ -265,21 +265,21 @@ def send_same_title_decision_notification(novel):
 
 def send_same_title_follower_praise_notification(novel, rank):
     """
-    同タイトル追随投稿讃え通知（3・5・7番目専用）
-    同タイトルで3番目・5番目・7番目に投稿した人を讃える
+    同タイトル追随投稿通知（2番目以降全員）
+    同タイトルで投稿した人全員に何番目か通知
     """
     # 投稿者本人にのみ送信
     user = novel.author
 
     # email_confirmedチェック
     if not user.email_confirmed or not user.is_active:
-        logger.info(f'同タイトル追随讃え通知: ユーザー{user.nickname}はemail_confirmed=Falseまたはis_active=False')
+        logger.info(f'同タイトル追随通知: ユーザー{user.nickname}はemail_confirmed=Falseまたはis_active=False')
         return 0
 
     current_month = timezone.now().strftime('%Y年%m月')
 
     try:
-        subject = f'【超短編小説会】あなたは{rank}番目に「{novel.title}」に挑戦されました！'
+        subject = f'【超短編小説会】{current_month}の同タイトルの{rank}番煎じとして投稿されました！'
         unsubscribe_url = get_unsubscribe_url(user)
 
         # 一番槍の作品を取得
@@ -295,8 +295,8 @@ def send_same_title_follower_praise_notification(novel, rank):
 
 こんにちは！超短編小説会です。
 
-あなたは{rank}番目に「{novel.title}」での小説に挑戦し、そして投稿されました！
-素晴らしい挑戦、ありがとうございます！
+すでに{current_month}の同タイトルの一番槍は投稿されましたが、
+その{rank}番煎じとして{user.nickname}さんが同タイトルとして投稿されました！
 
 ◆ あなたの作品を読む
 {settings.BASE_URL}/novels/{novel.id}/
@@ -323,10 +323,10 @@ def send_same_title_follower_praise_notification(novel, rank):
         )
 
         masked_email = user.email[:3] + '***'
-        logger.info(f'同タイトル追随讃え通知送信成功: {masked_email} ({rank}番目)')
+        logger.info(f'同タイトル追随通知送信成功: {masked_email} ({rank}番目)')
         return 1
 
     except Exception as e:
         masked_email = user.email[:3] + '***'
-        logger.error(f'同タイトル追随讃え通知送信失敗: {masked_email} - {str(e)}')
+        logger.error(f'同タイトル追随通知送信失敗: {masked_email} - {str(e)}')
         return 0
