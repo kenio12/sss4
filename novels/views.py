@@ -102,6 +102,59 @@ def post_or_edit_novel(request, novel_id=None):
             saved_novel.save()
             form.save_m2m()
 
+            # 🔥🔥🔥 同タイトル通知処理（2025-10-16追加・超重要）🔥🔥🔥
+            if action == 'publish' and saved_novel.is_same_title_game:
+                from game_same_title.models import MonthlySameTitleInfo
+                from game_same_title.notifications import send_same_title_decision_notification, send_same_title_follower_praise_notification
+
+                current_month = timezone.now().strftime('%Y-%m')
+                monthly_info = MonthlySameTitleInfo.objects.filter(month=current_month).first()
+
+                if not monthly_info:
+                    # 一番槍の場合：MonthlySameTitleInfo作成＋一番槍フラグ設定＋通知送信
+                    saved_novel.is_first_post = True
+                    saved_novel.save(update_fields=['is_first_post'])
+
+                    # MonthlySameTitleInfo作成
+                    from accounts.models import User
+                    from game_same_title.models import TitleProposal
+
+                    user_instance = User.objects.get(username=saved_novel.author.username)
+                    title_proposal = TitleProposal.objects.filter(title=saved_novel.title).first()
+                    proposer_instance = title_proposal.proposer if title_proposal else request.user
+
+                    MonthlySameTitleInfo.objects.create(
+                        title=saved_novel.title,
+                        author=user_instance,
+                        proposer=proposer_instance,
+                        published_date=timezone.now(),
+                        month=current_month,
+                        novel=saved_novel
+                    )
+
+                    # 一番槍決定通知送信
+                    send_same_title_decision_notification(saved_novel)
+                    messages.success(request, 'やったね！あんたが今月の一番槍や！')
+                    logger.info(f'一番槍通知送信: {saved_novel.title}')
+                else:
+                    # 追随投稿の場合：順位計算＋全員通知（2番目以降全員）
+                    current_year = timezone.now().year
+                    current_month_num = timezone.now().month
+
+                    same_title_novels = Novel.objects.filter(
+                        title=saved_novel.title,
+                        published_date__year=current_year,
+                        published_date__month=current_month_num,
+                        status='published',
+                        is_public=True
+                    ).order_by('published_date')
+
+                    rank = list(same_title_novels.values_list('id', flat=True)).index(saved_novel.id) + 1
+
+                    if rank >= 2:
+                        send_same_title_follower_praise_notification(saved_novel, rank)
+                        logger.info(f'追随通知送信: {saved_novel.title} - {rank}番目')
+
             if action == 'publish':
                 return redirect(reverse_lazy('home:home'))
             else:
