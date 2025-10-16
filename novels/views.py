@@ -45,7 +45,20 @@ def post_or_edit_novel(request, novel_id=None):
         if action == 'delete':
             # 保存済みのインスタンスのみ削除可能
             if novel.pk:
+                # 🔥🔥🔥 一番槍削除禁止チェック（2025-10-16制定）🔥🔥🔥
+                if novel.is_first_post:
+                    messages.error(request, '一番槍の栄誉に輝いているので、今から、消すことが難しいです！')
+                    return redirect('novels:edit_novel', novel_id=novel.pk)
+
+                # 削除実行
+                is_same_title = novel.is_same_title_game if hasattr(novel, 'is_same_title_game') else False
                 novel.delete()
+
+                # 🔥🔥🔥 遷移先変更（2025-10-16制定）🔥🔥🔥
+                if is_same_title:
+                    return redirect('home:home')  # 同タイトル作品 → ホーム画面
+                else:
+                    return redirect('accounts:view_profile')  # 通常作品 → プロフィールページ
             return redirect('accounts:view_profile')  # プロファイルページにリダイレクト
 
         if action == 'rest':
@@ -188,8 +201,21 @@ from accounts.models import User
 @login_required
 def delete_novel(request, novel_id):
     novel = get_object_or_404(Novel, pk=novel_id, author=request.user)  # 小説を取得
+
+    # 🔥🔥🔥 一番槍削除禁止チェック（2025-10-16制定）🔥🔥🔥
+    if novel.is_first_post:
+        messages.error(request, '一番槍の栄誉に輝いているので、今から、消すことが難しいです！')
+        return HttpResponseRedirect(reverse('novels:edit_novel', kwargs={'novel_id': novel_id}))
+
+    # 削除実行
+    is_same_title = novel.is_same_title_game if hasattr(novel, 'is_same_title_game') else False
     novel.delete()  # 小説を削除
-    return HttpResponseRedirect(reverse('accounts:view_profile'))  # プロファイルページにイレト
+
+    # 🔥🔥🔥 遷移先変更（2025-10-16制定）🔥🔥🔥
+    if is_same_title:
+        return HttpResponseRedirect(reverse('home:home'))  # 同タイトル作品 → ホーム画面
+    else:
+        return HttpResponseRedirect(reverse('accounts:view_profile'))  # 通常作品 → プロフィールページ
 
 @login_required
 @require_POST
