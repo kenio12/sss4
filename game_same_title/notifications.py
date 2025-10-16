@@ -276,7 +276,7 @@ def send_same_title_follower_praise_notification(novel, rank):
         title=novel.title,
         created_at__month=novel.created_at.month,
         created_at__year=novel.created_at.year,
-        is_public=True
+        status='published'
     ).order_by('created_at').first()
 
     # タイトルをURLエンコード（日本語・スペース対応）
