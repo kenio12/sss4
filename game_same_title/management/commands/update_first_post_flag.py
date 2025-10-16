@@ -15,20 +15,20 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # MonthlySameTitleInfoで一番槍記録を全部取得
         ichiban_yari_records = MonthlySameTitleInfo.objects.exclude(
-            first_post_novel__isnull=True
-        ).select_related('first_post_novel')
+            novel__isnull=True
+        ).select_related('novel')
 
         updated_count = 0
         already_set_count = 0
 
         for record in ichiban_yari_records:
-            novel = record.first_post_novel
+            novel = record.novel
 
             if novel.is_first_post:
                 already_set_count += 1
                 self.stdout.write(
                     self.style.WARNING(
-                        f'既に設定済み: {novel.title} ({record.event_month.strftime("%Y年%m月")})'
+                        f'既に設定済み: {novel.title} ({record.month})'
                     )
                 )
             else:
@@ -37,7 +37,7 @@ class Command(BaseCommand):
                 updated_count += 1
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f'✓ フラグ設定完了: {novel.title} ({record.event_month.strftime("%Y年%m月")}) - 著者: {novel.author.nickname}'
+                        f'✓ フラグ設定完了: {novel.title} ({record.month}) - 著者: {novel.author.nickname}'
                     )
                 )
 
