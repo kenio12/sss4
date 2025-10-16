@@ -255,19 +255,19 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
 
             <!-- スマホ表示用 -->
-            <div class="sss-novel-row sp-view">
+            <div class="sss-novel-row sp-view" onclick="location.href='{% url 'novels:novel_detail' novel.id %}'" style="cursor: pointer;">
                 <div class="sss-header-row">
                     <div class="sss-link sss-title">
-                        <a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title }}</a>
+                        <a href="{% url 'novels:novel_detail' novel.id %}" onclick="event.stopPropagation();">{{ novel.title }}</a>
                         {% if novel.is_first_post %}
-                            <span class="first-post-badge" onclick="showBadgeModal('一番槍')" style="cursor: pointer;">🗡️</span>
+                            <span class="first-post-badge" onclick="event.stopPropagation(); showBadgeModal('一番槍');" style="cursor: pointer;">🗡️</span>
                         {% endif %}
                     </div>
                 </div>
                 <div class="sss-info-row">
                     <div class="sss-author">
                         {% if novel.author %}
-                            <a href="{% url 'accounts:view_other_profile' user_id=novel.author.id %}">{{ novel.author.nickname }}</a>
+                            <a href="{% url 'accounts:view_other_profile' user_id=novel.author.id %}" onclick="event.stopPropagation();">{{ novel.author.nickname }}</a>
                         {% else %}
                             <span>作者不明</span>
                         {% endif %}
