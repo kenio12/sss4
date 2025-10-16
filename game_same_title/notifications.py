@@ -185,12 +185,12 @@ def send_same_title_decision_notification(novel):
     同タイトル決定通知（月の最初の投稿時）
     今月の一番槍（最初の投稿）を全会員に通知
     """
-    # 通知設定が有効なユーザーを取得（投稿者自身を除く）
+    # 🔥🔥🔥 通知設定が有効なユーザーを取得（投稿者本人を含む！）🔥🔥🔥
     users = User.objects.filter(
         notification_settings__same_title_decision=True,
         is_active=True,
         email_confirmed=True
-    ).exclude(id=novel.author.id).select_related('notification_settings')
+    ).select_related('notification_settings')
 
     if not users.exists():
         logger.info('同タイトル決定通知: 送信対象ユーザーなし')
