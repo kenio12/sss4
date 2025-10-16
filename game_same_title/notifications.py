@@ -266,31 +266,35 @@ def send_same_title_decision_notification(novel):
 def send_same_title_follower_praise_notification(novel, rank):
     """
     同タイトル追随投稿通知（2番目以降全員）
-    同タイトルで投稿した人全員に何番目か通知
+    投稿者本人への通知 + 全会員への通知の2つを送信
     """
-    # 投稿者本人にのみ送信
-    user = novel.author
-
-    # email_confirmedチェック
-    if not user.email_confirmed or not user.is_active:
-        logger.info(f'同タイトル追随通知: ユーザー{user.nickname}はemail_confirmed=Falseまたはis_active=False')
-        return 0
-
     current_month = timezone.now().strftime('%Y年%m月')
+    total_sent = 0
+
+    # 一番槍の作品を取得
+    first_novel = novel.__class__.objects.filter(
+        title=novel.title,
+        created_at__month=novel.created_at.month,
+        created_at__year=novel.created_at.year,
+        is_public=True
+    ).order_by('created_at').first()
+
+    # タイトルをURLエンコード（日本語・スペース対応）
+    encoded_title = quote(novel.title, safe='')
+
+    # メール送信接続を再利用（効率化）
+    connection = get_connection()
+    connection.open()
 
     try:
-        subject = f'【超短編小説会】{current_month}の同タイトルの{rank}番煎じとして投稿されました！'
-        unsubscribe_url = get_unsubscribe_url(user)
+        # 🔥🔥🔥 1. 投稿者本人への通知（何番目か伝える） 🔥🔥🔥
+        user = novel.author
+        if user.email_confirmed and user.is_active:
+            try:
+                subject = f'【超短編小説会】{current_month}の同タイトルの{rank}番煎じとして投稿されました！'
+                unsubscribe_url = get_unsubscribe_url(user)
 
-        # 一番槍の作品を取得
-        first_novel = novel.__class__.objects.filter(
-            title=novel.title,
-            created_at__month=novel.created_at.month,
-            created_at__year=novel.created_at.year,
-            is_public=True
-        ).order_by('created_at').first()
-
-        message = f"""
+                message = f"""
 {user.nickname} 様
 
 こんにちは！超短編小説会です。
@@ -312,21 +316,89 @@ def send_same_title_follower_praise_notification(novel, rank):
 {unsubscribe_url}
 
 超短編小説会
-        """.strip()
+                """.strip()
 
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [user.email],
-            fail_silently=False,
-        )
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                    connection=connection,
+                )
 
-        masked_email = user.email[:3] + '***'
-        logger.info(f'同タイトル追随通知送信成功: {masked_email} ({rank}番目)')
-        return 1
+                masked_email = user.email[:3] + '***'
+                logger.info(f'同タイトル追随通知（投稿者本人）送信成功: {masked_email} ({rank}番目)')
+                total_sent += 1
 
-    except Exception as e:
-        masked_email = user.email[:3] + '***'
-        logger.error(f'同タイトル追随通知送信失敗: {masked_email} - {str(e)}')
-        return 0
+            except Exception as e:
+                masked_email = user.email[:3] + '***'
+                logger.error(f'同タイトル追随通知（投稿者本人）送信失敗: {masked_email} - {str(e)}')
+
+        # 🔥🔥🔥 2. 全会員への通知（投稿者本人を含む） 🔥🔥🔥
+        users = User.objects.filter(
+            notification_settings__same_title_follower=True,
+            is_active=True,
+            email_confirmed=True
+        ).select_related('notification_settings')
+
+        if users.exists():
+            for recipient in users:
+                try:
+                    subject = f'【超短編小説会】{current_month}の同タイトルに{rank}番目の作品が投稿されました！'
+                    unsubscribe_url = get_unsubscribe_url(recipient)
+
+                    message = f"""
+{recipient.nickname} 様
+
+こんにちは！超短編小説会です。
+
+{current_month}の同タイトルイベントに{rank}番目の作品が投稿されました！
+
+◆ 今月のタイトル
+「{novel.title}」
+
+◆ {rank}番目の投稿者
+{novel.author.nickname}
+
+◆ {rank}番目の作品を読む
+{settings.BASE_URL}/novels/{novel.id}/
+
+◆ 一番槍の作品を読む
+{settings.BASE_URL}/novels/{first_novel.id}/
+
+◆ 俺もこのタイトルで作る
+{settings.BASE_URL}/novels/post/?title={encoded_title}
+
+あなたも同じタイトルで創作に挑戦してみませんか？
+
+---
+このメールの配信を停止する場合は、以下のリンクをクリックしてください。
+{unsubscribe_url}
+
+超短編小説会
+                    """.strip()
+
+                    send_mail(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [recipient.email],
+                        fail_silently=False,
+                        connection=connection,
+                    )
+
+                    masked_email = recipient.email[:3] + '***'
+                    logger.debug(f'同タイトル追随通知（全会員）送信成功: {masked_email}')
+                    total_sent += 1
+
+                except Exception as e:
+                    masked_email = recipient.email[:3] + '***'
+                    logger.error(f'同タイトル追随通知（全会員）送信失敗: {masked_email} - {str(e)}')
+                    continue
+
+        logger.info(f'同タイトル追随通知送信完了: {total_sent}件（{rank}番目）')
+        return total_sent
+
+    finally:
+        connection.close()
