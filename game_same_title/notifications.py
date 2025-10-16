@@ -51,16 +51,16 @@ def send_same_title_recruitment_notification():
     try:
         for user in users:
             try:
-                subject = f'【SSS4】{current_month}の同タイトルイベント募集開始！'
+                subject = f'【超短編小説会】{current_month}の同タイトルイベントのタイトル募集！'
                 unsubscribe_url = get_unsubscribe_url(user)
 
                 message = f"""
 {user.nickname} 様
 
-こんにちは！SSS4運営チームです。
+こんにちは！超短編小説会です。
 
 {current_month}の同タイトルイベントが始まりました！
-今月も面白いタイトル提案をお待ちしています。
+タイトルの提案をお待ちしています！
 
 ◆ タイトル提案はこちら
 {settings.BASE_URL}/game_same_title/proposals/create/
@@ -68,14 +68,13 @@ def send_same_title_recruitment_notification():
 ◆ 同タイトルイベントページ
 {settings.BASE_URL}/game_same_title/same_title/
 
-誰でも自由に参加できます。
-あなたの創作をお待ちしています！
+あなたが提案されたタイトルが小説のタイトルになるかも？！
 
 ---
 このメールの配信を停止する場合は、以下のリンクをクリックしてください。
 {unsubscribe_url}
 
-SSS4運営チーム
+超短編小説会
                 """.strip()
 
                 send_mail(
@@ -129,13 +128,13 @@ def send_same_title_proposal_notification(proposal):
     try:
         for user in users:
             try:
-                subject = f'【SSS4】新しいタイトル提案「{proposal.title}」が追加されました'
+                subject = f'【超短編小説会】新しいタイトル提案「{proposal.title}」が追加されました'
                 unsubscribe_url = get_unsubscribe_url(user)
 
                 message = f"""
 {user.nickname} 様
 
-こんにちは！SSS4運営チームです。
+こんにちは！超短編小説会です。
 
 {current_month}の同タイトルイベントに新しいタイトル提案が追加されました。
 
@@ -153,7 +152,7 @@ def send_same_title_proposal_notification(proposal):
 このメールの配信を停止する場合は、以下のリンクをクリックしてください。
 {unsubscribe_url}
 
-SSS4運営チーム
+超短編小説会
                 """.strip()
 
                 send_mail(
@@ -207,7 +206,7 @@ def send_same_title_decision_notification(novel):
     try:
         for user in users:
             try:
-                subject = f'【SSS4】{current_month}の同タイトル一番槍が決定！'
+                subject = f'【超短編小説会】{current_month}の同タイトル一番槍が決定！'
                 unsubscribe_url = get_unsubscribe_url(user)
                 # タイトルをURLエンコード（日本語・スペース対応）
                 encoded_title = quote(novel.title, safe='')
@@ -215,7 +214,7 @@ def send_same_title_decision_notification(novel):
                 message = f"""
 {user.nickname} 様
 
-こんにちは！SSS4運営チームです。
+こんにちは！超短編小説会です。
 
 {current_month}の同タイトルイベント、一番槍が決定しました！
 
@@ -236,7 +235,7 @@ def send_same_title_decision_notification(novel):
 このメールの配信を停止する場合は、以下のリンクをクリックしてください。
 {unsubscribe_url}
 
-SSS4運営チーム
+超短編小説会
                 """.strip()
 
                 send_mail(
@@ -262,3 +261,72 @@ SSS4運営チーム
 
     finally:
         connection.close()
+
+
+def send_same_title_follower_praise_notification(novel, rank):
+    """
+    同タイトル追随投稿讃え通知（3・5・7番目専用）
+    同タイトルで3番目・5番目・7番目に投稿した人を讃える
+    """
+    # 投稿者本人にのみ送信
+    user = novel.author
+
+    # email_confirmedチェック
+    if not user.email_confirmed or not user.is_active:
+        logger.info(f'同タイトル追随讃え通知: ユーザー{user.nickname}はemail_confirmed=Falseまたはis_active=False')
+        return 0
+
+    current_month = timezone.now().strftime('%Y年%m月')
+
+    try:
+        subject = f'【超短編小説会】あなたは{rank}番目に「{novel.title}」に挑戦されました！'
+        unsubscribe_url = get_unsubscribe_url(user)
+
+        # 一番槍の作品を取得
+        first_novel = novel.__class__.objects.filter(
+            title=novel.title,
+            created_at__month=novel.created_at.month,
+            created_at__year=novel.created_at.year,
+            is_public=True
+        ).order_by('created_at').first()
+
+        message = f"""
+{user.nickname} 様
+
+こんにちは！超短編小説会です。
+
+あなたは{rank}番目に「{novel.title}」での小説に挑戦し、そして投稿されました！
+素晴らしい挑戦、ありがとうございます！
+
+◆ あなたの作品を読む
+{settings.BASE_URL}/novels/{novel.id}/
+
+◆ 一番槍の作品を読む
+{settings.BASE_URL}/novels/{first_novel.id}/
+
+◆ 同タイトル作品一覧
+{settings.BASE_URL}/game_same_title/same_title/
+
+---
+このメールの配信を停止する場合は、以下のリンクをクリックしてください。
+{unsubscribe_url}
+
+超短編小説会
+        """.strip()
+
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+
+        masked_email = user.email[:3] + '***'
+        logger.info(f'同タイトル追随讃え通知送信成功: {masked_email} ({rank}番目)')
+        return 1
+
+    except Exception as e:
+        masked_email = user.email[:3] + '***'
+        logger.error(f'同タイトル追随讃え通知送信失敗: {masked_email} - {str(e)}')
+        return 0

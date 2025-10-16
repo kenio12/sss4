@@ -198,7 +198,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from datetime import timedelta
 from .models import TitleProposal
-from .notifications import send_same_title_proposal_notification, send_same_title_decision_notification
+from .notifications import send_same_title_proposal_notification, send_same_title_decision_notification, send_same_title_follower_praise_notification
 
 from django.utils import timezone
 
@@ -443,6 +443,27 @@ def post_or_edit_same_title(request, novel_id=None):
                             # 一番槍決定通知を送信
                             send_same_title_decision_notification(novel)
                             messages.success(request, 'やったね！あんたが今月の一番槍や！')
+                        elif existing_entry and novel.is_same_title_game:
+                            # 🔥 追随投稿の場合：順位を計算して3・5・7番目なら讃え通知 🔥
+                            current_year = timezone.now().year
+                            current_month_num = timezone.now().month
+
+                            # 今月の同タイトル投稿を published_date 昇順で取得
+                            same_title_novels = Novel.objects.filter(
+                                title=novel.title,
+                                published_date__year=current_year,
+                                published_date__month=current_month_num,
+                                status='published',
+                                is_public=True
+                            ).order_by('published_date')
+
+                            # 現在の投稿の順位を特定（1-indexed）
+                            rank = list(same_title_novels.values_list('id', flat=True)).index(novel.id) + 1
+
+                            # 3・5・7番目の場合のみ讃え通知を送信
+                            if rank in [3, 5, 7]:
+                                send_same_title_follower_praise_notification(novel, rank)
+                                logger.info(f'追随讃え通知送信: {novel.title} - {rank}番目')
                         return redirect('game_same_title:same_title')
 
                 elif action == 'draft' or action == 'rest':
