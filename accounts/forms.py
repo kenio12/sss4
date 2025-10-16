@@ -92,19 +92,23 @@ class CustomAuthenticationForm(AuthenticationForm):
         username = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
 
-        # メールアドレスまたはニックネームでユーザーを検索
-        user = User.objects.filter(email=username).first() or User.objects.filter(nickname=username).first()
-        
-        # ユーザーが見つからない場合はエラーを発生させる
-        if not user:
-            raise ValidationError("指定されたユーザーは存在しません。")
+        if username is not None and password:
+            # メールアドレスまたはニックネームでユーザーを検索
+            user = User.objects.filter(email=username).first() or User.objects.filter(nickname=username).first()
 
-        # パスワードが一致しない場合はエラーを発生させる
-        if not user.check_password(password):
-            raise ValidationError("パスワードが正しくありません。")
+            # ユーザーが見つからない場合はエラーを発生させる
+            if not user:
+                raise ValidationError("指定されたユーザーは存在しません。")
 
-        # ユーザーを認証済みとしてマーク
-        self.user_cache = user
+            # パスワードが一致しない場合はエラーを発生させる
+            if not user.check_password(password):
+                raise ValidationError("パスワードが正しくありません。")
+
+            # ユーザーを認証済みとしてマーク
+            self.user_cache = user
+            # Django標準の認証チェック（is_activeなど）を実行
+            self.confirm_login_allowed(user)
+
         return self.cleaned_data
 
 from django import forms
