@@ -11,14 +11,32 @@ from django import forms
 from django.utils import timezone
 from datetime import timedelta
 from utils.constants import INITIAL_CHOICES
-from novels.models import GENRE_CHOICES
 
 class NovelForm(ModelForm):
     initial = forms.ChoiceField(choices=INITIAL_CHOICES, label='イニシャル', required=False)
     is_same_title_game = forms.BooleanField(label='同タイトル', required=False, initial=True)
     status = forms.CharField(widget=forms.HiddenInput(), required=False, initial='published')
     genre = forms.ChoiceField(
-        choices=GENRE_CHOICES,
+        choices=[
+            ('', 'ジャンルを選択'),
+            ('初めましての挨拶', '初めましての挨拶'),
+            ('ジョーク', 'ジョーク'),
+            ('サスペンス', 'サスペンス'),
+            ('シリーズ', 'シリーズ'),
+            ('ファンタジー', 'ファンタジー'),
+            ('恋愛', '恋愛'),
+            ('日常', '日常'),
+            ('雑談', '雑談'),
+            ('ミステリー', 'ミステリー'),
+            ('ノンフィクション', 'ノンフィクション'),
+            ('ホラー', 'ホラー'),
+            ('時代', '時代'),
+            ('コメディ', 'コメディ'),
+            ('歴史', '歴史'),
+            ('私小説', '私小説'),
+            ('未分類', '未分類'),
+            ('運用相談', '運用相談'),
+        ],
         label='ジャンル',
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'})
