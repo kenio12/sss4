@@ -198,7 +198,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from datetime import timedelta
 from .models import TitleProposal
-from .notifications import send_same_title_proposal_notification, send_same_title_decision_notification, send_same_title_follower_praise_notification
+# 🔥 通知関数のimportを削除（PendingNotificationに変更したため）
 
 from django.utils import timezone
 
@@ -231,8 +231,6 @@ def create_title_proposal(request):
                         proposed_at=timezone.now().date(),  # 時間情報を除外して日付のみを保存
                         proposal_month=current_month_start
                     )
-                    # タイトル提案通知を送信
-                    send_same_title_proposal_notification(created_proposal)
             messages.success(request, '提案が成功しました。')
             return redirect('game_same_title:same_title')
         else:
@@ -440,8 +438,13 @@ def post_or_edit_same_title(request, novel_id=None):
                                 month=current_month,
                                 novel=novel
                             )
-                            # 一番槍決定通知を送信
-                            send_same_title_decision_notification(novel)
+                            # 🔥 一番槍決定通知を18時に送信するため予約
+                            from .models import PendingNotification
+                            PendingNotification.objects.create(
+                                notification_type='決定',
+                                novel=novel
+                            )
+                            logger.info(f'一番槍通知予約: {novel.title} (ユーザー: {novel.author.username})')
                             messages.success(request, 'やったね！あんたが今月の一番槍や！')
                         elif existing_entry and novel.is_same_title_game:
                             # 🔥 追随投稿の場合：順位を計算して全員に通知（2番目以降全員） 🔥
@@ -460,10 +463,15 @@ def post_or_edit_same_title(request, novel_id=None):
                             # 現在の投稿の順位を特定（1-indexed）
                             rank = list(same_title_novels.values_list('id', flat=True)).index(novel.id) + 1
 
-                            # 2番目以降全員に通知送信（1番目は一番槍通知で送信済み）
+                            # 🔥 2番目以降全員に通知予約（18時送信）
                             if rank >= 2:
-                                send_same_title_follower_praise_notification(novel, rank)
-                                logger.info(f'追随通知送信: {novel.title} - {rank}番目')
+                                from .models import PendingNotification
+                                PendingNotification.objects.create(
+                                    notification_type='追随',
+                                    novel=novel,
+                                    rank=rank
+                                )
+                                logger.info(f'追随通知予約: {novel.title} - {rank}番目 (ユーザー: {novel.author.username})')
                         return redirect('game_same_title:same_title')
 
                 elif action == 'draft' or action == 'rest':
