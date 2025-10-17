@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}お問い合わせ - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">お問い合わせ</h2>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="source" value="contact_page">
+
+                        <div class="mb-3">
+                            <label for="id_name" class="form-label">お名前 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}"
+                                   id="id_name" name="name" value="{{ form.name.value|default:'' }}" required>
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.name.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">メールアドレス <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                                   id="id_email" name="email" value="{{ form.email.value|default:'' }}" required>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.email.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_subject" class="form-label">件名 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control {% if form.subject.errors %}is-invalid{% endif %}"
+                                   id="id_subject" name="subject" value="{{ form.subject.value|default:'' }}" required>
+                            {% if form.subject.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.subject.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_message" class="form-label">お問い合わせ内容 <span class="text-danger">*</span></label>
+                            <textarea class="form-control {% if form.message.errors %}is-invalid{% endif %}"
+                                      id="id_message" name="message" rows="6" required>{{ form.message.value|default:'' }}</textarea>
+                            {% if form.message.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.message.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">送信する</button>
+                            <a href="{% url 'home:home' %}" class="btn btn-outline-secondary">キャンセル</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
