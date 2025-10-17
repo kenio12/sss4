@@ -26,9 +26,39 @@ class MonthlySameTitleInfo(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="作者")
     proposer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="提案者", related_name="proposed_titles")
     published_date = models.DateField()
-    month = models.CharField(max_length=7, unique=True)  # 
+    month = models.CharField(max_length=7, unique=True)  #
 
 
     def __str__(self):
         return f"{self.month}: {self.title} by {self.author}"
+
+
+class PendingNotification(models.Model):
+    """
+    メール通知予約テーブル
+    投稿時に即座送信せず、18時に一斉送信するための予約データ
+    """
+    NOTIFICATION_TYPES = [
+        ('same_title_decision', '同タイトル決定通知（一番槍）'),
+        ('same_title_follower', '同タイトル追随通知（2番目以降）'),
+        ('same_title_recruitment', '同タイトル募集通知（月初）'),
+    ]
+
+    notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES, verbose_name="通知タイプ")
+    novel = models.ForeignKey(Novel, on_delete=models.CASCADE, null=True, blank=True, verbose_name="関連小説")
+    rank = models.IntegerField(null=True, blank=True, verbose_name="順位（追随通知用）")
+    created_at = models.DateTimeField(default=timezone.now, verbose_name="予約日時")
+    sent_at = models.DateTimeField(null=True, blank=True, verbose_name="送信日時")
+    is_sent = models.BooleanField(default=False, verbose_name="送信済み")
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "メール通知予約"
+        verbose_name_plural = "メール通知予約"
+
+    def __str__(self):
+        type_display = dict(self.NOTIFICATION_TYPES).get(self.notification_type, self.notification_type)
+        if self.novel:
+            return f"{type_display} - {self.novel.title} ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
+        return f"{type_display} ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
 
