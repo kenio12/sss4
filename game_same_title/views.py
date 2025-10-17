@@ -103,6 +103,13 @@ def same_title(request, page=1):
     else:
         decided_title = None
 
+    # 🔥 前月のタイトル候補は全員に表示（ログイン不要）
+    last_month = current_month_date - relativedelta(months=1)
+    title_candidates = [
+        {'title': candidate.title, 'proposer_nickname': candidate.proposer.nickname}
+        for candidate in TitleProposal.objects.filter(proposal_month__year=last_month.year, proposal_month__month=last_month.month)
+    ]
+
     if request.user.is_authenticated:
         proposer = request.user
         next_month_start = current_month_date + relativedelta(months=1)
@@ -114,15 +121,8 @@ def same_title(request, page=1):
             proposed_at__lt=current_month_end
         )
         # エントリー制廃止により削除: already_entered, entered_last_month, already_entered_users
-
-        last_month = current_month_date - relativedelta(months=1)
-        title_candidates = [
-            {'title': candidate.title, 'proposer_nickname': candidate.proposer.nickname}
-            for candidate in TitleProposal.objects.filter(proposal_month__year=last_month.year, proposal_month__month=last_month.month)
-        ]
     else:
         existing_proposals = []
-        title_candidates = []
 
     next_month = get_next_month_str()
     # エントリー制廃止により entry_success を削除
@@ -456,8 +456,7 @@ def post_or_edit_same_title(request, novel_id=None):
                                 title=novel.title,
                                 published_date__year=current_year,
                                 published_date__month=current_month_num,
-                                status='published',
-                                is_public=True
+                                status='published'
                             ).order_by('published_date')
 
                             # 現在の投稿の順位を特定（1-indexed）
