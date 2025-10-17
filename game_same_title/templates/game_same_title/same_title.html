@@ -348,7 +348,6 @@
                       const tr = document.createElement('tr');
                       tr.innerHTML = `
                           <td>${novel.word_count}</td>
-                          <td>${novel.genre}</td>
                           <td><a href="/novels/${novel.id}/">${novel.title}</a></td>
                           <td><a href="/accounts/${novel.author_id}/">${novel.author_nickname}</a></td>
                           <td>${formatDate(novel.published_date)}</td>
