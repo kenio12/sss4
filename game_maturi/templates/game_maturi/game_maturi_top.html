@@ -575,7 +575,7 @@
             <section>
                 <h2>{{ game.title }}の説明</h2>
                 <div class="description-container">
-                    <div class="description-content" style="max-height: 500px; overflow: hidden;">
+                    <div class="description-content festival-description" style="max-height: 500px; overflow: hidden;">
                         {{ game.description|linebreaks }}
                     </div>
                     <button class="toggle-description btn btn-link">
@@ -855,11 +855,25 @@
             }
 
             document.addEventListener('DOMContentLoaded', function() {
+                // 祭り説明文の改行処理（①②③、□■の前に改行追加）
+                const festivalDesc = document.querySelector('.festival-description');
+                if (festivalDesc) {
+                    let html = festivalDesc.innerHTML;
+                    // ①②③の前に改行2つ追加
+                    html = html.replace(/①/g, '<br><br>①');
+                    html = html.replace(/②/g, '<br><br>②');
+                    html = html.replace(/③/g, '<br><br>③');
+                    // □■の前に改行2つ追加
+                    html = html.replace(/□/g, '<br><br>□');
+                    html = html.replace(/■/g, '<br><br>■');
+                    festivalDesc.innerHTML = html;
+                }
+
                 const content = document.querySelector('.description-content');
                 const toggle = document.querySelector('.toggle-description');
-                
+
                 if (!content || !toggle) return;  // 要素がない場合は処理を中止
-                
+
                 // 初期状態を設定
                 content.style.maxHeight = '100px';
                 content.style.overflow = 'hidden';
