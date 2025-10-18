@@ -4,7 +4,13 @@
 <div class="container custom-container-margin">
     <!-- 作家名セクション -->
     <div class="author-section" style="margin-bottom: 15px;">
-        {% if novel.author %}
+        {% if is_maturi and novel.maturi_games.first.is_author_revealed %}
+            <!-- 予想期間終了後：実際の作者を表示 -->
+            <a href="{% url 'accounts:view_other_profile' user_id=novel.original_author.id %}" class="author-name">
+                {{ novel.original_author.nickname }}
+            </a>
+        {% elif novel.author %}
+            <!-- 予想期間中または通常小説：author を表示 -->
             <a href="{% url 'accounts:view_other_profile' user_id=novel.author.id %}" class="author-name">
                 {{ novel.author.nickname }}
             </a>
