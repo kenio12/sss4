@@ -1,0 +1,12 @@
+{# ニックネーム表示定型（リンク付き） #}
+{# 使い方: {% include 'gallery/includes/nickname_badge.html' with user=proposal.proposer %} #}
+{% if user %}
+<a href="{% url 'accounts:view_other_profile' user_id=user.id %}"
+   style="text-decoration: none; font-weight: 600; color: #007bff; transition: opacity 0.2s;"
+   onmouseover="this.style.opacity='0.7'"
+   onmouseout="this.style.opacity='1'">
+    {{ user.nickname }}
+</a>
+{% else %}
+<span style="color: #999;">不明なユーザー</span>
+{% endif %}
