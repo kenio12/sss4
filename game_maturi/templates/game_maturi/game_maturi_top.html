@@ -627,15 +627,6 @@
                 {% include "game_maturi/includes/gantt_chart.html" with game=game %}
             </section>
 
-            {% if last_finished_game %}
-                <section>
-                    <h2>{{ last_finished_game.title }}の説明</h2>
-                    <p>{{ last_finished_game.description }}</p>
-                </section>
-            {% else %}
-                <!-- last_finished_gameが存在しない場合の処理 -->
-            {% endif %}
-
         
         <section>
             <h2>今回の祭りの語句</h2>
@@ -874,7 +865,18 @@
 
                 if (!content || !toggle) return;  // 要素がない場合は処理を中止
 
-                // 初期状態を設定
+                // 実際の内容の高さを取得
+                const actualHeight = content.scrollHeight;
+
+                // 内容が100px以下の場合はボタンを非表示にして、max-heightを解除
+                if (actualHeight <= 100) {
+                    toggle.style.display = 'none';
+                    content.style.maxHeight = 'none';
+                    content.style.overflow = 'visible';
+                    return;  // ボタンのイベントリスナーも設定しない
+                }
+
+                // 初期状態を設定（内容が100pxより大きい場合のみ）
                 content.style.maxHeight = '100px';
                 content.style.overflow = 'hidden';
                 let isExpanded = false;
