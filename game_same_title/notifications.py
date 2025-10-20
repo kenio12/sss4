@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.core import signing
 from urllib.parse import quote
 import logging
+import time
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -90,9 +91,12 @@ def send_same_title_recruitment_notification():
                 masked_email = user.email[:3] + '***'
                 logger.debug(f'同タイトル募集通知送信成功: {masked_email}')
 
+                # 🔥🔥🔥 レート制限対策：5秒待機 🔥🔥🔥
+                time.sleep(5)
+
             except Exception as e:
                 masked_email = user.email[:3] + '***'
-                logger.error(f'同タイトル募集通知送信失敗: {masked_email} - {str(e)}')
+                logger.error(f'同タイトル募集通知送信失敗: {masked_email} - {str(e)}', exc_info=True)
                 continue
 
         logger.info(f'同タイトル募集通知送信完了: {sent_count}件')
@@ -168,9 +172,12 @@ def send_same_title_proposal_notification(proposal):
                 masked_email = user.email[:3] + '***'
                 logger.debug(f'同タイトル提案通知送信成功: {masked_email}')
 
+                # 🔥🔥🔥 レート制限対策：5秒待機 🔥🔥🔥
+                time.sleep(5)
+
             except Exception as e:
                 masked_email = user.email[:3] + '***'
-                logger.error(f'同タイトル提案通知送信失敗: {masked_email} - {str(e)}')
+                logger.error(f'同タイトル提案通知送信失敗: {masked_email} - {str(e)}', exc_info=True)
                 continue
 
         logger.info(f'同タイトル提案通知送信完了: {sent_count}件')
@@ -251,9 +258,12 @@ def send_same_title_decision_notification(novel):
                 masked_email = user.email[:3] + '***'
                 logger.debug(f'同タイトル決定通知送信成功: {masked_email}')
 
+                # 🔥🔥🔥 レート制限対策：5秒待機 🔥🔥🔥
+                time.sleep(5)
+
             except Exception as e:
                 masked_email = user.email[:3] + '***'
-                logger.error(f'同タイトル決定通知送信失敗: {masked_email} - {str(e)}')
+                logger.error(f'同タイトル決定通知送信失敗: {masked_email} - {str(e)}', exc_info=True)
                 continue
 
         logger.info(f'同タイトル決定通知送信完了: {sent_count}件')
@@ -331,9 +341,12 @@ def send_same_title_follower_praise_notification(novel, rank):
                 logger.info(f'同タイトル追随通知（投稿者本人）送信成功: {masked_email} ({rank}番目)')
                 total_sent += 1
 
+                # 🔥🔥🔥 レート制限対策：5秒待機 🔥🔥🔥
+                time.sleep(5)
+
             except Exception as e:
                 masked_email = user.email[:3] + '***'
-                logger.error(f'同タイトル追随通知（投稿者本人）送信失敗: {masked_email} - {str(e)}')
+                logger.error(f'同タイトル追随通知（投稿者本人）送信失敗: {masked_email} - {str(e)}', exc_info=True)
 
         # 🔥🔥🔥 2. 全会員への通知（投稿者本人を含む） 🔥🔥🔥
         users = User.objects.filter(
@@ -392,9 +405,12 @@ def send_same_title_follower_praise_notification(novel, rank):
                     logger.debug(f'同タイトル追随通知（全会員）送信成功: {masked_email}')
                     total_sent += 1
 
+                    # 🔥🔥🔥 レート制限対策：5秒待機 🔥🔥🔥
+                    time.sleep(5)
+
                 except Exception as e:
                     masked_email = recipient.email[:3] + '***'
-                    logger.error(f'同タイトル追随通知（全会員）送信失敗: {masked_email} - {str(e)}')
+                    logger.error(f'同タイトル追随通知（全会員）送信失敗: {masked_email} - {str(e)}', exc_info=True)
                     continue
 
         logger.info(f'同タイトル追随通知送信完了: {total_sent}件（{rank}番目）')
