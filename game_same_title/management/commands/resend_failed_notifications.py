@@ -152,23 +152,13 @@ class Command(BaseCommand):
                     masked_email = user.email[:3] + '***'
                     error_str = str(e)
 
-                    # rate limit エラー（450）の場合はスキップ（待機なし）
-                    if '450' in error_str and 'rate' in error_str.lower():
-                        self.stdout.write(
-                            self.style.WARNING(f'⚠️ [{i}/{total_users}] {masked_email} rate limit エラー（スキップ）')
-                        )
-                        logger.warning(f'同タイトル決定通知再送信スキップ（rate limit）: {masked_email}')
-                        # rate limit エラーは待機せずに次へ
-                        continue
-
                     self.stdout.write(
                         self.style.ERROR(f'❌ [{i}/{total_users}] {masked_email} 送信失敗: {error_str}')
                     )
                     logger.error(f'同タイトル決定通知再送信失敗: {masked_email} - {error_str}', exc_info=True)
 
-                    # その他のエラー時も1分待機（レート制限回避）
-                    if i < total_users:
-                        time.sleep(60)
+                    # エラー時は待機せずに次へ（全員即座送信）
+                    # rate limit の場合は時間を空けても無駄なので、全員処理してから考える
 
         finally:
             connection.close()
