@@ -202,11 +202,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email configuration for production
 EMAIL_BACKEND = 'utils.mail_backends.CustomEmailBackend'  # カスタムSMTPバックエンドを使用
-EMAIL_HOST = 'smtp.gmail.com'  # メールサーバーのホスト名
-EMAIL_PORT = 587  # メールサーバーのポート（TLSを使用する場合）
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')  # メールサーバーのホスト名（環境変数から取得）
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))  # メールサーバーのポート（環境変数から取得）
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'your_email@example.com')  # 環境変数からメールサーバーのユーザー名を取得
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'your_email_password_here')  # 環境変数からメールサーバーのパスワードを取得
-EMAIL_USE_TLS = True  # TLSを用する
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'  # TLSを使用（環境変数から取得）
 # EMAIL_USE_SSL = False  # SSLを使用しない（TLSとSSLの両方をTrueにすることはできません）
 
 # メールで使用するベースURLの設定
