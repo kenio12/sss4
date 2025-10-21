@@ -18,8 +18,8 @@ from django.core.mail import send_mail, get_connection
 from django.conf import settings
 from django.utils import timezone
 from accounts.models import User
-from game_same_title.models import SameTitleNovel
-from game_same_title.utils import get_unsubscribe_url
+from novels.models import Novel
+from game_same_title.notifications import get_unsubscribe_url
 
 logger = logging.getLogger(__name__)
 
@@ -51,11 +51,14 @@ class Command(BaseCommand):
         # 今月の一番槍を取得
         current_month_start = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         try:
-            novel = SameTitleNovel.objects.filter(
+            novel = Novel.objects.filter(
                 created_at__gte=current_month_start,
-                is_first_post=True
-            ).select_related('author').latest('created_at')
-        except SameTitleNovel.DoesNotExist:
+                status='published'
+            ).select_related('author').order_by('created_at').first()
+
+            if not novel:
+                raise Novel.DoesNotExist()
+        except Novel.DoesNotExist:
             self.stdout.write(self.style.ERROR('❌ 今月の一番槍が見つかりません'))
             return
 
