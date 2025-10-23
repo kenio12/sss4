@@ -267,7 +267,7 @@ def send_same_title_decision_notification(novel):
 
 {event_month}度の同タイトルイベントは、
 {shield_info}
-で決定しました。
+に、決定しました！
 
 ◆ 作品を読む
 {settings.BASE_URL}/novels/{novel.id}/
