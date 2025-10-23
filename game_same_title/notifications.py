@@ -258,12 +258,12 @@ def send_same_title_decision_notification(novel):
 ◆ 俺もこのタイトルで作る
 {settings.BASE_URL}/novels/post/?title={encoded_title}
 
-◆ 次月のタイトルを提案して一番盾を狙う
+◆ 来月のタイトルを提案して一番盾を狙う
 {settings.BASE_URL}/game_same_title/same_title/
 
 あなたも超短編小説会の名物イベントの一つである「同タイトル」で創作に挑戦してみませんか？
 
-また、次月の同タイトルのタイトルを提案し、一番盾を狙ってみませんか？
+また、来月の同タイトルのタイトルを提案し、一番盾を狙ってみませんか？
 
 ---
 このメールの配信を停止する場合は、以下のリンクをクリックしてください。
