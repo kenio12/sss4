@@ -191,6 +191,7 @@ def send_same_title_decision_notification(novel):
     """
     同タイトル決定通知（月の最初の投稿時）
     今月の一番槍（最初の投稿）を全会員に通知
+    一番盾（タイトル提案者）も一緒に褒め称える
     """
     # 🔥🔥🔥 通知設定が有効なユーザーを取得（投稿者本人を含む！）🔥🔥🔥
     users = User.objects.filter(
@@ -206,6 +207,14 @@ def send_same_title_decision_notification(novel):
     sent_count = 0
     current_month = timezone.now().strftime('%Y年%m月')
 
+    # タイトル提案者（一番盾）を取得
+    from game_same_title.models import TitleProposal
+    proposal = TitleProposal.objects.filter(
+        title=novel.title,
+        proposal_month__year=novel.created_at.year,
+        proposal_month__month=novel.created_at.month
+    ).first()
+
     # メール送信接続を再利用（効率化）
     connection = get_connection()
     connection.open()
@@ -218,6 +227,20 @@ def send_same_title_decision_notification(novel):
                 # タイトルをURLエンコード（日本語・スペース対応）
                 encoded_title = quote(novel.title, safe='')
 
+                # 一番盾の情報を追加
+                if proposal:
+                    title_info = f"""◆ 今月のタイトル
+「{novel.title}」
+
+一番槍（作品投稿）: {novel.author.nickname}
+一番盾（タイトル提案）: {proposal.proposer.nickname}"""
+                else:
+                    # 提案者が見つからない場合（自由投稿など）
+                    title_info = f"""◆ 今月のタイトル
+「{novel.title}」
+
+一番槍: {novel.author.nickname}"""
+
                 message = f"""
 {user.nickname} 様
 
@@ -225,10 +248,7 @@ def send_same_title_decision_notification(novel):
 
 {current_month}の同タイトルイベント、一番槍が決定しました！
 
-◆ 今月のタイトル
-「{novel.title}」
-
-一番槍: {novel.author.nickname}
+{title_info}
 
 ◆ 作品を読む
 {settings.BASE_URL}/novels/{novel.id}/
