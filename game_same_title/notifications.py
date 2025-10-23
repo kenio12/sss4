@@ -248,6 +248,8 @@ def send_same_title_decision_notification(novel):
 
 {current_month}の同タイトルイベント、一番槍が決定しました！
 
+🎉🎊パンパカパーン！🎊🎉
+
 {title_info}
 
 ◆ 作品を読む
@@ -256,7 +258,9 @@ def send_same_title_decision_notification(novel):
 ◆ 俺もこのタイトルで作る
 {settings.BASE_URL}/novels/post/?title={encoded_title}
 
-あなたも同じタイトルで創作に挑戦してみませんか？
+あなたも超短編小説会の名物イベントの一つである「同タイトル」で創作に挑戦してみませんか？「同タイトル」の小説の中に、「俺も・・・」を押して、一番槍になられた{novel.author.nickname}さんの作品の後を続けましょう！
+
+また、あなたも次月の同タイトルのタイトルを提案し、一番盾を狙ってみませんか？
 
 ---
 このメールの配信を停止する場合は、以下のリンクをクリックしてください。
