@@ -241,16 +241,33 @@ def send_same_title_decision_notification(novel):
 
 一番槍: {novel.author.nickname}"""
 
+                # 投稿日時を取得
+                from django.utils import timezone
+                posted_time = timezone.localtime(novel.created_at)
+                posted_str = posted_time.strftime('%Y年%m月%d日 %H時%M分')
+                event_month = posted_time.strftime('%Y年%m月')
+
+                # 一番盾の情報
+                if proposal:
+                    shield_info = f"""  一番槍（作品投稿）: {novel.author.nickname}
+  一番盾（タイトル提案）: {proposal.proposer.nickname}"""
+                else:
+                    shield_info = f"""  一番槍（作品投稿）: {novel.author.nickname}"""
+
                 message = f"""
 {user.nickname} 様
 
 こんにちは！超短編小説会です。
 
-{current_month}の同タイトルイベント、一番槍が決定しました！
-
 🎉🎊パンパカパーン！🎊🎉
 
-{title_info}
+{posted_str}に、{novel.author.nickname}さんが、「{novel.title}」のタイトルで小説を公開投稿されました！
+
+これで
+
+{event_month}度の同タイトルイベントは、
+{shield_info}
+で決定しました。
 
 ◆ 作品を読む
 {settings.BASE_URL}/novels/{novel.id}/
