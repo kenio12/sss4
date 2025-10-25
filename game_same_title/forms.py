@@ -16,6 +16,8 @@ class NovelForm(ModelForm):
     initial = forms.ChoiceField(choices=INITIAL_CHOICES, label='イニシャル', required=False)
     is_same_title_game = forms.BooleanField(label='同タイトル', required=False, initial=True)
     status = forms.CharField(widget=forms.HiddenInput(), required=False, initial='published')
+    # 🔥 content フィールドに strip=False を設定（先頭スペース保持）
+    content = forms.CharField(widget=forms.Textarea(), required=False, strip=False)
     genre = forms.ChoiceField(
         choices=[
             ('', 'ジャンルを選択'),
