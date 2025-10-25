@@ -433,7 +433,7 @@ def post_or_edit_same_title(request, novel_id=None):
                         novel.published_date = timezone.now()  # 🆕 公開日時を設定
                         # 🔥 ジャンルはユーザー選択のまま（変更しない）
                         novel.save(update_fields=['content', 'status', 'published_date', 'is_same_title_game'])  # 🆕 published_dateを追加
-                        messages.success(request, '小説が更新され、公開されました。')
+                        # 🔥 メッセージは一番槍・追随投稿で別々に出す（重複削除）
                         if not existing_entry and novel.is_same_title_game:
                             user_instance = User.objects.get(username=novel.author.username)
                             title_proposal = TitleProposal.objects.filter(title=novel.title).first()
@@ -480,6 +480,7 @@ def post_or_edit_same_title(request, novel_id=None):
                                     rank=rank
                                 )
                                 logger.info(f'追随通知予約: {novel.title} - {rank}番目 (ユーザー: {novel.author.username})')
+                                messages.success(request, '小説が公開されました。')
                         return redirect('game_same_title:same_title')
 
                 elif action == 'draft' or action == 'rest':
