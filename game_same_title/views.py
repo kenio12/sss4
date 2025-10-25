@@ -231,6 +231,15 @@ def create_title_proposal(request):
                         proposed_at=timezone.now().date(),  # 時間情報を除外して日付のみを保存
                         proposal_month=current_month_start
                     )
+
+                    # 🔥 タイトル提案通知を翌日12時に送信するため予約
+                    from .models import PendingNotification
+                    PendingNotification.objects.create(
+                        notification_type='提案',
+                        proposal=created_proposal
+                    )
+                    logger.info(f'タイトル提案通知予約: {title} (提案者: {proposer.username})')
+
             messages.success(request, '提案が成功しました。')
             return redirect('game_same_title:same_title')
         else:
@@ -505,6 +514,7 @@ def post_or_edit_same_title(request, novel_id=None):
                 'title': novel.title,
                 'content': novel.content,
                 'initial': novel.initial,
+                'genre': novel.genre,  # 🔥 ジャンルフィールド追加（消失バグ修正）
                 'is_same_title_game': novel.is_same_title_game  # 既存の値を使用
             })
         form = NovelForm(initial=initial_data)
