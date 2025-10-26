@@ -208,6 +208,7 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'your_email@example.com')  # 環�
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'your_email_password_here')  # 環境変数からメールサーバーのパスワードを取得
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'  # TLSを使用（環境変数から取得）
 # EMAIL_USE_SSL = False  # SSLを使用しない（TLSとSSLの両方をTrueにすることはできません）
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@sss4.life')  # デフォルトの送信元メールアドレス
 
 # メールで使用するベースURLの設定
 # 開発環境では 'http://localhost:8000' など、本番環境では実際のドメインを設定
