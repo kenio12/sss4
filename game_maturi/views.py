@@ -405,22 +405,18 @@ def post_or_edit_maturi_novel(request, novel_id=None):
                 saved_novel.scheduled_publish_date = current_game.prediction_start_date
                 saved_novel.status = 'scheduled'
                 saved_novel.genre = '祭り'
-                saved_novel.is_public = False
                 saved_novel.save()
                 messages.success(request, f'小説を予約公開しました。{current_game.prediction_start_date.strftime("%Y年%m月%d日")}に自動的に公開されます。')
                 return redirect('accounts:view_profile')
             elif action in ['publish', 'edit_published']:
                 saved_novel.status = 'published'
                 saved_novel.genre = '祭り'
-                saved_novel.is_public = True
             elif action in ['draft', 'rest']:
                 saved_novel.status = 'draft'
                 saved_novel.genre = '祭り'  # ここを追加！
-                saved_novel.is_public = False
             elif action == 'cancel_schedule':  # 予約公開取り消しの処理を追加
                 saved_novel.status = 'draft'  # ステータスを下書きに戻す
                 saved_novel.genre = '祭り'  # ジャンルは祭りのまま
-                saved_novel.is_public = False
                 messages.success(request, '予約公開を取り消しました。')
             
             saved_novel.save()

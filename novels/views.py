@@ -147,8 +147,7 @@ def post_or_edit_novel(request, novel_id=None):
                         title=saved_novel.title,
                         published_date__year=current_year,
                         published_date__month=current_month_num,
-                        status='published',
-                        is_public=True
+                        status='published'
                     ).order_by('published_date')
 
                     rank = list(same_title_novels.values_list('id', flat=True)).index(saved_novel.id) + 1
