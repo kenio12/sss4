@@ -390,7 +390,7 @@ def send_same_title_follower_praise_notification(novel, rank):
 
         # 🔥🔥🔥 2. 全会員への通知（投稿者本人を含む） 🔥🔥🔥
         users = User.objects.filter(
-            notification_settings__same_title_follower=True,
+            notification_settings__same_title_decision=True,
             is_active=True,
             email_confirmed=True
         ).select_related('notification_settings')
