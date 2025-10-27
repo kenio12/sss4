@@ -355,9 +355,9 @@ def send_same_title_follower_praise_notification(novel, rank):
 
 こんにちは！超短編小説会です。
 
-{novel.author.nickname}さんが、{current_month}の同タイトル「{novel.title}」で、{rank}番目に公開投稿されました！
+{novel.author.nickname}様が、{current_month}の同タイトル「{novel.title}」で、{rank}番目に公開投稿されました！
 
-◆ {novel.author.nickname}さんの同タイトル「{novel.title}」を読む
+◆ {novel.author.nickname}様の同タイトル「{novel.title}」を読む
 {settings.BASE_URL}/novels/{novel.id}/
 
 ◆ 一番槍の作品を読む
