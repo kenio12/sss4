@@ -347,7 +347,7 @@ def send_same_title_follower_praise_notification(novel, rank):
         if users.exists():
             for recipient in users:
                 try:
-                    subject = f'【超短編小説会】{current_month}同タイトル「{novel.title}」{novel.author.nickname}さん{rank}番目投稿！'
+                    subject = f'【超短編小説会】{current_month}同タイトルに{rank}番目の投稿がありました！'
                     unsubscribe_url = get_unsubscribe_url(recipient)
 
                     message = f"""
