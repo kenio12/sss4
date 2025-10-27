@@ -341,7 +341,7 @@ def send_same_title_follower_praise_notification(novel, rank):
         user = novel.author
         if user.email_confirmed and user.is_active:
             try:
-                subject = f'【超短編小説会】{current_month}の同タイトルの{rank}番煎じとして投稿されました！'
+                subject = f'【超短編小説会】{current_month}の同タイトルの{rank}番目の作品として投稿されました！'
                 unsubscribe_url = get_unsubscribe_url(user)
 
                 message = f"""
@@ -350,7 +350,7 @@ def send_same_title_follower_praise_notification(novel, rank):
 こんにちは！超短編小説会です。
 
 すでに{current_month}の同タイトルの一番槍は投稿されましたが、
-その{rank}番煎じとして{user.nickname}さんが同タイトルとして投稿されました！
+{rank}番目の作品として{user.nickname}さんが同タイトルで投稿されました！
 
 ◆ あなたの作品を読む
 {settings.BASE_URL}/novels/{novel.id}/
