@@ -9,6 +9,7 @@
 
 from celery import shared_task
 from django.utils import timezone
+from django.db import transaction
 from novels.models import Novel
 from game_maturi.models import MaturiGame
 
@@ -16,19 +17,21 @@ from game_maturi.models import MaturiGame
 def publish_scheduled_novels():
     now = timezone.now()
     published_count = 0
-    
+
     try:
-        scheduled_novels = Novel.objects.filter(
-            status='scheduled',
-            scheduled_at__lte=now
-        )
-        
-        for novel in scheduled_novels:
-            novel.status = 'published'
-            novel.published_date = now
-            novel.save()
-            published_count += 1
-        
+        # トランザクション内で処理（重複実行防止）
+        with transaction.atomic():
+            scheduled_novels = Novel.objects.filter(
+                status='scheduled',
+                scheduled_at__lte=now
+            ).select_for_update(of=('self',))
+
+            for novel in scheduled_novels:
+                novel.status = 'published'
+                novel.published_date = now
+                novel.save()
+                published_count += 1
+
         return f"{published_count}件の小説を公開しました"
     except Exception as e:
         print(f"[Error] Publishing task failed: {str(e)}")
