@@ -234,11 +234,14 @@ def create_title_proposal(request):
 
                     # 🔥 タイトル提案通知を翌日12時に送信するため予約
                     from .models import PendingNotification
-                    PendingNotification.objects.create(
+                    notification, created = PendingNotification.objects.get_or_create(
                         notification_type='提案',
                         proposal=created_proposal
                     )
-                    logger.info(f'タイトル提案通知予約: {title} (提案者: {proposer.username})')
+                    if created:
+                        logger.info(f'タイトル提案通知予約: {title} (提案者: {proposer.username})')
+                    else:
+                        logger.info(f'タイトル提案通知既存: {title} (重複作成を防止)')
 
             messages.success(request, '提案が成功しました。')
             return redirect('game_same_title:same_title')
@@ -449,11 +452,14 @@ def post_or_edit_same_title(request, novel_id=None):
                             )
                             # 🔥 一番槍決定通知を18時に送信するため予約
                             from .models import PendingNotification
-                            PendingNotification.objects.create(
+                            notification, created = PendingNotification.objects.get_or_create(
                                 notification_type='決定',
                                 novel=novel
                             )
-                            logger.info(f'一番槍通知予約: {novel.title} (ユーザー: {novel.author.username})')
+                            if created:
+                                logger.info(f'一番槍通知予約: {novel.title} (ユーザー: {novel.author.username})')
+                            else:
+                                logger.info(f'一番槍通知既存: {novel.title} (重複作成を防止)')
                             messages.success(request, 'やったね！あんたが今月の一番槍や！')
                         elif existing_entry and novel.is_same_title_game:
                             # 🔥 追随投稿の場合：順位を計算して全員に通知（2番目以降全員） 🔥
@@ -474,12 +480,15 @@ def post_or_edit_same_title(request, novel_id=None):
                             # 🔥 2番目以降全員に通知予約（18時送信）
                             if rank >= 2:
                                 from .models import PendingNotification
-                                PendingNotification.objects.create(
+                                notification, created = PendingNotification.objects.get_or_create(
                                     notification_type='追随',
                                     novel=novel,
                                     rank=rank
                                 )
-                                logger.info(f'追随通知予約: {novel.title} - {rank}番目 (ユーザー: {novel.author.username})')
+                                if created:
+                                    logger.info(f'追随通知予約: {novel.title} - {rank}番目 (ユーザー: {novel.author.username})')
+                                else:
+                                    logger.info(f'追随通知既存: {novel.title} - {rank}番目 (重複作成を防止)')
                                 messages.success(request, '小説が公開されました。')
                         return redirect('game_same_title:same_title')
 
