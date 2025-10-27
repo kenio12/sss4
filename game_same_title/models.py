@@ -36,16 +36,20 @@ class MonthlySameTitleInfo(models.Model):
 class PendingNotification(models.Model):
     """
     メール通知予約テーブル
-    投稿時に即座送信せず、18時に一斉送信するための予約データ
+    投稿時に即座送信せず、指定時刻に一斉送信するための予約データ
+    - 提案通知：翌日12時（正午）
+    - 決定通知・追随通知：翌日17時（午後5時）
     """
     NOTIFICATION_TYPES = [
-        ('same_title_decision', '同タイトル決定通知（一番槍）'),
-        ('same_title_follower', '同タイトル追随通知（2番目以降）'),
+        ('提案', 'タイトル提案通知'),
+        ('決定', '同タイトル決定通知（一番槍）'),
+        ('追随', '同タイトル追随通知（2番目以降）'),
         ('same_title_recruitment', '同タイトル募集通知（月初）'),
     ]
 
     notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES, verbose_name="通知タイプ")
     novel = models.ForeignKey(Novel, on_delete=models.CASCADE, null=True, blank=True, verbose_name="関連小説")
+    proposal = models.ForeignKey('TitleProposal', on_delete=models.CASCADE, null=True, blank=True, verbose_name="関連タイトル提案")
     rank = models.IntegerField(null=True, blank=True, verbose_name="順位（追随通知用）")
     created_at = models.DateTimeField(default=timezone.now, verbose_name="予約日時")
     sent_at = models.DateTimeField(null=True, blank=True, verbose_name="送信日時")
@@ -55,6 +59,26 @@ class PendingNotification(models.Model):
         ordering = ['-created_at']
         verbose_name = "メール通知予約"
         verbose_name_plural = "メール通知予約"
+        constraints = [
+            # 追随通知の重複防止（同じ小説・同じ順位で1つだけ）
+            models.UniqueConstraint(
+                fields=['notification_type', 'novel', 'rank'],
+                name='unique_follower_notification',
+                condition=models.Q(notification_type='追随')
+            ),
+            # 一番槍通知の重複防止（同じ小説で1つだけ）
+            models.UniqueConstraint(
+                fields=['notification_type', 'novel'],
+                name='unique_decision_notification',
+                condition=models.Q(notification_type='決定')
+            ),
+            # 提案通知の重複防止（同じ提案で1つだけ）
+            models.UniqueConstraint(
+                fields=['notification_type', 'proposal'],
+                name='unique_proposal_notification',
+                condition=models.Q(notification_type='提案')
+            ),
+        ]
 
     def __str__(self):
         type_display = dict(self.NOTIFICATION_TYPES).get(self.notification_type, self.notification_type)

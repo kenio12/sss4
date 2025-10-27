@@ -2,6 +2,14 @@
 {% load static %}
 
 {% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
 {% if edit and novel.content %}
     <div class="novel-detail-section">
         {% include 'novels/novel_detail_section.html' with novel=novel is_published=is_published hide_edit_button=True %}
