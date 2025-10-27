@@ -495,7 +495,7 @@ def post_or_edit_same_title(request, novel_id=None):
                 elif action == 'draft' or action == 'rest':
                     # 🔥 同タイトル公開済みは非公開にできない
                     if novel.is_same_title_game and novel.published_date:
-                        messages.error(request, '同タイトルイベント参加作品は公開後、非公開にできません。全会員に通知済みのため、責任を持って公開し続けてください。')
+                        messages.error(request, '同タイトルイベント参加作品は公開後、非公開にできません。みんなが楽しみにしているので、このまま公開を続けてください。')
                         return redirect(reverse('game_same_title:post_or_edit_same_title_with_id', kwargs={'novel_id': novel.id}))
 
                     novel.status = 'draft'
@@ -509,7 +509,7 @@ def post_or_edit_same_title(request, novel_id=None):
                 elif action == 'delete':
                     # 🔥 同タイトル公開済みは削除できない
                     if novel and novel.is_same_title_game and novel.published_date:
-                        messages.error(request, '同タイトルイベント参加作品は公開後、削除できません。全会員に通知済みのため、責任を持って公開し続けてください。')
+                        messages.error(request, '同タイトルイベント参加作品は公開後、削除できません。みんなが楽しみにしているので、このまま公開を続けてください。')
                         return redirect(reverse('game_same_title:post_or_edit_same_title_with_id', kwargs={'novel_id': novel.id}))
 
                     if novel:
