@@ -347,7 +347,7 @@ def send_same_title_follower_praise_notification(novel, rank):
         if users.exists():
             for recipient in users:
                 try:
-                    subject = f'【超短編小説会】{novel.author.nickname}さんが「{novel.title}」で新作公開！'
+                    subject = f'【超短編小説会】{current_month}の同タイトルに{rank}番目の作品が投稿されました！'
                     unsubscribe_url = get_unsubscribe_url(recipient)
 
                     message = f"""
@@ -355,21 +355,24 @@ def send_same_title_follower_praise_notification(novel, rank):
 
 こんにちは！超短編小説会です。
 
-{novel.author.nickname}さんが「{novel.title}」のタイトルで新作を公開されました！
+{current_month}の同タイトルイベントに{rank}番目の作品が投稿されました！
 
-同じタイトルでも、書く人が違えば全く違う物語が生まれる。
-これが同タイトルイベントの醍醐味です！
+◆ 今月のタイトル
+「{novel.title}」
 
-◆ {novel.author.nickname}さんの「{novel.title}」
+◆ {rank}番目の投稿者
+{novel.author.nickname}
+
+◆ {rank}番目の作品を読む
 {settings.BASE_URL}/novels/{novel.id}/
 
-◆ 他の「{novel.title}」作品はこちら
-{settings.BASE_URL}/game_same_title/same_title/
+◆ 一番槍の作品を読む
+{settings.BASE_URL}/novels/{first_novel.id}/
 
-あなたも「{novel.title}」で書いてみませんか？
+◆ 俺もこのタイトルで作る
 {settings.BASE_URL}/novels/post/?title={encoded_title}
 
-どんな物語が生まれるか、楽しみにしています！
+あなたも後に続いて、同タイトル「{novel.title}」で小説を書いてみませんか？
 
 ---
 このメールの配信を停止する場合は、以下のリンクをクリックしてください。
