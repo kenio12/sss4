@@ -337,58 +337,7 @@ def send_same_title_follower_praise_notification(novel, rank):
     connection.open()
 
     try:
-        # 🔥🔥🔥 1. 投稿者本人への通知（何番目か伝える） 🔥🔥🔥
-        user = novel.author
-        if user.email_confirmed and user.is_active:
-            try:
-                subject = f'【超短編小説会】{current_month}の同タイトルの{rank}番目の作品として投稿されました！'
-                unsubscribe_url = get_unsubscribe_url(user)
-
-                message = f"""
-{user.nickname} 様
-
-こんにちは！超短編小説会です。
-
-すでに{current_month}の同タイトルの一番槍は投稿されましたが、
-{rank}番目の作品として{user.nickname}さんが同タイトルで投稿されました！
-
-◆ あなたの作品を読む
-{settings.BASE_URL}/novels/{novel.id}/
-
-◆ 一番槍の作品を読む
-{settings.BASE_URL}/novels/{first_novel.id}/
-
-◆ 同タイトル作品一覧
-{settings.BASE_URL}/game_same_title/same_title/
-
----
-このメールの配信を停止する場合は、以下のリンクをクリックしてください。
-{unsubscribe_url}
-
-超短編小説会
-                """.strip()
-
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
-                    connection=connection,
-                )
-
-                masked_email = user.email[:3] + '***'
-                logger.info(f'同タイトル追随通知（投稿者本人）送信成功: {masked_email} ({rank}番目)')
-                total_sent += 1
-
-                # 🔥🔥🔥 レート制限対策：5秒待機 🔥🔥🔥
-                time.sleep(5)
-
-            except Exception as e:
-                masked_email = user.email[:3] + '***'
-                logger.error(f'同タイトル追随通知（投稿者本人）送信失敗: {masked_email} - {str(e)}', exc_info=True)
-
-        # 🔥🔥🔥 2. 全会員への通知（投稿者本人を含む） 🔥🔥🔥
+        # 🔥🔥🔥 全会員への通知（投稿者本人を含む） 🔥🔥🔥
         users = User.objects.filter(
             notification_settings__same_title_decision=True,
             is_active=True,
@@ -398,7 +347,7 @@ def send_same_title_follower_praise_notification(novel, rank):
         if users.exists():
             for recipient in users:
                 try:
-                    subject = f'【超短編小説会】{current_month}の同タイトルに{rank}番目の作品が投稿されました！'
+                    subject = f'【超短編小説会】{novel.author.nickname}さんが「{novel.title}」で新作公開！'
                     unsubscribe_url = get_unsubscribe_url(recipient)
 
                     message = f"""
@@ -406,24 +355,21 @@ def send_same_title_follower_praise_notification(novel, rank):
 
 こんにちは！超短編小説会です。
 
-{current_month}の同タイトルイベントに{rank}番目の作品が投稿されました！
+{novel.author.nickname}さんが「{novel.title}」のタイトルで新作を公開されました！
 
-◆ 今月のタイトル
-「{novel.title}」
+同じタイトルでも、書く人が違えば全く違う物語が生まれる。
+これが同タイトルイベントの醍醐味です！
 
-◆ {rank}番目の投稿者
-{novel.author.nickname}
-
-◆ {rank}番目の作品を読む
+◆ {novel.author.nickname}さんの「{novel.title}」
 {settings.BASE_URL}/novels/{novel.id}/
 
-◆ 一番槍の作品を読む
-{settings.BASE_URL}/novels/{first_novel.id}/
+◆ 他の「{novel.title}」作品はこちら
+{settings.BASE_URL}/game_same_title/same_title/
 
-◆ 俺もこのタイトルで作る
+あなたも「{novel.title}」で書いてみませんか？
 {settings.BASE_URL}/novels/post/?title={encoded_title}
 
-あなたも同じタイトルで創作に挑戦してみませんか？
+どんな物語が生まれるか、楽しみにしています！
 
 ---
 このメールの配信を停止する場合は、以下のリンクをクリックしてください。
