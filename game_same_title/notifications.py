@@ -364,7 +364,7 @@ def send_same_title_follower_praise_notification(novel, rank):
 {settings.BASE_URL}/novels/{first_novel.id}/
 
 ◆ 俺もこのタイトルで作る
-{settings.BASE_URL}/novels/post/?title={encoded_title}
+{settings.BASE_URL}/novels/post/
 
 あなたも同タイトル「{novel.title}」で小説を書いてみませんか？
 
