@@ -22,7 +22,7 @@ import pytz
 # エントリー制廃止により check_entered_last_month 関数を削除
 
 def get_next_month_str():
-    next_month = (timezone.now() + relativedelta(months=+1)).month
+    next_month = (timezone.localtime(timezone.now()) + relativedelta(months=+1)).month
     return f"{next_month}月"
 
 from django.core.paginator import Paginator
@@ -215,7 +215,8 @@ from django.utils import timezone
 @login_required
 def create_title_proposal(request):
     proposer = request.user
-    current_month_start = timezone.now().date().replace(day=1)  # 今月の初めを取得
+    # Asia/Tokyoに変換してから月を取得
+    current_month_start = timezone.localtime(timezone.now()).date().replace(day=1)  # 今月の初めを取得
     next_month_start = current_month_start + relativedelta(months=1)
     current_month_end = next_month_start - timedelta(days=1)  # 今月の終わりを取得
 
@@ -238,7 +239,7 @@ def create_title_proposal(request):
                     created_proposal = TitleProposal.objects.create(
                         proposer=proposer,
                         title=title,
-                        proposed_at=timezone.now().date(),  # 時間情報を除外して日付のみを保存
+                        proposed_at=timezone.localtime(timezone.now()).date(),  # 時間情報を除外して日付のみを保存
                         proposal_month=current_month_start
                     )
 
@@ -305,7 +306,7 @@ from .models import MonthlySameTitleInfo  # この行を追加
 from django.http import Http404  # この行を追加
 
 def get_current_month_same_title_info():
-    current_month = timezone.now().strftime('%Y-%m')
+    current_month = timezone.localtime(timezone.now()).strftime('%Y-%m')
     try:
         current_month_info = MonthlySameTitleInfo.objects.get(month=current_month)
         return {
@@ -333,7 +334,8 @@ def post_or_edit_same_title(request, novel_id=None):
     # エントリー制廃止により check_entered_last_month のアクセス制限を削除
 
     # 🔥 前月の提案のみ取得（正しい仕様）🔥
-    current_month = timezone.now().date().replace(day=1)
+    # Asia/Tokyoに変換してから月を取得
+    current_month = timezone.localtime(timezone.now()).date().replace(day=1)
     last_month = current_month - relativedelta(months=1)
 
     # 前月に提案されたタイトルのみ取得
@@ -347,7 +349,7 @@ def post_or_edit_same_title(request, novel_id=None):
     logger.info(f"JSONデータ: {last_month_proposals_json}")
 
     # 現在の月の一番槍情報
-    current_month = timezone.now().strftime('%Y-%m')
+    current_month = timezone.localtime(timezone.now()).strftime('%Y-%m')
     current_month_same_title_info = MonthlySameTitleInfo.objects.filter(month=current_month).first()
     
     logger.info(f"現在の月: {current_month}")
@@ -409,7 +411,7 @@ def post_or_edit_same_title(request, novel_id=None):
             novel.title = form.cleaned_data['title']
             action = request.POST.get('action', '')
 
-            current_month = timezone.now().strftime('%Y-%m')
+            current_month = timezone.localtime(timezone.now()).strftime('%Y-%m')
             if not novel.same_title_event_month and novel.is_same_title_game:
                 novel.same_title_event_month = current_month
             # 🔥 ジャンルはユーザー選択のまま（変更しない）
@@ -473,8 +475,9 @@ def post_or_edit_same_title(request, novel_id=None):
                             messages.success(request, 'やったね！あんたが今月の一番槍や！')
                         elif existing_entry and novel.is_same_title_game:
                             # 🔥 追随投稿の場合：順位を計算して全員に通知（2番目以降全員） 🔥
-                            current_year = timezone.now().year
-                            current_month_num = timezone.now().month
+                            local_now = timezone.localtime(timezone.now())
+                            current_year = local_now.year
+                            current_month_num = local_now.month
 
                             # 今月の同タイトル投稿を published_date 昇順で取得
                             same_title_novels = Novel.objects.filter(
