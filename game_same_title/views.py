@@ -46,7 +46,8 @@ def same_title(request, page=1):
     #     'message': '現在、同タイトルは改修工事中です。お待ち願います。'
     # })
 
-    current_month_date = timezone.now().date().replace(day=1)
+    # Asia/Tokyoに変換してから月を取得
+    current_month_date = timezone.localtime(timezone.now()).date().replace(day=1)
     current_year = current_month_date.year
     current_month = current_month_date.month
     current_month_str = current_month_date.strftime('%Y-%m')
