@@ -15,7 +15,8 @@ from django.core import serializers
 logger = logging.getLogger(__name__)
 
 from django.utils import timezone
-from datetime import timedelta, datetime
+from datetime import timedelta
+import datetime
 import pytz
 
 # エントリー制廃止により check_entered_last_month 関数を削除
@@ -56,9 +57,9 @@ def same_title(request, page=1):
     current_month_str = current_month_date.strftime('%Y-%m')
 
     # Asia/Tokyoで今月の開始時刻と終了時刻を計算
-    month_start_tokyo = tokyo_tz.localize(datetime.combine(current_month_date, datetime.min.time()))
+    month_start_tokyo = tokyo_tz.localize(datetime.datetime.combine(current_month_date, datetime.time.min))
     next_month_date = current_month_date + relativedelta(months=1)
-    month_end_tokyo = tokyo_tz.localize(datetime.combine(next_month_date, datetime.min.time()))
+    month_end_tokyo = tokyo_tz.localize(datetime.datetime.combine(next_month_date, datetime.time.min))
 
     # 現在月の同タイトル小説のみを取得し、published_dateの昇順で並び替え
     same_title_novels = Novel.objects.filter(
