@@ -15,7 +15,8 @@ from django.core import serializers
 logger = logging.getLogger(__name__)
 
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
+import pytz
 
 # エントリー制廃止により check_entered_last_month 関数を削除
 
@@ -47,16 +48,23 @@ def same_title(request, page=1):
     # })
 
     # Asia/Tokyoに変換してから月を取得
-    current_month_date = timezone.localtime(timezone.now()).date().replace(day=1)
+    tokyo_tz = pytz.timezone('Asia/Tokyo')
+    local_now = timezone.localtime(timezone.now())
+    current_month_date = local_now.date().replace(day=1)
     current_year = current_month_date.year
     current_month = current_month_date.month
     current_month_str = current_month_date.strftime('%Y-%m')
 
+    # Asia/Tokyoで今月の開始時刻と終了時刻を計算
+    month_start_tokyo = tokyo_tz.localize(datetime.combine(current_month_date, datetime.min.time()))
+    next_month_date = current_month_date + relativedelta(months=1)
+    month_end_tokyo = tokyo_tz.localize(datetime.combine(next_month_date, datetime.min.time()))
+
     # 現在月の同タイトル小説のみを取得し、published_dateの昇順で並び替え
     same_title_novels = Novel.objects.filter(
         is_same_title_game=True,
-        published_date__year=current_year,
-        published_date__month=current_month,
+        published_date__gte=month_start_tokyo,
+        published_date__lt=month_end_tokyo,
         status='published'
     ).order_by('published_date').select_related('author')  # 降順から昇順に変更
 
