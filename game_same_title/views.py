@@ -462,6 +462,19 @@ def post_or_edit_same_title(request, novel_id=None):
                                 month=current_month,
                                 novel=novel
                             )
+
+                            # 🔥 一番槍決定時：別タイトルのdraftを同タイトル崩れにする（2025-11-01実装）
+                            decided_title = novel.title
+                            different_title_drafts = Novel.objects.filter(
+                                is_same_title_game=True,
+                                same_title_event_month=current_month,
+                                status='draft'
+                            ).exclude(title=decided_title)
+
+                            updated_count = different_title_drafts.update(is_same_title_game=False)
+                            if updated_count > 0:
+                                logger.info(f'同タイトル崩れ処理: {updated_count}件の非公開小説を is_same_title_game=False に更新')
+
                             # 🔥 一番槍決定通知を18時に送信するため予約
                             from .models import PendingNotification
                             notification, created = PendingNotification.objects.get_or_create(
