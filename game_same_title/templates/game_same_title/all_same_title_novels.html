@@ -25,7 +25,9 @@
                 <tr {% if novel.id in ichiban_yari_ids %}class="ichiban-yari"{% endif %}>
                     <td>
                         <span class="pc-view">
-                            {% if novel.genre == "同タイトル" %}
+                            {% if novel.is_same_title_game == False and novel.genre == "同タイトル" %}
+                                同タイ崩れ
+                            {% elif novel.genre == "同タイトル" %}
                                 同タイ
                             {% elif novel.genre == "旧同タイトル" %}
                                 旧同タイ
@@ -34,7 +36,9 @@
                             {% endif %}
                         </span>
                         <span class="sp-view">
-                            {% if novel.genre == "同タイトル" %}
+                            {% if novel.is_same_title_game == False and novel.genre == "同タイトル" %}
+                                同タイ崩
+                            {% elif novel.genre == "同タイトル" %}
                                 同
                             {% elif novel.genre == "旧同タイトル" %}
                                 旧同
