@@ -25,9 +25,11 @@ class HomePageView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         now = timezone.now()
-        
+        # Asia/Tokyoに変換してから月を取得
+        local_now = timezone.localtime(now)
+
         # 先頭の0を取り除いた月を設定
-        context['now'] = str(now.month)
+        context['now'] = str(local_now.month)
 
         # お知らせを取得（固定と通常を分けて取得）
         # 固定のお知らせを直近投稿順に取得
