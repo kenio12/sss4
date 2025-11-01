@@ -52,7 +52,7 @@ def send_same_title_recruitment_notification():
     try:
         for user in users:
             try:
-                subject = f'【超短編小説会】今月の同タイトル開催、次月のタイトル募集'
+                subject = f'【超短編小説会】{current_month}の同タイトル開催、次月のタイトル募集'
                 unsubscribe_url = get_unsubscribe_url(user)
 
                 message = f"""
