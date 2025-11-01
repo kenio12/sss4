@@ -67,6 +67,7 @@ def send_same_title_recruitment_notification():
 【1】今月の同タイトルを書いてみませんか？
 一番最初に公開投稿して、一番槍をGETしよう！
 あなたが選んだタイトルが今月の同タイトルに決定します。
+他の人に出し抜かれて公開投稿されると、同タイトル崩れになるかも知れないぞ（TT)
 
 ◆ 同タイトルで小説を書く（一番槍を狙う）
 {settings.BASE_URL}/game_same_title/post_or_edit/
