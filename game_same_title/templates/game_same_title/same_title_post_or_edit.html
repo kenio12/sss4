@@ -88,12 +88,23 @@
 <div class="form-group">
     {% if current_month_same_title_info and current_month_same_title_info.title %}
         <!-- 一番槍が決まった後：タイトル固定表示 -->
-        <label style="margin-bottom: 15px;">タイトル（今月の同タイトル）</label>
-        <div style="padding: 10px; background-color: #f0f8ff; border: 2px solid #8ecae6; border-radius: 5px; font-size: 1.2rem; font-weight: bold;">
-            {{ current_month_same_title_info.title }}
-        </div>
-        <!-- hidden inputで値を送信 -->
-        <input type="hidden" id="{{ form.title.id_for_label }}" name="{{ form.title.name }}" value="{{ current_month_same_title_info.title }}">
+        {% if novel.is_same_title_game == False %}
+            <!-- 同タイトル崩れ：元々のタイトルで固定 -->
+            <label style="margin-bottom: 15px;">タイトル（固定・変更不可）</label>
+            <div style="padding: 10px; background-color: #f0f8ff; border: 2px solid #8ecae6; border-radius: 5px; font-size: 1.2rem; font-weight: bold;">
+                {{ novel.title }}
+            </div>
+            <!-- hidden inputで値を送信 -->
+            <input type="hidden" id="{{ form.title.id_for_label }}" name="{{ form.title.name }}" value="{{ novel.title }}">
+        {% else %}
+            <!-- 同タイトル：一番槍のタイトルで固定 -->
+            <label style="margin-bottom: 15px;">タイトル（今月の同タイトル）</label>
+            <div style="padding: 10px; background-color: #f0f8ff; border: 2px solid #8ecae6; border-radius: 5px; font-size: 1.2rem; font-weight: bold;">
+                {{ current_month_same_title_info.title }}
+            </div>
+            <!-- hidden inputで値を送信 -->
+            <input type="hidden" id="{{ form.title.id_for_label }}" name="{{ form.title.name }}" value="{{ current_month_same_title_info.title }}">
+        {% endif %}
     {% else %}
         <!-- 一番槍が決まる前：タイトル選択 -->
         <label for="{{ form.title.id_for_label }}" style="margin-bottom: 15px;">タイトル（最初、自分の提案は選択肢出てきません）</label>
