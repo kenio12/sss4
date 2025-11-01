@@ -61,15 +61,22 @@ def send_same_title_recruitment_notification():
 こんにちは！超短編小説会です。
 
 {current_month}の同タイトルイベントが始まりました！
-タイトルの提案をお待ちしています！
+
+【1】タイトルの提案をお待ちしています！
+あなたが提案されたタイトルが小説のタイトルになるかも？！
 
 ◆ タイトル提案はこちら
 {settings.BASE_URL}/game_same_title/proposals/create/
 
+【2】今月の同タイトルを書いてみませんか？
+一番最初に公開投稿して、一番槍をGETしよう！
+あなたが選んだタイトルが今月の同タイトルに決定します。
+
+◆ 同タイトルで小説を書く（一番槍を狙う）
+{settings.BASE_URL}/game_same_title/post_or_edit/
+
 ◆ 同タイトルイベントページ
 {settings.BASE_URL}/game_same_title/same_title/
-
-あなたが提案されたタイトルが小説のタイトルになるかも？！
 
 ---
 このメールの配信を停止する場合は、以下のリンクをクリックしてください。
