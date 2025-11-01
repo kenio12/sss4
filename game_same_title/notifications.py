@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core import signing
 from urllib.parse import quote
+from dateutil.relativedelta import relativedelta
 import logging
 import time
 
@@ -44,6 +45,7 @@ def send_same_title_recruitment_notification():
 
     sent_count = 0
     current_month = timezone.now().strftime('%Y年%m月')
+    next_month = (timezone.now() + relativedelta(months=1)).strftime('%Y年%m月')
 
     # メール送信接続を再利用（効率化）
     connection = get_connection()
@@ -52,7 +54,7 @@ def send_same_title_recruitment_notification():
     try:
         for user in users:
             try:
-                subject = f'【超短編小説会】{current_month}の同タイトル開催、次月のタイトル募集'
+                subject = f'【超短編小説会】{current_month}の同タイトル開催、{next_month}のタイトル募集'
                 unsubscribe_url = get_unsubscribe_url(user)
 
                 message = f"""
@@ -69,7 +71,7 @@ def send_same_title_recruitment_notification():
 ◆ 同タイトルで小説を書く（一番槍を狙う）
 {settings.BASE_URL}/game_same_title/post_or_edit/
 
-【2】次月のタイトル提案をお待ちしています！
+【2】{next_month}のタイトル提案をお待ちしています！
 あなたが提案されたタイトルが小説のタイトルになるかも？！
 
 ◆ タイトル提案はこちら
