@@ -52,7 +52,7 @@ def send_same_title_recruitment_notification():
     try:
         for user in users:
             try:
-                subject = f'【超短編小説会】{current_month}の同タイトルイベントのタイトル募集！'
+                subject = f'【超短編小説会】今月の同タイトル開催、次月のタイトル募集'
                 unsubscribe_url = get_unsubscribe_url(user)
 
                 message = f"""
@@ -62,18 +62,18 @@ def send_same_title_recruitment_notification():
 
 {current_month}の同タイトルイベントが始まりました！
 
-【1】タイトルの提案をお待ちしています！
-あなたが提案されたタイトルが小説のタイトルになるかも？！
-
-◆ タイトル提案はこちら
-{settings.BASE_URL}/game_same_title/proposals/create/
-
-【2】今月の同タイトルを書いてみませんか？
+【1】今月の同タイトルを書いてみませんか？
 一番最初に公開投稿して、一番槍をGETしよう！
 あなたが選んだタイトルが今月の同タイトルに決定します。
 
 ◆ 同タイトルで小説を書く（一番槍を狙う）
 {settings.BASE_URL}/game_same_title/post_or_edit/
+
+【2】次月のタイトル提案をお待ちしています！
+あなたが提案されたタイトルが小説のタイトルになるかも？！
+
+◆ タイトル提案はこちら
+{settings.BASE_URL}/game_same_title/proposals/create/
 
 ◆ 同タイトルイベントページ
 {settings.BASE_URL}/game_same_title/same_title/
