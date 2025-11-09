@@ -104,12 +104,20 @@ import dj_database_url
 
 
 # 環境変数から実行環境を取得（デフォルトは開発環境）
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'development').lower()
 
 if ENVIRONMENT == 'production':
     # Herokuの環境であれば、DATABASE_URLから設定を上書き
     DATABASES = {
         'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+    }
+elif ENVIRONMENT == 'test':
+    # テスト環境ではDocker Composeから渡されるDATABASE_URLをそのまま利用する
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.getenv('DATABASE_URL', 'postgres://postgres:postgres@test_db:5432/novel_test'),
+            conn_max_age=0
+        )
     }
 else:
     # 開発環境のデータベース設定
@@ -249,10 +257,16 @@ CELERY_TIMEZONE = 'Asia/Tokyo'
 CELERY_ENABLE_UTC = True
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
-# デバッグ用の設定
-print(f"[DEBUG] Environment: {ENVIRONMENT}")
-print(f"[DEBUG] CELERY_BROKER_URL: {CELERY_BROKER_URL}")
-print(f"[DEBUG] CELERY_RESULT_BACKEND: {CELERY_RESULT_BACKEND}")
+if ENVIRONMENT == 'development':
+    print(f"[DEBUG] Environment: {ENVIRONMENT}")
+    print(f"[DEBUG] CELERY_BROKER_URL: {CELERY_BROKER_URL}")
+    print(f"[DEBUG] CELERY_RESULT_BACKEND: {CELERY_RESULT_BACKEND}")
+
+LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL', 'DEBUG' if ENVIRONMENT == 'development' else 'INFO')
+DB_LOG_LEVEL = os.getenv('DJANGO_DB_LOG_LEVEL', 'INFO' if ENVIRONMENT == 'development' else 'WARNING')
+if ENVIRONMENT == 'test':
+    LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL', 'WARNING')
+    DB_LOG_LEVEL = os.getenv('DJANGO_DB_LOG_LEVEL', 'ERROR')
 
 LOGGING = {
     "version": 1,
@@ -270,28 +284,28 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "DEBUG",
+        "level": LOG_LEVEL,
         "propagate": True
     },
     "loggers": {
         'django': {
            'handlers': ['console'],
-           'level': 'DEBUG',  # INFOからDEBUGに変更
+           'level': LOG_LEVEL,
            'propagate': True,
         },
         'django.db.backends': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': DB_LOG_LEVEL,
             'propagate': True,
         },
         'game_same_title.views': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': LOG_LEVEL,
             'propagate': True,
         },
         'game_maturi.views': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': LOG_LEVEL,
             'propagate': True,
         },
     }

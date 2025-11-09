@@ -17,7 +17,12 @@ class NovelForm(forms.ModelForm):
     def __init__(self, *args, is_writing_period=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_writing_period = is_writing_period
-        # 他の初期化処理...
+        # インスタンスが存在する場合（編集時）、ステータスの初期値を設定
+        if self.instance and self.instance.status:
+            self.initial.setdefault(
+                'status',
+                self.STATUS_CHOICES.get(self.instance.status, self.instance.status)
+            )
 
     class Meta:
         model = Novel
@@ -81,12 +86,6 @@ class NovelForm(forms.ModelForm):
             'readonly': 'readonly'
         })
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # インスタンスが存在する場合（編集時）、ステータスの日本語表示を設定
-        # if self.instance and self.instance.status:
-        #     self.initial['status'] = self.STATUS_CHOICES.get(self.instance.status, self.instance.status)
 
 class CommentForm(forms.ModelForm):
     content = forms.CharField(widget=forms.Textarea(attrs={

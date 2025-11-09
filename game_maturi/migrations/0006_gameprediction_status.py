@@ -10,9 +10,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
+        migrations.AlterField(
             model_name='gameprediction',
             name='status',
-            field=models.CharField(choices=[('pending', '保留中'), ('correct', '正解'), ('incorrect', '不正解')], default='pending', max_length=20, verbose_name='状態'),
+            field=models.CharField(
+                choices=[('pending', '保留中'), ('correct', '正解'), ('incorrect', '不正解')],
+                default='pending',
+                max_length=20,
+                verbose_name='状態'
+            ),
         ),
     ]

@@ -73,9 +73,14 @@ def post_or_edit_novel(request, novel_id=None):
                 # 新規作成時：タイトル提案があれば同タイトルゲーム扱い
                 from game_same_title.models import TitleProposal
                 current_month = timezone.now().strftime('%Y-%m')
+                now = timezone.now()
 
                 # タイトル提案が存在するかチェック
-                title_proposal = TitleProposal.objects.filter(title=saved_novel.title).first()
+                title_proposal = TitleProposal.objects.filter(
+                    title=saved_novel.title,
+                    proposal_month__year=now.year,
+                    proposal_month__month=now.month
+                ).first()
                 if title_proposal:
                     # 同タイトルゲームとして保存
                     saved_novel.is_same_title_game = True
@@ -122,7 +127,12 @@ def post_or_edit_novel(request, novel_id=None):
                     from game_same_title.models import TitleProposal
 
                     user_instance = User.objects.get(username=saved_novel.author.username)
-                    title_proposal = TitleProposal.objects.filter(title=saved_novel.title).first()
+                    current_time = timezone.now()
+                    title_proposal = TitleProposal.objects.filter(
+                        title=saved_novel.title,
+                        proposal_month__year=current_time.year,
+                        proposal_month__month=current_time.month
+                    ).first()
                     proposer_instance = title_proposal.proposer if title_proposal else request.user
 
                     MonthlySameTitleInfo.objects.create(
@@ -215,16 +225,27 @@ def auto_save(request):
             return JsonResponse({'error': 'タトまは容空す'}, status=400)
 
         if novel_id:
-            novel = get_object_or_404(Novel, pk=novel_id, author=request.user)
+            novel = get_object_or_404(
+                Novel.objects.filter(
+                    Q(author=request.user) | Q(original_author=request.user)
+                ),
+                pk=novel_id
+            )
+            current_status = novel.status  # 既存作品の公開状態を保持
         else:
             novel = Novel(author=request.user)
+            current_status = 'draft'
 
         novel.title = title
         novel.content = content
         novel.initial = initial
         novel.genre = genre
         novel.word_count = len(content.split())
-        novel.status = 'draft'
+        # 既存公開作品のステータスを維持し、未保存の新規作品のみ下書き扱いにする
+        if novel.pk:
+            novel.status = current_status
+        else:
+            novel.status = 'draft'
         novel.save()
 
         return JsonResponse({'novel_id': novel.id, 'message': '自動保存が完了しました。'})

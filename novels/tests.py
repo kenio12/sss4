@@ -38,20 +38,29 @@ from django.contrib.auth import get_user_model
 class AdminLoginTest(TestCase):
     def setUp(self):
         User = get_user_model()
-        self.user = User.objects.create_superuser('admin@example.com', 'adminpass')
+        self.user = User.objects.create_superuser(
+            email='admin@example.com',
+            password='adminpass',
+            nickname='admin'
+        )
 
     def test_admin_login_page(self):
         # ログアウトしてからログインページにアクセスするテスト
         self.client.logout()  # ログアウトを追加
         response = self.client.get(reverse('admin:login'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Log in')
+        self.assertContains(response, 'name="username"', html=False)
 
     def test_admin_login_post(self):
         # ログイン処理をテスト
-        response = self.client.post(reverse('admin:login'), {'username': 'admin@example.com', 'password': 'adminpass'})
-        self.assertEqual(response.status_code, 302)  # Redirect after successful login
-        self.assertTrue(response.url.startswith('/admin/'))
+        response = self.client.post(
+            reverse('admin:login'),
+            {'username': 'admin@example.com', 'password': 'adminpass'},
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['user'].is_authenticated)
+        self.assertEqual(response.resolver_match.view_name, 'accounts:view_profile')
 
 # このコードは管理者ログインのテストを行うためのものや。setUpでスーパーユーザーを作成し、
 # test_admin_login_pageではログアウト状態からログインページにアクセスすることを確認し、
