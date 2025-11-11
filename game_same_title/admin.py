@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import TitleProposal, MonthlySameTitleInfo, PendingNotification
+from .models import TitleProposal, MonthlySameTitleInfo, PendingNotification, AccessLog
 
 class TitleProposalAdmin(admin.ModelAdmin):
     list_display = ('title', 'proposer', 'proposed_at', 'proposal_month')  # proposed_atを追加
@@ -18,6 +18,20 @@ class PendingNotificationAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at',)
     ordering = ('-created_at',)
 
+class AccessLogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'path', 'method', 'ip_address', 'accessed_at')
+    list_filter = ('method', 'accessed_at', 'path')
+    search_fields = ('user__username', 'path', 'ip_address')
+    date_hierarchy = 'accessed_at'
+    readonly_fields = ('user', 'path', 'method', 'ip_address', 'user_agent', 'accessed_at')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
 admin.site.register(TitleProposal, TitleProposalAdmin)
 admin.site.register(MonthlySameTitleInfo, MonthlySameTitleInfoAdmin)
 admin.site.register(PendingNotification, PendingNotificationAdmin)
+admin.site.register(AccessLog, AccessLogAdmin)
