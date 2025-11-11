@@ -62,22 +62,39 @@
 
         <!-- 同タイトルゲームチェックボックス -->
         <div class="form-check" style="margin-bottom: 15px; margin-left: 20px;">
-            <input class="form-check-input"
-                   type="checkbox"
-                   id="{{ form.is_same_title_game.id_for_label }}"
-                   name="{{ form.is_same_title_game.name }}"
-                   {% if novel.is_same_title_game %}checked{% endif %}
-                   disabled
-                   style="opacity: 0.7; cursor: not-allowed;">
-            <label class="form-check-label" for="{{ form.is_same_title_game.id_for_label }}" style="opacity: 0.7;">
-                {% if novel.is_same_title_game == False %}
-                    同タイトル崩れ
-                {% else %}
+            {% if current_month_same_title_info %}
+                <!-- 一番槍決定後：is_same_title_gameの値によって表示を変える -->
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="{{ form.is_same_title_game.id_for_label }}"
+                       name="{{ form.is_same_title_game.name }}"
+                       {% if novel.is_same_title_game %}checked{% endif %}
+                       disabled
+                       style="opacity: 0.7; cursor: not-allowed;">
+                <label class="form-check-label" for="{{ form.is_same_title_game.id_for_label }}" style="opacity: 0.7;">
+                    {% if novel.is_same_title_game == False %}
+                        同タイトル崩れ
+                    {% else %}
+                        同タイトル
+                    {% endif %}
+                </label>
+                <!-- hiddenフィールドを追加して、disabled時でも値を送信 -->
+                <input type="hidden" name="{{ form.is_same_title_game.name }}" value="{% if novel.is_same_title_game %}true{% else %}false{% endif %}">
+            {% else %}
+                <!-- 一番槍決定前：常に「同タイトル」でチェック固定 -->
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="{{ form.is_same_title_game.id_for_label }}"
+                       name="{{ form.is_same_title_game.name }}"
+                       checked
+                       disabled
+                       style="opacity: 0.7; cursor: not-allowed;">
+                <label class="form-check-label" for="{{ form.is_same_title_game.id_for_label }}" style="opacity: 0.7;">
                     同タイトル
-                {% endif %}
-            </label>
-            <!-- hiddenフィールドを追加して、disabled時でも値を送信 -->
-            <input type="hidden" name="{{ form.is_same_title_game.name }}" value="{% if novel.is_same_title_game %}true{% else %}false{% endif %}">
+                </label>
+                <!-- hiddenフィールドを追加して、disabled時でも値を送信 -->
+                <input type="hidden" name="{{ form.is_same_title_game.name }}" value="true">
+            {% endif %}
         </div>
 
 
