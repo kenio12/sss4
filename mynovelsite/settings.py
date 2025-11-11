@@ -71,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'middleware.RedirectMiddleware',  # しいスで追加
+    'game_same_title.middleware.SameTitleAccessLogMiddleware',  # 🔥 アクセスログ記録（誰がいつアクセスしたか永久保存）
 ]
 
 ROOT_URLCONF = 'mynovelsite.urls'

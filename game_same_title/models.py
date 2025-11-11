@@ -86,3 +86,36 @@ class PendingNotification(models.Model):
             return f"{type_display} - {self.novel.title} ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
         return f"{type_display} ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
 
+
+class AccessLog(models.Model):
+    """
+    アクセスログモデル（誰がいつどのページにアクセスしたかを記録）
+    今後は Heroku ログが消えても、このテーブルで全アクセス履歴を永久保存
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="ユーザー"
+    )
+    path = models.CharField(max_length=500, verbose_name="アクセスパス")
+    method = models.CharField(max_length=10, verbose_name="HTTPメソッド")
+    ip_address = models.GenericIPAddressField(verbose_name="IPアドレス")
+    user_agent = models.CharField(max_length=500, blank=True, verbose_name="User Agent")
+    accessed_at = models.DateTimeField(default=timezone.now, verbose_name="アクセス日時", db_index=True)
+
+    class Meta:
+        verbose_name = "アクセスログ"
+        verbose_name_plural = "アクセスログ"
+        ordering = ['-accessed_at']
+        indexes = [
+            models.Index(fields=['-accessed_at']),
+            models.Index(fields=['user', '-accessed_at']),
+            models.Index(fields=['path', '-accessed_at']),
+        ]
+
+    def __str__(self):
+        username = self.user.username if self.user else "匿名"
+        return f"{username} - {self.path} ({self.accessed_at})"
+
