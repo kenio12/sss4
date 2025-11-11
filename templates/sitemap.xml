@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <!-- ホームページ -->
+    <url>
+        <loc>https://www.sss4.life/</loc>
+        <lastmod>2025-11-11</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- 小説リスト -->
+    <url>
+        <loc>https://www.sss4.life/novels/novels-paginated/</loc>
+        <lastmod>2025-11-11</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- 同タイトルゲーム -->
+    <url>
+        <loc>https://www.sss4.life/game-same-title/</loc>
+        <lastmod>2025-11-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- ユーザー登録 -->
+    <url>
+        <loc>https://www.sss4.life/accounts/register/</loc>
+        <lastmod>2025-11-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- ログイン -->
+    <url>
+        <loc>https://www.sss4.life/accounts/login/</loc>
+        <lastmod>2025-11-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+</urlset>
