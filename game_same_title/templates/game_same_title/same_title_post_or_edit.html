@@ -289,6 +289,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateSelectOptions() {
         if (!select) return;  // selectが存在しない場合は処理を中止
 
+        // 🔥 一番槍決定前は、絶対にドロップダウンのまま！
+        if (!hasCurrentMonthTitle) {
+            // 一番槍決定前：必ずドロップダウンのまま、前月の提案を表示
+            select.innerHTML = '<option value="">選択してください</option>';
+            lastMonthProposals.forEach(function(proposal) {
+                const option = document.createElement('option');
+                option.value = proposal.fields.title;
+                option.textContent = proposal.fields.title;
+                if(proposal.fields.title === savedTitle) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+            return;  // ここで終了！絶対にinputに変えへん！
+        }
+
+        // 一番槍決定後の処理
         // デフォルトオプションをクリアし、新しいオプションを追加
         select.innerHTML = '<option value="">選択してください</option>';
 
@@ -303,17 +320,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             select.appendChild(option);
             {% endif %}
-        } else if (checkbox.checked && lastMonthProposals.length > 0) {
-            // 前月の提案タイトルを選択肢として表示
-            lastMonthProposals.forEach(function(proposal) {
-                const option = document.createElement('option');
-                option.value = proposal.fields.title;
-                option.textContent = proposal.fields.title;
-                if(proposal.fields.title === savedTitle) {
-                    option.selected = true;
-                }
-                select.appendChild(option);
-            });
         } else if (!checkbox.checked) {
             // 同タイトルゲームにチェックが入ってない場合は、自由入力可能に
             select.outerHTML = `<input type="text" class="form-control" id="id_title" name="title" value="${savedTitle}">`;
