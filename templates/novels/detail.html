@@ -45,6 +45,135 @@
     <span class="like-count" style="font-size: {% if novel.likes.count > 0 %}34px{% else %}24px{% endif %}; margin-left: 5px;">{{ novel.likes.count }}</span>
 </div>
 
+<!-- 🔥🔥🔥 SNSシェアボタン 🔥🔥🔥 -->
+<div class="share-buttons-container" style="margin: 20px; text-align: center;">
+    <p style="font-weight: bold; margin-bottom: 10px; color: #333;">この作品をシェアして作者を応援！</p>
+    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <!-- Twitterシェアボタン -->
+        <a href="https://twitter.com/intent/tweet?text={{ novel.title|urlencode }}%20-%20{{ novel.author.nickname|urlencode }}%20%7C%20超短編小説会Ⅳ&url=https://www.sss4.life{% url 'novels:novel_detail' novel.id %}&hashtags=超短編小説,同タイトル"
+           target="_blank"
+           class="share-button share-button-twitter"
+           aria-label="Twitterでシェア">
+            <i class="fab fa-twitter"></i> Twitter
+        </a>
+
+        <!-- Facebookシェアボタン -->
+        <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.sss4.life{% url 'novels:novel_detail' novel.id %}"
+           target="_blank"
+           class="share-button share-button-facebook"
+           aria-label="Facebookでシェア">
+            <i class="fab fa-facebook-f"></i> Facebook
+        </a>
+
+        <!-- LINEシェアボタン -->
+        <a href="https://social-plugins.line.me/lineit/share?url=https://www.sss4.life{% url 'novels:novel_detail' novel.id %}"
+           target="_blank"
+           class="share-button share-button-line"
+           aria-label="LINEでシェア">
+            <i class="fab fa-line"></i> LINE
+        </a>
+
+        <!-- URLコピーボタン -->
+        <button onclick="copyUrlToClipboard()"
+                class="share-button share-button-copy"
+                aria-label="URLをコピー">
+            <i class="fas fa-link"></i> URLコピー
+        </button>
+    </div>
+</div>
+
+<!-- シェアボタン用スタイル -->
+<style>
+.share-buttons-container {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.share-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.share-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    text-decoration: none;
+}
+
+.share-button-twitter {
+    background-color: #1DA1F2;
+    color: white;
+}
+
+.share-button-twitter:hover {
+    background-color: #0d8bd9;
+    color: white;
+}
+
+.share-button-facebook {
+    background-color: #1877F2;
+    color: white;
+}
+
+.share-button-facebook:hover {
+    background-color: #0e5dbe;
+    color: white;
+}
+
+.share-button-line {
+    background-color: #00B900;
+    color: white;
+}
+
+.share-button-line:hover {
+    background-color: #009600;
+    color: white;
+}
+
+.share-button-copy {
+    background-color: #6c757d;
+    color: white;
+}
+
+.share-button-copy:hover {
+    background-color: #5a6268;
+}
+
+/* スマホ対応 */
+@media screen and (max-width: 768px) {
+    .share-button {
+        flex: 1 1 45%;
+        justify-content: center;
+        font-size: 13px;
+        padding: 8px 15px;
+    }
+}
+</style>
+
+<!-- URLコピー用JavaScript -->
+<script>
+function copyUrlToClipboard() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(function() {
+        alert('URLをコピーしました！');
+    }, function() {
+        alert('URLのコピーに失敗しました。');
+    });
+}
+</script>
+
 <!-- コメントフォームとコメントセクション全体を公開時のみ表示 -->
 {% if novel.status == 'published' %}
     <!-- コメントフォーム -->
