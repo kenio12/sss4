@@ -25,7 +25,7 @@ class SameTitleAccessLogMiddleware:
             AccessLog.objects.create(
                 user=request.user if request.user.is_authenticated else None,
                 path=request.path,
-                method=request.METHOD,
+                method=request.method,
                 ip_address=self.get_client_ip(request),
                 user_agent=request.META.get('HTTP_USER_AGENT', '')[:500],
                 accessed_at=timezone.now()
