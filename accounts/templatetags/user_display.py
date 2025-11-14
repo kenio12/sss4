@@ -11,17 +11,21 @@ def display_name(user):
     if not user:
         return ''
     
-    # UserProfileのdisplay_nameを確認
+    # novel_siteはUser.nicknameを使用（最優先）
+    if hasattr(user, 'nickname') and user.nickname:
+        return user.nickname
+
+    # UserProfileのdisplay_nameを確認（ore_app_v2互換）
     try:
         if hasattr(user, 'userprofile') and user.userprofile.display_name:
             return user.userprofile.display_name
     except:
         pass
-    
+
     # first_nameにニックネームが入ってる（旧実装）
     if user.first_name:
         return user.first_name
-    
+
     # ニックネームが設定されていない場合はデフォルト名を返す
     return '名無しさん'
 
