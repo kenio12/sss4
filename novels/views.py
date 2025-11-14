@@ -939,7 +939,7 @@ def novels_paginated(request):
         'novels': page_obj.object_list,
         'sort': sort_param,
         'genre_choices': GENRE_CHOICES,
-        'authors_list': User.objects.filter(is_active=True).values('id', 'nickname'),
+        'authors_list': User.objects.filter(is_active=True),
         'genre': genre,
         'char_count_min': char_count_min,
         'char_count_max': char_count_max,
