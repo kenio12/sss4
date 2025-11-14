@@ -79,9 +79,7 @@
                             padding: 15px !important; 
                             border-radius: 8px !important; 
                             box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;">
-                    <p class="comment-author">
-                        {% if comment.author %}
-                            {% include 'novels/includes/nickname_badge.html' with user=comment.author %}
+                    <p class="comment-author">{% if comment.author %}{% include 'novels/includes/nickname_badge.html' with user=comment.author %}
                             {% if comment.author != user %}
                                 {% if novel.author == user %}
                                     <label class="mark-as-read" style="{% if not comment.is_read %}background-color: pink !important{% endif %}">
