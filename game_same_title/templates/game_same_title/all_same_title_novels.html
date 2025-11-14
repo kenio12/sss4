@@ -58,8 +58,8 @@
                             {% endwith %}
                         {% endif %}
                     </td>
-                    <td>
-                        <a href="{% url 'accounts:view_other_profile' novel.author.id %}">{{ novel.author.nickname }}</a>
+                    <td style="margin: 0 !important; padding: 8px 2px !important;">
+                        {% include 'novels/includes/nickname_badge.html' with user=novel.author %}
                         {% if novel.id in ichiban_yari_ids %}
                             <span class="first-post-badge" onclick="showBadgeModal('一番槍')" style="cursor: pointer;">🗡️ 一番槍</span>
                         {% endif %}

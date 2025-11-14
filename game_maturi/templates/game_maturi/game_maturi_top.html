@@ -541,7 +541,7 @@
                                             <option value="">作者を選択</option>
                                             {% for author in active_authors %}
                                                 <option value="{{ author.id }}">
-                                                    {{ author.nickname }}
+                                                    {{ author|display_name }}
                                                 </option>
                                             {% endfor %}
                                         </select>
@@ -698,11 +698,8 @@
                     {% if active_authors %}
                         <ul style="list-style-type: none; padding-left: 0;">
                             {% for author in active_authors %}
-                                <li style="margin-bottom: 10px;">
-                                    <a href="{% url 'accounts:view_other_profile' user_id=author.id %}" 
-                                       style="text-decoration: none; color: #0066cc;">
-                                        {{ author.nickname }}
-                                    </a>
+                                <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                                    {% include 'novels/includes/nickname_badge.html' with user=author %}
                                 </li>
                             {% endfor %}
                         </ul>

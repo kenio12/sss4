@@ -38,17 +38,11 @@
                                     {{ prediction.novel.title }}
                                 </a>
                             </td>
-                            <td>
-                                <a href="{% url 'accounts:view_other_profile' prediction.novel.original_author.id %}"
-                                   style="color: #007bff; text-decoration: none;">
-                                    {{ prediction.novel.original_author.nickname }}
-                                </a>
+                            <td style="margin: 0 !important; padding: 8px 2px !important;">
+                                {% include 'novels/includes/nickname_badge.html' with user=prediction.novel.original_author %}
                             </td>
-                            <td>
-                                <a href="{% url 'accounts:view_other_profile' prediction.predicted_author.id %}"
-                                   style="color: #007bff; text-decoration: none;">
-                                    {{ prediction.predicted_author.nickname }}
-                                </a>
+                            <td style="margin: 0 !important; padding: 8px 2px !important;">
+                                {% include 'novels/includes/nickname_badge.html' with user=prediction.predicted_author %}
                             </td>
                             <td>
                                 {% if prediction.predicted_author == prediction.novel.original_author %}
@@ -112,11 +106,8 @@
                         <tr>
                             <th>作品＼予想者</th>
                             {% for participant, stats in participants %}
-                                <th>
-                                    <a href="{% url 'accounts:view_other_profile' participant.id %}"
-                                       style="color: #007bff; text-decoration: none;">
-                                        {{ participant.nickname }}
-                                    </a>
+                                <th style="margin: 0 !important; padding: 8px 2px !important;">
+                                    {% include 'novels/includes/nickname_badge.html' with user=participant %}
                                 </th>
                             {% endfor %}
                             <th>正解率</th>

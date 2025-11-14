@@ -210,7 +210,7 @@
     <div style="position: relative; padding-left: 15px;">
       <h4 style="margin-bottom: 20px;">
         <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: #8ecae6;"></div>
-        今月の一番槍はこの方や！：<span class="highlighted">{{ decided_title.novel.author.nickname }}</span> <span class="first-post-badge" onclick="showBadgeModal('一番槍')" style="cursor: pointer;">🗡️ 一番槍</span>
+        今月の一番槍はこの方や！：<span class="highlighted" style="display: inline-flex; align-items: center; gap: 8px;">{% include 'novels/includes/nickname_badge.html' with user=decided_title.novel.author %}</span> <span class="first-post-badge" onclick="showBadgeModal('一番槍')" style="cursor: pointer;">🗡️ 一番槍</span>
       </h4>
       <h4 style="margin-bottom: 20px;">
         今月の同タイトルや！：<span class="highlighted">{{ decided_title.title }}</span>
@@ -291,8 +291,8 @@
             <tr {% if decided_title and decided_title.novel and decided_title.novel.id == novel.id %}class="ichiban-yari"{% endif %}>
                 <td>{{ novel.word_count|intcomma }}</td>
                 <td><a href="{% url 'novels:novel_detail' novel.id %}">{{ novel.title }}</a></td>
-                <td>
-                    <a href="{% url 'accounts:view_other_profile' novel.author.id %}">{{ novel.author.nickname }}</a>
+                <td style="margin: 0 !important; padding: 8px 2px !important;">
+                    {% include 'novels/includes/nickname_badge.html' with user=novel.author %}
                     {% if decided_title and decided_title.novel and decided_title.novel.id == novel.id %}
                         <span class="ichiban-yari-badge">一番槍！</span>
                     {% endif %}
