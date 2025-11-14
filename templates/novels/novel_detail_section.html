@@ -3,16 +3,8 @@
 
 <div class="container custom-container-margin">
     <!-- 作家名セクション -->
-    <div class="author-section" style="margin-bottom: 15px;">
-        {% if is_maturi and novel.maturi_games.first.is_author_revealed %}
-            <!-- 予想期間終了後：実際の作者を表示 -->
-            {% include 'novels/includes/nickname_badge.html' with user=novel.original_author %}
-        {% elif novel.author %}
-            <!-- 予想期間中または通常小説：author を表示 -->
-            {% include 'novels/includes/nickname_badge.html' with user=novel.author %}
-        {% else %}
-            <p class="author-nickname" style="margin-bottom: 0;">不明な作家</p>
-        {% endif %}
+    <div class="author-section" style="margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+        {% if is_maturi and novel.maturi_games.first.is_author_revealed %}{% include 'novels/includes/nickname_badge.html' with user=novel.original_author %}{% elif novel.author %}{% include 'novels/includes/nickname_badge.html' with user=novel.author %}{% else %}<p class="author-nickname" style="margin-bottom: 0;">不明な作家</p>{% endif %}
     </div>
 
     <!-- 小説情報セクション -->

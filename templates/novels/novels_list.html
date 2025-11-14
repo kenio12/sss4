@@ -81,7 +81,7 @@
                         <span class="first-post-badge" onclick="showBadgeModal('一番槍')" style="cursor: pointer;">🗡️ 一番槍</span>
                     {% endif %}
                 </td>
-                <td>{% include 'novels/includes/nickname_badge.html' with user=novel.author %}</td>
+                <td style="margin: 0 !important; padding: 8px 2px !important;">{% include 'novels/includes/nickname_badge.html' with user=novel.author %}</td>
                 <td>{{ novel.published_date }}</td>
             </tr>
             {% endfor %}
