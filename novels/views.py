@@ -807,23 +807,24 @@ def index(request):
     page_obj = paginator.get_page(page_number)
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        # Ajax用に.values()で辞書形式に変換
-        novels = list(page_obj.object_list.values(
-            'id', 'title', 'word_count',
-            'author__id', 'author__nickname',
-            'published_date', 'genre', 'event',
-            'same_title_event_month', 'is_first_post',
-            'likes_count', 'comments_count'
-        ))
-
-        for novel in novels:
-            novel['published_date'] = novel['published_date'].strftime("%Y年%m%d日")
-            novel['author_nickname'] = novel.pop('author__nickname')
-            novel['author_id'] = novel.pop('author__id')
-            novel['title'] = novel['title']
-            novel['genre'] = novel['genre']
-            novel['likes_count'] = novel['likes_count']
-            novel['comments_count'] = novel['comments_count']
+        # Ajax用にデータを整形
+        novels = []
+        for novel in page_obj.object_list:
+            from accounts.templatetags.user_display import display_name
+            novels.append({
+                'id': novel.id,
+                'title': novel.title,
+                'word_count': novel.word_count,
+                'author_id': novel.author.id,
+                'author_nickname': display_name(novel.author),  # display_nameフィルター使用
+                'published_date': novel.published_date.strftime("%Y年%m%d日"),
+                'genre': novel.genre,
+                'event': novel.event,
+                'same_title_event_month': novel.same_title_event_month,
+                'is_first_post': novel.is_first_post,
+                'likes_count': novel.likes_count,
+                'comments_count': novel.comments_count,
+            })
         return JsonResponse({'novels': novels, 'has_next': page_obj.has_next()})
 
     # 非Ajaxリクエストの場合の処理
