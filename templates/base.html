@@ -337,9 +337,9 @@
                     <img src="{% static 'images/exit.svg' %}" alt="ログアウト" style="width: 24px; height: 24px;margin-top: -4px;">
                 </a>
 
-                <a href="{% url 'accounts:view_profile' %}" id="user-nickname" style="padding-right: 0%;" title="{{ user.nickname }}">
+                <a href="{% url 'accounts:view_profile' %}" id="user-nickname" style="padding-right: 0%;" title="{{ user|display_name }}">
                     <img src="{% static 'images/me.svg' %}" alt="Profile" class="nickname-image">
-                    <span class="nickname-text">{{ user.nickname }}</span>
+                    <span class="nickname-text">{{ user|display_name }}</span>
                 </a>
 
 
