@@ -82,14 +82,12 @@
                     <p class="comment-author">
                         <strong>
                             {% if comment.author %}
-                                <a href="{% url 'accounts:view_other_profile' comment.author.id %}" class="author-link">
-                                    {{ comment.author.nickname }}
-                                </a>
+                                {% include 'novels/includes/nickname_badge.html' with user=comment.author %}
                                 {% if comment.author != user %}
                                     {% if novel.author == user %}
                                         <label class="mark-as-read" style="{% if not comment.is_read %}background-color: pink !important{% endif %}">
-                                            <input type="checkbox" 
-                                                   class="read-checkbox" 
+                                            <input type="checkbox"
+                                                   class="read-checkbox"
                                                    data-comment-id="{{ comment.id }}"
                                                    onchange="toggleCommentReadStatus({{ comment.id }}, this)"
                                                    {% if comment.is_read %}checked{% endif %}>

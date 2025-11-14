@@ -6,14 +6,10 @@
     <div class="author-section" style="margin-bottom: 15px;">
         {% if is_maturi and novel.maturi_games.first.is_author_revealed %}
             <!-- 予想期間終了後：実際の作者を表示 -->
-            <a href="{% url 'accounts:view_other_profile' user_id=novel.original_author.id %}" class="author-name">
-                {{ novel.original_author.nickname }}
-            </a>
+            {% include 'novels/includes/nickname_badge.html' with user=novel.original_author %}
         {% elif novel.author %}
             <!-- 予想期間中または通常小説：author を表示 -->
-            <a href="{% url 'accounts:view_other_profile' user_id=novel.author.id %}" class="author-name">
-                {{ novel.author.nickname }}
-            </a>
+            {% include 'novels/includes/nickname_badge.html' with user=novel.author %}
         {% else %}
             <p class="author-nickname" style="margin-bottom: 0;">不明な作家</p>
         {% endif %}

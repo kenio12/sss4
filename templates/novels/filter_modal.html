@@ -17,7 +17,7 @@
                             <option value="">すべての作者</option>
                             {% for author in authors_list %}
                             <option value="{{ author.id }}" {% if author.id|stringformat:"s" == author_select %}selected{% endif %}>
-                                {{ author.nickname }}
+                                {{ author|display_name }}
                             </option>
                             {% endfor %}
                         </select>
