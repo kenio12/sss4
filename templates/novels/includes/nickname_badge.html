@@ -1,1 +1,10 @@
-{% load user_display %}<a href="{% url 'accounts:view_other_profile' user.id %}" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'"><span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background-color:{{ user|user_solid_color }};color:white;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;flex-shrink:0;">{{ user|display_initial }}</span><span style="color:{{ user|user_solid_color }};font-weight:600;">{{ user|display_name }}</span></a>
+{% load user_display %}
+<a href="{% url 'accounts:view_other_profile' user.id %}"
+   style="display: inline-flex; align-items: center; gap: 8px; color: {{ user|user_solid_color }}; text-decoration: none; font-weight: 600; transition: opacity 0.2s;"
+   onmouseover="this.style.opacity='0.7'"
+   onmouseout="this.style.opacity='1'">
+    <div style="width: 32px; height: 32px; border-radius: 50%; background-color: {{ user|user_solid_color }}; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; flex-shrink: 0;">
+        {{ user|display_initial }}
+    </div>
+    <span>{{ user|display_name }}</span>
+</a>
