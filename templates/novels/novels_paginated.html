@@ -383,8 +383,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         {% endif %}
                     </td>
                     <td>
-                        {% if novel.author__nickname %}
-                            <a href="{% url 'accounts:view_other_profile' novel.author_id %}">{{ novel.author__nickname|truncatechars:8 }}</a>
+                        {% if novel.author %}
+                            {% include 'novels/includes/nickname_badge.html' with user=novel.author %}
                         {% else %}
                             <span>不明な作家</span>
                         {% endif %}
