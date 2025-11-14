@@ -735,9 +735,17 @@ function showBadgeModal(badgeType) {
         color: #666 !important;
     }
 
-    .sss-link {
+    .sss-link:not(.sss-author) {
         font-size: 0.9em !important;
         color: #007bff !important;
+        display: flex !important;
+        align-items: center !important;
+        line-height: normal !important;
+        min-height: 20px !important;
+    }
+
+    .sss-link.sss-author {
+        font-size: 0.9em !important;
         display: flex !important;
         align-items: center !important;
         line-height: normal !important;
