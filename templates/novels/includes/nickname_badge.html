@@ -1,16 +1,13 @@
 {% load user_display %}
 {# ニックネーム表示定型（アバター + 色付き + リンク） #}
 {# 使い方: {% include 'novels/includes/nickname_badge.html' with user=comment.author %} #}
+{# novel_siteはavatarフィールドなし、常に頭文字アバター表示 #}
 <a href="{% url 'accounts:view_other_profile' user.id %}"
    style="display: inline-flex; align-items: center; gap: 8px; color: {{ user|user_solid_color }}; text-decoration: none; font-weight: 600; transition: opacity 0.2s;"
    onmouseover="this.style.opacity='0.7'"
    onmouseout="this.style.opacity='1'">
-    {% if user.userprofile.avatar %}
-    <div style="width: 32px; height: 32px; border-radius: 50%; background-image: url('{{ user.userprofile.avatar.url }}'); background-size: cover; background-position: center; flex-shrink: 0;"></div>
-    {% else %}
     <div style="width: 32px; height: 32px; border-radius: 50%; background-color: {{ user|user_solid_color }}; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; flex-shrink: 0;">
         {{ user|display_initial }}
     </div>
-    {% endif %}
-    <span>{% if user|company_name %}{{ user|company_name }}：{% endif %}{{ user|display_name }}</span>
+    <span>{{ user|display_name }}</span>
 </a>

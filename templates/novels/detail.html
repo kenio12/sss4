@@ -82,23 +82,22 @@
                     <p class="comment-author">
                         {% if comment.author %}
                             {% include 'novels/includes/nickname_badge.html' with user=comment.author %}
-                                {% if comment.author != user %}
-                                    {% if novel.author == user %}
-                                        <label class="mark-as-read" style="{% if not comment.is_read %}background-color: pink !important{% endif %}">
-                                            <input type="checkbox"
-                                                   class="read-checkbox"
-                                                   data-comment-id="{{ comment.id }}"
-                                                   onchange="toggleCommentReadStatus({{ comment.id }}, this)"
-                                                   {% if comment.is_read %}checked{% endif %}>
-                                            既読にする
-                                        </label>
-                                    {% endif %}
+                            {% if comment.author != user %}
+                                {% if novel.author == user %}
+                                    <label class="mark-as-read" style="{% if not comment.is_read %}background-color: pink !important{% endif %}">
+                                        <input type="checkbox"
+                                               class="read-checkbox"
+                                               data-comment-id="{{ comment.id }}"
+                                               onchange="toggleCommentReadStatus({{ comment.id }}, this)"
+                                               {% if comment.is_read %}checked{% endif %}>
+                                        既読にする
+                                    </label>
                                 {% endif %}
-                            {% else %}
-                                <span style="color: #666;">退会したユーザー</span>
                             {% endif %}
-                        </strong> - 
-                        {{ comment.created_at|date:"Y-m-d H:i" }}
+                        {% else %}
+                            <span style="color: #666;">退会したユーザー</span>
+                        {% endif %}
+                         - {{ comment.created_at|date:"Y-m-d H:i" }}
                     </p>
                     <p class="comment-content">{{ comment.content|linebreaksbr }}</p>
                 </div>
