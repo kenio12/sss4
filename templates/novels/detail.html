@@ -79,7 +79,7 @@
                             padding: 15px !important; 
                             border-radius: 8px !important; 
                             box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;">
-                    <div class="comment-author" style="display: flex; align-items: center; gap: 8px; margin: 20px 0 0 0 !important; padding: 0 !important;">
+                    <div class="comment-author" style="display: flex; align-items: center; gap: 8px; margin: 50px 0 0 0 !important; padding: 0 !important;">
                         {% if comment.author %}{% include 'novels/includes/nickname_badge.html' with user=comment.author %}{% if comment.author != user %}{% if novel.author == user %}<label class="mark-as-read" style="{% if not comment.is_read %}background-color: pink !important{% endif %}"><input type="checkbox" class="read-checkbox" data-comment-id="{{ comment.id }}" onchange="toggleCommentReadStatus({{ comment.id }}, this)" {% if comment.is_read %}checked{% endif %}>既読にする</label>{% endif %}{% endif %}{% else %}<span style="color: #666;">退会したユーザー</span>{% endif %}<span style="margin-left: auto;"> - {{ comment.created_at|date:"Y-m-d H:i" }}</span>
                     </div>
                     <p class="comment-content">{{ comment.content|linebreaksbr }}</p>
