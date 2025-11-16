@@ -241,48 +241,72 @@
 
         .sticky-header td {
             border: none;
-            padding: 5px 0;
+            padding: 5px;
             text-align: left !important;
         }
 
-        /* タイトル（1行目・大きめ） */
+        /* 1行目：タイトル */
         .sticky-header td:nth-child(4) {
             font-size: 1.3rem;
             font-weight: bold;
             margin-bottom: 8px;
+            margin-right: 10px;
             order: 1;
-            width: 100%;
+            width: auto;
+            flex: 0 0 auto;
         }
 
-        /* 作者名（2行目・タイトルより小さく） */
-        .sticky-header td:nth-child(5) {
-            font-size: 1rem;
-            margin-bottom: 8px;
-            order: 2;
-            width: 100%;
-        }
-
-        /* イベント種類（3行目・色付きで目立たせる） */
+        /* 1行目：イベント種類 */
         .sticky-header td:nth-child(3) {
             font-size: 0.95rem;
             color: #dc3545;
             font-weight: bold;
             margin-bottom: 8px;
-            order: 3;
+            order: 1;
             background: rgba(220, 53, 69, 0.1);
             padding: 4px 8px !important;
             border-radius: 5px;
-            width: 100%;
+            width: auto;
+            flex: 0 0 auto;
         }
 
-        /* 日付・文字数・ジャンル（4行目・1行にまとめる） */
-        .sticky-header td:nth-child(6),
-        .sticky-header td:nth-child(1),
+        /* 2行目：作者名 */
+        .sticky-header td:nth-child(5) {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            margin-right: 10px;
+            order: 2;
+            width: auto;
+            flex: 0 0 auto;
+        }
+
+        /* 2行目：文字数 */
+        .sticky-header td:nth-child(1) {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+            order: 2;
+            width: auto;
+            flex: 0 0 auto;
+        }
+
+        /* 3行目：ジャンル */
         .sticky-header td:nth-child(2) {
             font-size: 0.9rem;
             color: #666;
+            margin-bottom: 8px;
             margin-right: 10px;
-            order: 4;
+            order: 3;
+            width: auto;
+            flex: 0 0 auto;
+        }
+
+        /* 3行目：日付 */
+        .sticky-header td:nth-child(6) {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+            order: 3;
             width: auto;
             flex: 0 0 auto;
         }
