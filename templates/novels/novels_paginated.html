@@ -211,19 +211,69 @@
             margin: 5px 0;
         }
 
-        .sticky-header {
-            font-size: 0.9rem;
-        }
-
         .pagination {
             flex-wrap: wrap;
         }
 
-        /* スマホ時はいいね・コメを非表示 */
-        .sticky-header thead th:nth-child(7),
-        .sticky-header tbody td:nth-child(7),
-        .sticky-header thead th:nth-child(8),
-        .sticky-header tbody td:nth-child(8) {
+        /* スマホ時はテーブルをカード形式に変更 */
+        .sticky-header {
+            display: block;
+        }
+
+        .sticky-header thead {
+            display: none;
+        }
+
+        .sticky-header tbody {
+            display: block;
+        }
+
+        .sticky-header tr {
+            display: block;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .sticky-header td {
+            display: block;
+            border: none;
+            padding: 5px 0;
+            text-align: left !important;
+        }
+
+        /* タイトル（1行目・大きめ） */
+        .sticky-header td:nth-child(4) {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            order: 1;
+        }
+
+        /* 作者名（2行目・タイトルより小さく） */
+        .sticky-header td:nth-child(5) {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            order: 2;
+        }
+
+        /* 日付・文字数・ジャンル（3行目・1行にまとめる） */
+        .sticky-header td:nth-child(6),
+        .sticky-header td:nth-child(1),
+        .sticky-header td:nth-child(2) {
+            display: inline-block;
+            font-size: 0.9rem;
+            color: #666;
+            margin-right: 10px;
+            order: 3;
+        }
+
+        /* イベント・いいね・コメントは非表示 */
+        .sticky-header td:nth-child(3),
+        .sticky-header td:nth-child(7),
+        .sticky-header td:nth-child(8) {
             display: none;
         }
     }
