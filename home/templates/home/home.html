@@ -259,17 +259,19 @@ document.addEventListener('DOMContentLoaded', function() {
                             <span class="first-post-badge" onclick="event.stopPropagation(); showBadgeModal('一番槍');" style="cursor: pointer;">🗡️</span>
                         {% endif %}
                     </div>
+                    <div class="sss-event">
+                        {% if novel.event == "同タイトル" %}同{% elif novel.event == "祭り" %}祭{% else %}{{ novel.event|default:"-" }}{% endif %}
+                    </div>
                 </div>
                 <div class="sss-info-row">
                     <div class="sss-author" style="display: flex; align-items: center; gap: 8px;">
                         {% if novel.author %}{% include 'novels/includes/nickname_badge.html' with user=novel.author %}{% else %}<span>作者不明</span>{% endif %}
                     </div>
                     <div class="sss-date">{{ novel.published_date|date:"m/d" }}</div>
+                </div>
+                <div class="sss-info-row">
                     <div class="sss-count">{{ novel.word_count }}</div>
                     <div class="sss-genre">{{ novel.genre }}</div>
-                    <div class="sss-event">
-                        {% if novel.event == "同タイトル" %}同{% elif novel.event == "祭り" %}祭{% else %}{{ novel.event|default:"-" }}{% endif %}
-                    </div>
                 </div>
             </div>
         {% endfor %}
@@ -848,39 +850,32 @@ function showBadgeModal(badgeType) {
         }
 
         .sp-view .sss-author {
-            order: 1 !important;
             flex: 0 0 auto !important;
             white-space: nowrap !important;
         }
 
         .sss-date {
-            order: 2 !important;
             font-size: 0.85em !important;
             white-space: nowrap !important;
+            flex: 0 0 auto !important;
         }
 
         .sss-count {
-            order: 3 !important;
             flex: 0 0 auto !important;
             white-space: nowrap !important;
             font-size: 0.85em !important;
-            margin-left: 5px !important;
-            overflow: visible !important;
         }
 
         .sss-genre {
-            order: 4 !important;
             flex: 0 0 auto !important;
             white-space: nowrap !important;
             font-size: 0.85em !important;
         }
 
         .sss-event {
-            order: 5 !important;
             flex: 0 0 auto !important;
             white-space: nowrap !important;
             font-size: 0.85em !important;
-            margin-left: 5px !important;
         }
 
         .sss-month {
@@ -888,6 +883,11 @@ function showBadgeModal(badgeType) {
             white-space: nowrap !important;
             font-size: 0.85em !important;
             margin-left: 5px !important;
+        }
+
+        /* スマホ用: 2行目と3行目に余白追加 */
+        .sss-info-row + .sss-info-row {
+            margin-top: 3px !important;
         }
 
         /* スマホ用の一番槍バッジ */
