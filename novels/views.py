@@ -26,7 +26,10 @@ def post_or_edit_novel(request, novel_id=None):
     edit_mode = False
 
     # POSTリクエストからnovelIdを優先的に取得し、なければURLパラメータから取得
-    novel_id = request.POST.get('novelId', novel_id)
+    # 🔥 空文字列の場合はNoneとして扱う（重複レコード問題の修正）
+    novel_id_from_post = request.POST.get('novelId')
+    if novel_id_from_post:  # 空文字列でない場合のみ使用
+        novel_id = novel_id_from_post
 
     # デバッグ：novelIdがちゃんと取得できてるか確認
     logger.info(f"post_or_edit_novel: novel_id={novel_id}, URL引数={novel_id}, POST={request.POST.get('novelId')}")
