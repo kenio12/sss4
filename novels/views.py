@@ -28,6 +28,9 @@ def post_or_edit_novel(request, novel_id=None):
     # POSTリクエストからnovelIdを優先的に取得し、なければURLパラメータから取得
     novel_id = request.POST.get('novelId', novel_id)
 
+    # デバッグ：novelIdがちゃんと取得できてるか確認
+    logger.info(f"post_or_edit_novel: novel_id={novel_id}, URL引数={novel_id}, POST={request.POST.get('novelId')}")
+
     if novel_id:
         # select_relatedを使用して、関連するauthorのみを事前に取得
         novel = get_object_or_404(Novel.objects.select_related('author'), pk=novel_id)
@@ -65,8 +68,15 @@ def post_or_edit_novel(request, novel_id=None):
             return redirect('accounts:view_profile')
 
         if form.is_valid():
+            # 編集前のID確認（既存レコードか新規作成か）
+            original_id = novel.id if novel and novel.id else None
+            logger.info(f"form.save前: original_id={original_id}, edit_mode={edit_mode}")
+
             saved_novel = form.save(commit=False)
             saved_novel.word_count = len(form.cleaned_data['content'].split())
+
+            # 編集後のID確認（新しいレコードが作られてへんか確認）
+            logger.info(f"form.save後: saved_novel.id={saved_novel.id}, original_id={original_id}")
 
             # 🔥🔥🔥 同タイトル情報を設定（超重要！）🔥🔥🔥
             if not novel_id:
