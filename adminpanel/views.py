@@ -42,10 +42,12 @@ def maturi_game_setup(request):
     ).select_related('proposer').order_by('-proposal_month')  # 降順で12月から1月へ
 
     # 各提案に一番槍情報を追加
+    from dateutil.relativedelta import relativedelta
     for proposal in yearly_proposals:
-        # この提案タイトルが一番槍になったか確認
+        # この提案タイトルが一番槍になったか確認（対象月=提案月+1ヶ月）
+        target_month = proposal.proposal_month + relativedelta(months=1)
         monthly_info = MonthlySameTitleInfo.objects.filter(
-            month=proposal.proposal_month.strftime('%Y-%m'),
+            month=target_month.strftime('%Y-%m'),
             title=proposal.title
         ).first()
         proposal.is_ichiban_yari = monthly_info is not None
