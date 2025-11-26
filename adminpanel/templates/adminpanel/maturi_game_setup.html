@@ -71,11 +71,10 @@
                 <div class="table-responsive">
                     <table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         <thead>
-                            <tr style="background: #34495e; color: white;">
-                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #2c3e50;">年月</th>
-                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #2c3e50;">タイトル</th>
-                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #2c3e50;">提案者</th>
-                                <th style="padding: 12px; text-align: center; border-bottom: 2px solid #2c3e50;">状態</th>
+                            <tr style="background: #f8f9fa; color: #000;">
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6;">年月</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6;">タイトル</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6;">提案者</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -90,13 +89,6 @@
                                 </td>
                                 <td style="padding: 12px;">
                                     {% include 'gallery/includes/nickname_badge.html' with user=proposal.proposer %}
-                                </td>
-                                <td style="padding: 12px; text-align: center;">
-                                    {% if proposal.is_ichiban_yari %}
-                                    <span style="display: inline-block; padding: 4px 12px; background: #ffc107; color: #000; border-radius: 12px; font-size: 0.85em; font-weight: bold;">一番槍</span>
-                                    {% else %}
-                                    <span style="display: inline-block; padding: 4px 12px; background: #6c757d; color: white; border-radius: 12px; font-size: 0.85em;">提案済み</span>
-                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
