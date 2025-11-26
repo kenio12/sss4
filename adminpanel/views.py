@@ -39,7 +39,7 @@ def maturi_game_setup(request):
     yearly_proposals = TitleProposal.objects.filter(
         proposal_month__gte=start_date,
         proposal_month__lte=end_date
-    ).select_related('proposer').order_by('proposal_month')  # 昇順で1月から12月へ
+    ).select_related('proposer').order_by('-proposal_month')  # 降順で12月から1月へ
 
     # 各提案に一番槍情報を追加
     for proposal in yearly_proposals:
