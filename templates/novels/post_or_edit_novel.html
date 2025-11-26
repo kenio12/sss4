@@ -754,6 +754,10 @@
         {% endif %}
 
         {% for field in form %}
+        <!-- 🔥 同タイトル関連フィールドはhiddenなのでスキップ（ループ外で出力） -->
+        {% if field.name == 'is_same_title_game' or field.name == 'same_title_event_month' %}
+            <!-- hiddenフィールドは後で出力 -->
+        {% else %}
         <div class="form-group">
             {% if field.name == 'genre' %}
             <!-- ジャンルフィールドの特別な扱い -->
@@ -810,7 +814,30 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
     {% endfor %}
+
+        <!-- 🔥 同タイトル関連のhiddenフィールド（保存時に値を保持するため） -->
+        {{ form.is_same_title_game }}
+        {{ form.same_title_event_month }}
+
+        <!-- 🔥 同タイトル表示（編集時のみ、同タイトル小説の場合） -->
+        {% if edit and novel.is_same_title_game %}
+        <div class="alert alert-success" role="alert" style="margin: 20px 0; padding: 15px; border-radius: 10px; background-color: #d4edda; border: 2px solid #28a745;">
+            <h5 style="color: #155724; font-weight: bold; margin-bottom: 5px;">
+                <i class="fas fa-check-circle"></i> 同タイトル作品
+            </h5>
+            <p style="font-size: 1rem; color: #155724; margin: 0;">
+                📅 {{ novel.same_title_event_month|default:"" }}
+            </p>
+        </div>
+        {% elif edit and novel.genre == '同タイトル崩れ' %}
+        <div class="alert alert-warning" role="alert" style="margin: 20px 0; padding: 15px; border-radius: 10px; background-color: #fff3cd; border: 2px solid #ffc107;">
+            <h5 style="color: #856404; font-weight: bold; margin-bottom: 5px;">
+                <i class="fas fa-exclamation-triangle"></i> 同タイトル崩れ作品
+            </h5>
+        </div>
+        {% endif %}
 
         <!-- 下書きとして保存ボタン -->
         {% if edit %}
