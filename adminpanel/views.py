@@ -29,12 +29,17 @@ def maturi_game_setup(request):
     entrants = []  # 新規作成時は空のリスト
 
     # 🆕 Step 4: 今年の同タイトル提案一覧を取得（提案者情報・一番槍情報付き）
+    # 2025年の1月〜12月の同タイトルを表示するには、2024年12月〜2025年11月の提案が必要
     selected_year = datetime.datetime.now().year
 
-    # 今年の全提案タイトルを取得
+    # 前年12月〜今年11月の提案を取得（=今年1月〜12月の同タイトル用）
+    start_date = datetime.date(selected_year - 1, 12, 1)  # 前年12月
+    end_date = datetime.date(selected_year, 11, 30)  # 今年11月末
+
     yearly_proposals = TitleProposal.objects.filter(
-        proposal_month__year=selected_year
-    ).select_related('proposer').order_by('-proposal_month')
+        proposal_month__gte=start_date,
+        proposal_month__lte=end_date
+    ).select_related('proposer').order_by('proposal_month')  # 昇順で1月から12月へ
 
     # 各提案に一番槍情報を追加
     for proposal in yearly_proposals:
