@@ -1,12 +1,12 @@
 import logging
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from game_same_title.models import TitleProposal, SameTitleEntry, Novel
+from game_same_title.models import TitleProposal, MonthlySameTitleInfo
+from novels.models import Novel
 from datetime import date
 from django.urls import reverse
 from django.utils import timezone
 import datetime
-from game_same_title.models import TitleProposal, SameTitleEntry, Novel, MonthlySameTitleInfo
 
 User = get_user_model()
 
@@ -30,10 +30,6 @@ class SameTitleGameTests(TestCase):
         for user in ['A', 'B', 'C', 'D']:
             for title in titles:
                 TitleProposal.objects.create(proposer=self.users[user], title=title, proposed_at=self.current_month_start)
-        
-        # エントリーの作成
-        for user in ['B', 'C', 'D', 'E']:
-            SameTitleEntry.objects.create(user=self.users[user], month=self.last_month_start)
 
     def test_novel_creation_and_publication(self):
         # 各テストシナリオをここに実装

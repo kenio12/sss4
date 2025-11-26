@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from game_same_title.models import SameTitleEntry, TitleProposal
+from game_same_title.models import TitleProposal
 from novels.models import Novel
 
 class Command(BaseCommand):
@@ -35,15 +35,6 @@ class Command(BaseCommand):
         if created:
             user3.set_password('Keniosan2')
             user3.save()
-
-        # 4月のエントリー
-        SameTitleEntry.objects.get_or_create(user=user1, month=timezone.datetime(2024, 4, 1))
-        SameTitleEntry.objects.get_or_create(user=user2, month=timezone.datetime(2024, 4, 1))
-        SameTitleEntry.objects.get_or_create(user=user3, month=timezone.datetime(2024, 4, 1))
-
-        # 5月のエントリー
-        SameTitleEntry.objects.get_or_create(user=user2, month=timezone.datetime(2024, 5, 1))
-        SameTitleEntry.objects.get_or_create(user=user3, month=timezone.datetime(2024, 5, 1))
 
         # 4月のタイトル提案
         titles_april_user1 = ['サル', 'ゴリラ', 'キリン']
