@@ -63,23 +63,23 @@
         <!-- 同タイトルゲームチェックボックス -->
         <div class="form-check" style="margin-bottom: 15px; margin-left: 20px;">
             {% if current_month_same_title_info %}
-                <!-- 一番槍決定後：is_same_title_gameの値によって表示を変える -->
+                <!-- 一番槍決定後：新規投稿は「同タイトル」、既存投稿はis_same_title_gameの値で表示 -->
                 <input class="form-check-input"
                        type="checkbox"
                        id="{{ form.is_same_title_game.id_for_label }}"
                        name="{{ form.is_same_title_game.name }}"
-                       {% if novel.is_same_title_game %}checked{% endif %}
+                       {% if not edit or novel.is_same_title_game %}checked{% endif %}
                        disabled
                        style="opacity: 0.7; cursor: not-allowed;">
                 <label class="form-check-label" for="{{ form.is_same_title_game.id_for_label }}" style="opacity: 0.7;">
-                    {% if novel.is_same_title_game == False %}
+                    {% if edit and novel.is_same_title_game == False %}
                         同タイトル崩れ
                     {% else %}
                         同タイトル
                     {% endif %}
                 </label>
                 <!-- hiddenフィールドを追加して、disabled時でも値を送信 -->
-                <input type="hidden" name="{{ form.is_same_title_game.name }}" value="{% if novel.is_same_title_game %}true{% else %}false{% endif %}">
+                <input type="hidden" name="{{ form.is_same_title_game.name }}" value="{% if not edit or novel.is_same_title_game %}true{% else %}false{% endif %}">
             {% else %}
                 <!-- 一番槍決定前：常に「同タイトル」でチェック固定 -->
                 <input class="form-check-input"
@@ -105,7 +105,7 @@
 <div class="form-group">
     {% if current_month_same_title_info and current_month_same_title_info.title %}
         <!-- 一番槍が決まった後：タイトル固定表示 -->
-        {% if novel.is_same_title_game == False %}
+        {% if edit and novel.is_same_title_game == False %}
             <!-- 同タイトル崩れ：元々のタイトルで固定 -->
             <label style="margin-bottom: 15px;">タイトル（固定・変更不可）</label>
             <div style="padding: 10px; background-color: #f0f8ff; border: 2px solid #8ecae6; border-radius: 5px; font-size: 1.2rem; font-weight: bold;">
@@ -114,7 +114,7 @@
             <!-- hidden inputで値を送信 -->
             <input type="hidden" id="{{ form.title.id_for_label }}" name="{{ form.title.name }}" value="{{ novel.title }}">
         {% else %}
-            <!-- 同タイトル：一番槍のタイトルで固定 -->
+            <!-- 同タイトル（新規投稿 or 編集）：一番槍のタイトルで固定 -->
             <label style="margin-bottom: 15px;">タイトル（今月の同タイトル）</label>
             <div style="padding: 10px; background-color: #f0f8ff; border: 2px solid #8ecae6; border-radius: 5px; font-size: 1.2rem; font-weight: bold;">
                 {{ current_month_same_title_info.title }}
