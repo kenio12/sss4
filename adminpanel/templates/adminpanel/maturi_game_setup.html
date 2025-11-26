@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block content %}
 <div id="maturi-setup-content">
@@ -80,7 +81,7 @@
                         <tbody>
                             {% for proposal in yearly_proposals %}
                             <tr style="{% if proposal.is_ichiban_yari %}background: #fff3cd;{% else %}background: white;{% endif %} border-bottom: 1px solid #dee2e6;">
-                                <td style="padding: 12px;">{{ proposal.proposal_month|date:"Y年m月" }}</td>
+                                <td style="padding: 12px;">{{ proposal.proposal_month|next_month|date:"Y年m月" }}</td>
                                 <td style="padding: 12px; font-weight: {% if proposal.is_ichiban_yari %}bold{% else %}normal{% endif %};">
                                     {{ proposal.title }}
                                     {% if proposal.is_ichiban_yari %}
