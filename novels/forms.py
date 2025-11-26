@@ -26,7 +26,7 @@ class NovelForm(forms.ModelForm):
 
     class Meta:
         model = Novel
-        fields = ['genre', 'title', 'initial', 'content', 'status']  # initialをtitleの後に移動
+        fields = ['genre', 'title', 'initial', 'content', 'status', 'is_same_title_game', 'same_title_event_month']  # 同タイトル関連フィールド追加
 
     title = forms.CharField(
         label='タイトル：30字内',  # HTMLタグを使わずにラベルを設定
@@ -85,6 +85,17 @@ class NovelForm(forms.ModelForm):
             'class': 'form-control',
             'readonly': 'readonly'
         })
+    )
+
+    # 🔥 同タイトル関連フィールド（hidden）- 保存時に値が消えへんように
+    is_same_title_game = forms.BooleanField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
+    same_title_event_month = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
     )
 
 class CommentForm(forms.ModelForm):
