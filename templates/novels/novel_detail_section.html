@@ -63,8 +63,8 @@
         </div>
     {% endif %}
 
-    <div class="novel-content novel-content-detail">
-        <p style="font-size: 25px; white-space: pre-wrap;">{{ novel.content }}</p>
+    <div class="novel-content novel-content-detail" style="overflow-x: hidden; max-width: 100%;">
+        <p style="font-size: 25px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;">{{ novel.content }}</p>
     </div>
     <!-- <p class="word-count" style="margin-top: 15px;margin-bottom: 0 !important;"> 文字数: {{ novel.word_count }}</p> -->
 </div>
