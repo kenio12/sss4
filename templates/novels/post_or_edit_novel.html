@@ -158,12 +158,14 @@
 
     /* モバイル向けの調整 */
     @media (max-width: 768px) {
-        /* 全体のリセット */
+        /* 全体のリセット - ぐらぐら防止 */
         html, body {
             margin: 0 !important;
             padding: 0 !important;
             overflow-x: hidden !important;
             width: 100% !important;
+            max-width: 100vw !important;
+            position: relative !important;
         }
 
         /* main-contentのリセット */
@@ -171,43 +173,50 @@
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
         }
 
-        /* Bootstrapのコンテナリセット */
+        /* Bootstrapのコンテナリセット - 左余白を確保 */
         .container {
             margin: 0 !important;
-            padding: 0 !important;
-            max-width: none !important;
+            padding: 0 20px !important;  /* 左右に20pxの余白 */
+            max-width: 100% !important;
             width: 100% !important;
             --bs-gutter-x: 0 !important;
             --bs-gutter-y: 0 !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
         }
 
-        /* フォームグループのリセット */
+        /* フォームグループのリセット - 左余白確保 */
         .form-group {
-            margin: 0 !important;
+            margin: 0.5rem 0 !important;
             padding: 0 !important;
             background: none !important;
             border-radius: 0 !important;
             box-shadow: none !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
         }
 
         /* テキストエリア用のform-groupだけを特別扱い */
         #content {
-            position: static !important;  /* fixedを解除 */
+            position: static !important;
             width: 100% !important;
-            height: 50vh !important;  /* 画面の半分の高さに固定 */
+            height: 50vh !important;
             margin: 0.5rem 0 !important;
-            padding: 0.8rem !important;
+            padding: 15px !important;  /* 内側の余白を確保 */
             border: 2px solid #666 !important;
             border-radius: 8px !important;
-            overflow-y: auto !important;  /* スクロール可能に */
+            overflow-y: auto !important;
             font-size: 20px !important;
             line-height: 1.8 !important;
             -webkit-overflow-scrolling: touch !important;
             touch-action: pan-y !important;
-            overscroll-behavior: contain !important; /* バウンス効果を制御 */
-            will-change: transform !important; /* スクロールのパフォーマンスを改善 */
+            overscroll-behavior: contain !important;
+            will-change: transform !important;
+            box-sizing: border-box !important;
         }
 
         /* プレースホルダーのフォントサイズも調整 */
@@ -225,13 +234,7 @@
         /* テキストエリアのラベルを表示 */
         #content + label,
         label[for="id_content"] {
-            display: block !important;  /* 非表示を解除 */
-        }
-
-        /* フォームグループの余白復活 */
-        .form-group {
-            margin: 0.5rem 0 !important;
-            padding: 0 0.5rem !important;
+            display: block !important;
         }
 
         /* mt-5クラスの上マージンを消す */
@@ -239,10 +242,18 @@
             margin-top: 0 !important;
         }
 
-        /* form要素の余白を消す */
+        /* form要素の余白を消す - ぐらぐら防止 */
         form {
             margin: 0 !important;
             padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+        }
+
+        /* 全要素にbox-sizing適用 - ぐらぐら防止 */
+        * {
+            box-sizing: border-box !important;
         }
     }
 
@@ -594,12 +605,13 @@
         resize: none !important;
     }
 
-    /* コンテナ自体に余白を追加 */
+    /* コンテナ自体の余白設定 */
     .container {
-        padding-left: 30px !important;  /* 左の余白を広げる */
-        padding-right: 30px !important; /* 右の余白を広げる */
-        max-width: 90% !important;      /* 全体の幅を少し狭める */
-        margin: 0 auto !important;      /* 中央寄せ */
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        max-width: 100% !important;      /* 画面いっぱいに広げる */
+        margin: 0 !important;
+        width: 100% !important;
     }
 
     /* テキストエリアのスタイル */
