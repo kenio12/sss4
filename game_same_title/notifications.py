@@ -251,8 +251,7 @@ def send_same_title_decision_notification(novel):
 
 一番槍: {novel.author.nickname}"""
 
-                # 投稿日時を取得
-                from django.utils import timezone
+                # 投稿日時を取得（timezoneはファイル先頭でimport済み）
                 posted_time = timezone.localtime(novel.created_at)
                 posted_str = posted_time.strftime('%Y年%m月%d日 %H時%M分')
                 event_month = posted_time.strftime('%Y年%m月')
