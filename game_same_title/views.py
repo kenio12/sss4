@@ -243,16 +243,19 @@ def create_title_proposal(request):
                         proposal_month=current_month_start
                     )
 
-                    # 🔥 タイトル提案通知を翌日12時に送信するため予約
-                    from .models import PendingNotification
-                    notification, created = PendingNotification.objects.get_or_create(
-                        notification_type='提案',
-                        proposal=created_proposal
-                    )
-                    if created:
-                        logger.info(f'タイトル提案通知予約: {title} (提案者: {proposer.username})')
-                    else:
-                        logger.info(f'タイトル提案通知既存: {title} (重複作成を防止)')
+                    # 🔥🔥🔥 提案時の全員通知は廃止（2025-11-28・けーにもーん指示）🔥🔥🔥
+                    # 提案しただけで全員に通知するのは不要
+                    # 一番槍が決定した時のみ通知する
+                    # from .models import PendingNotification
+                    # notification, created = PendingNotification.objects.get_or_create(
+                    #     notification_type='提案',
+                    #     proposal=created_proposal
+                    # )
+                    # if created:
+                    #     logger.info(f'タイトル提案通知予約: {title} (提案者: {proposer.username})')
+                    # else:
+                    #     logger.info(f'タイトル提案通知既存: {title} (重複作成を防止)')
+                    logger.info(f'タイトル提案完了（通知なし）: {title} (提案者: {proposer.username})')
 
             messages.success(request, '提案が成功しました。')
             return redirect('game_same_title:same_title')
