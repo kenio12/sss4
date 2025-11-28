@@ -523,16 +523,18 @@ def post_or_edit_same_title(request, novel_id=None):
                         return redirect('game_same_title:same_title')
 
                 elif action == 'draft' or action == 'rest':
-                    # 🔥 同タイトル公開済みは公開のまま保存（2025-11-28・けーにもーん指示）
+                    # 🔥🔥🔥 同タイトル公開済みは絶対に非公開にさせへん！（2025-11-28・けーにもーん厳命）🔥🔥🔥
                     if novel.is_same_title_game and novel.published_date:
-                        # 公開済みなので status は変更せず、内容だけ保存
+                        # 公開済みなので status は絶対に変更せず、内容だけ保存
                         if form.is_valid():
                             novel.content = form.cleaned_data['content']
+                            # 🔥 update_fields で content のみ更新、status は絶対に触らへん
                             novel.save(update_fields=['content'])
                             form.save_m2m()
                             messages.success(request, '保存しました。（公開状態は維持されています）')
                         return redirect(reverse('game_same_title:post_or_edit_same_title_with_id', kwargs={'novel_id': novel.id}))
 
+                    # 未公開の場合のみ draft に変更
                     novel.status = 'draft'
                     novel.save()
                     form.save_m2m()
@@ -542,7 +544,7 @@ def post_or_edit_same_title(request, novel_id=None):
                         return redirect('accounts:view_profile')
 
                 elif action == 'delete':
-                    # 🔥 同タイトル公開済みは削除できない
+                    # 🔥🔥🔥 同タイトル公開済みは絶対に削除させへん！（2025-11-28・けーにもーん厳命）🔥🔥🔥
                     if novel and novel.is_same_title_game and novel.published_date:
                         messages.error(request, '同タイトルイベント参加作品は公開後、削除できません。みんなが楽しみにしているので、このまま公開を続けてください。')
                         return redirect(reverse('game_same_title:post_or_edit_same_title_with_id', kwargs={'novel_id': novel.id}))
