@@ -216,7 +216,7 @@
         今月の同タイトルや！：<span class="highlighted">{{ decided_title.title }}</span>
       </h4>
       <h4 style="margin-bottom: 20px;">
-        同タイトルの提案者や！：<span class="highlighted">{{ decided_title.proposer_nickname }}</span> <span class="first-post-badge" onclick="showBadgeModal('一番盾')" style="cursor: pointer;">🛡️ 一番盾</span>
+        同タイトルの提案者や！：<span class="highlighted">{% include 'novels/includes/nickname_badge.html' with user=decided_title.proposer %}</span> <span class="first-post-badge" onclick="showBadgeModal('一番盾')" style="cursor: pointer;">🛡️ 一番盾</span>
       </h4>
     </div>
 
@@ -265,7 +265,7 @@
         <li>
           {{ candidate.title }}
           {% if decided_title %}
-            ・・・by {{ candidate.proposer_nickname }}
+            ・・・by {% include 'novels/includes/nickname_badge.html' with user=candidate.proposer %}
           {% endif %}
         </li>
       {% empty %}
@@ -299,7 +299,7 @@
                 </td>
                 <td>
                     {% if decided_title %}
-                        {{ decided_title.proposer_nickname }}
+                        {% include 'novels/includes/nickname_badge.html' with user=decided_title.proposer %}
                     {% endif %}
                 </td>
                 <td>{{ novel.published_date|date:"Y年m月d日" }}</td>

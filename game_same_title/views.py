@@ -108,7 +108,8 @@ def same_title(request, page=1):
         decided_title = {
             'title': decided_title_info.title,
             'novel': decided_title_info.novel,
-            'proposer_nickname': decided_title_info.proposer.nickname
+            'proposer_nickname': decided_title_info.proposer.nickname,
+            'proposer': decided_title_info.proposer  # 🔥 定型ニックネーム用にUserオブジェクト追加
         }
     else:
         decided_title = None
@@ -116,7 +117,7 @@ def same_title(request, page=1):
     # 🔥 前月のタイトル候補は全員に表示（ログイン不要）
     last_month = current_month_date - relativedelta(months=1)
     title_candidates = [
-        {'title': candidate.title, 'proposer_nickname': candidate.proposer.nickname}
+        {'title': candidate.title, 'proposer_nickname': candidate.proposer.nickname, 'proposer': candidate.proposer}  # 🔥 定型ニックネーム用
         for candidate in TitleProposal.objects.filter(proposal_month__year=last_month.year, proposal_month__month=last_month.month)
     ]
 
