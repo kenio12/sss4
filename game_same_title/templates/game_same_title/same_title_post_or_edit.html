@@ -271,24 +271,28 @@
 
 {% if edit %}
 
+    {# 🔥 公開済みの場合は休憩・投稿ボタンを非表示（2025-11-28・けーにもーん指示）#}
+    {% if not is_published %}
+    <!-- 休息ボタン（未公開時のみ表示） -->
+    <button type="submit" name="action" value="rest" class="btn btn-secondary" style="display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 20px; background-color: darkgreen; color: white; margin-right: 10px; margin-bottom: 20px; font-size: 24px !important; font-weight: bold;margin-top: 0% !important;">
+        <span style="margin-right: 8px; font-size: 20px; font-weight: bold;">休息</span>
+        <img src="{% static 'images/tea.svg' %}" alt="Icon" style="height: 24px;">
+    </button>
 
-<!-- 休息ボタン -->
-<button type="submit" name="action" value="rest" class="btn btn-secondary" style="display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 20px; background-color: darkgreen; color: white; margin-right: 10px; margin-bottom: 20px; font-size: 24px !important; font-weight: bold;margin-top: 0% !important;">
-    <span style="margin-right: 8px; font-size: 20px; font-weight: bold;">休息</span>
-    <img src="{% static 'images/tea.svg' %}" alt="Icon" style="height: 24px;"> 
-</button>
-
-    <!-- 投稿ボタン -->
+    <!-- 投稿ボタン（未公開時のみ表示） -->
     <button type="submit" name="action" value="publish" class="btn btn-primary" style="display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 20px; background-color: #007bff; color: white; margin-right: 10px;margin-bottom: 20px; font-size: 24px !important; font-weight: bold;">
         <span style="margin-right: 8px; font-size: 20px; font-weight: bold;">投稿</span>
         <img src="{% static 'images/post.svg' %}" alt="Icon" style="height: 24px;">
     </button>
-    
-    <!-- 削除ボタン -->
+    {% endif %}
+
+    <!-- 削除ボタン（未公開時のみ表示） -->
+    {% if not is_published %}
     <button type="submit" name="action" value="delete" class="btn btn-primary" style="display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 20px; background-color: red !important; color: white; margin-right: 10px;margin-bottom: 20px; font-size: 24px !important; font-weight: bold;">
         <span style="margin-right: 8px; font-size: 20px; font-weight: bold;">削除</span>
         <img src="{% static 'images/delete.svg' %}" alt="Icon" style="height: 24px;">
     </button>
+    {% endif %}
 {% endif %}
     </form>
 </div>
