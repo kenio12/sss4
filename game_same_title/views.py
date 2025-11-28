@@ -526,9 +526,11 @@ def post_or_edit_same_title(request, novel_id=None):
                     # 🔥 同タイトル公開済みは公開のまま保存（2025-11-28・けーにもーん指示）
                     if novel.is_same_title_game and novel.published_date:
                         # 公開済みなので status は変更せず、内容だけ保存
-                        novel.save()
-                        form.save_m2m()
-                        messages.success(request, '保存しました。（公開状態は維持されています）')
+                        if form.is_valid():
+                            novel.content = form.cleaned_data['content']
+                            novel.save(update_fields=['content'])
+                            form.save_m2m()
+                            messages.success(request, '保存しました。（公開状態は維持されています）')
                         return redirect(reverse('game_same_title:post_or_edit_same_title_with_id', kwargs={'novel_id': novel.id}))
 
                     novel.status = 'draft'
