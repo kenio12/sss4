@@ -11,33 +11,22 @@
 {% endif %}
 
 {% if edit and novel.content %}
-    <div class="novel-detail-section" style="overflow-x: hidden; max-width: 100%; box-sizing: border-box; width: 100%; padding-right: 10px;">
+    <div class="novel-detail-section">
         {% include 'novels/novel_detail_section.html' with novel=novel is_published=is_published hide_edit_button=True %}
     </div>
     <style>
-        /* 🔥 スマホでプレビューが右端で切れる問題修正（2025-11-28） */
-        .novel-detail-section,
-        .novel-detail-section .container,
-        .novel-detail-section .novel-content,
+        /* 🔥 スマホでプレビューが画面内に収まるように（2025-11-28修正） */
+        /* 文字サイズは変えずに、折り返しだけで対応 */
+        .novel-detail-section {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0 10px;
+        }
         .novel-detail-section .novel-content p {
-            max-width: 100% !important;
-            overflow-x: hidden !important;
             word-wrap: break-word !important;
             overflow-wrap: break-word !important;
-            box-sizing: border-box !important;
-        }
-        @media (max-width: 768px) {
-            .novel-detail-section {
-                padding-left: 5px !important;
-                padding-right: 5px !important;
-            }
-            .novel-detail-section .container {
-                padding-left: 5px !important;
-                padding-right: 5px !important;
-            }
-            .novel-detail-section .novel-content p {
-                font-size: 1rem !important;  /* 🔥 スマホでも通常サイズ維持（2025-11-28修正）*/
-            }
+            white-space: pre-wrap !important;
+            /* font-sizeは指定しない = novel_detail_section.htmlの25pxをそのまま使う */
         }
     </style>
     <hr style="margin-top: 0;">
