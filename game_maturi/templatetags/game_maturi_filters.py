@@ -1,8 +1,20 @@
 from django import template
 import random
+from datetime import timedelta
 from game_maturi.models import MaturiGame
 
 register = template.Library()
+
+
+@register.filter
+def add_days(date, days):
+    """日付に指定日数を加算するフィルター"""
+    if not date:
+        return None
+    try:
+        return date + timedelta(days=int(days))
+    except (ValueError, TypeError):
+        return date
 
 @register.filter
 def filter_by_original_author(novels, author):
