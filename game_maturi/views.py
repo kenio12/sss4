@@ -45,13 +45,6 @@ def game_maturi_top(request, game_id):
     active_authors = game.entrants.all().order_by('nickname')
     now = timezone.now()
     
-    # デバッグ出力を追加
-    print(f"\n=== Entrants Debug ===")
-    print(f"Total entrants: {active_authors.count()}")
-    for author in active_authors:
-        print(f"Entrant: {author.nickname} (ID: {author.id})")
-    print("=== End Entrants Debug ===\n")
-    
     # 最後に終了したゲームを取得
     last_finished_game = MaturiGame.objects.filter(
         maturi_end_date__lt=now
@@ -59,10 +52,9 @@ def game_maturi_top(request, game_id):
     
     # novel_predictionsをここで初期化
     novel_predictions = {}
-    
+
     # ユーザーがゲームに参加しているかチェック
     is_user_entered = False
-    novel_predictions = {}  # ここで初期化
     
     if request.user.is_authenticated:
         is_user_entered = game.entrants.filter(id=request.user.id).exists()
@@ -73,10 +65,6 @@ def game_maturi_top(request, game_id):
             predictor=request.user
         ).select_related('novel', 'predicted_author')
         
-        # デバッグ出力を追加
-        print("\n=== Predictions Debug ===")
-        print(f"Found {predictions.count()} predictions")
-        
         for pred in predictions:
             novel_predictions[pred.novel.id] = {
                 'predicted_author': {
@@ -84,8 +72,7 @@ def game_maturi_top(request, game_id):
                     'nickname': pred.predicted_author.nickname
                 }
             }
-            print(f"Novel {pred.novel.id}: Predicted author = {pred.predicted_author.nickname}")
-    
+
     # 予想期間中の場合、公開済みの小説のみを取得（予約公開は除外）
     if game.is_prediction_period():
         novels = game.maturi_novels.filter(
@@ -101,7 +88,6 @@ def game_maturi_top(request, game_id):
             models.Q(author=request.user) | 
             models.Q(original_author=request.user)
         ).order_by('-published_date')  # 公開日の降順で並び替え
-        print(f"Found {user_novels.count()} novels for user {request.user.nickname if request.user.is_authenticated else 'Anonymous'}")  # デバッグ用
 
     # 基本のコンテキストを作成
     context = {
@@ -142,59 +128,34 @@ def game_maturi_top(request, game_id):
 
         # 作品ごとの正解率を計算
         novel_stats = {}
-        print("\n=== Novel Stats Generation ===")
         for novel in novels:
-            print(f"\nProcessing novel {novel.id}: {novel.title}")
-            
             # この作品に対する全予想を取得
-            novel_predictions = predictions.filter(novel=novel)
-            total = novel_predictions.count()
-            correct = novel_predictions.filter(
+            novel_preds = predictions.filter(novel=novel)
+            total = novel_preds.count()
+            correct = novel_preds.filter(
                 predicted_author_id=F('novel__original_author_id')
             ).count()
-            
-            print(f"Novel {novel.id}:")
-            print(f"  - Total predictions: {total}")
-            print(f"  - Correct predictions: {correct}")
-            
+
             novel_stats[novel.id] = {
                 'total': total,
                 'correct': correct,
                 'fraction': f"{correct}/{total}" if total > 0 else "0/0"
             }
-            print(f"  - Stored stats: {novel_stats[novel.id]}")
-
-        print("\nFinal novel_stats dictionary:")
-        for novel_id, stats in novel_stats.items():
-            print(f"Novel {novel_id}: {stats}")
 
         # ユーザーの予測と統計
         user_predictions = []
         stats = {'total': 0, 'correct': 0, 'accuracy': 0}
-        novel_predictions = {}
-        
+
         if request.user.is_authenticated:
-            # デバッグ出力を追加
-            logger.debug(f"=== User Predictions Debug ===")
-            logger.debug(f"User ID: {request.user.id}")
             user_predictions = predictions.filter(predictor=request.user)
-            print(f"ユーザーの予想数: {user_predictions.count()}")
-            
+
             # ユーザーの予測データを格納
             user_novel_predictions = {}
             for pred in user_predictions:
-                print(f"予測を処理中: novel_id={pred.novel.id}, predicted_author={pred.predicted_author.nickname}")
                 user_novel_predictions[pred.novel.id] = {
                     'predicted_author': pred.predicted_author,
                     'is_correct': pred.predicted_author_id == pred.novel.original_author_id
                 }
-                # デバッグ出力
-                print(f"予想を追加: 小説ID={pred.novel.id}, 予想した作者={pred.predicted_author.nickname}")
-
-            # デバッグ確認
-            print("novel_predictions の中身:")
-            for novel_id, pred_data in novel_predictions.items():
-                print(f"小説ID: {novel_id}, 予想: {pred_data['predicted_author'].nickname}")
 
         # 統計情報の計算
         total = user_predictions.count() if request.user.is_authenticated else 0
@@ -205,8 +166,6 @@ def game_maturi_top(request, game_id):
             'correct': correct,
             'accuracy': (correct / total * 100) if total > 0 else 0
         }
-
-        print(f"統計情報: total={total}, correct={correct}, accuracy={stats['accuracy']}%")
 
         # 参加者の統計情報を計算
         participants_stats = []
@@ -223,23 +182,6 @@ def game_maturi_top(request, game_id):
         
         # 正解率で降順ソート
         participants_stats.sort(key=lambda x: (-x[1]['accuracy'], -x[1]['correct']))
-
-
-
-        print("Final novel_stats:", novel_stats)  # デバッグ出力
-
-        # デバッグ出力
-        print("\nNovel Stats:")
-        for novel_id, stats in novel_stats.items():
-            print(f"Novel ID: {novel_id}, Stats: {stats}")
-
-        # novel_statsの生成直後に追加
-        print("\nDebug novel_stats:")
-        for novel_id, stats in novel_stats.items():
-            print(f"Novel {novel_id}:")
-            print(f"  - total: {stats['total']}")
-            print(f"  - correct: {stats['correct']}")
-            print(f"  - fraction: {stats['fraction']}")
 
         # context更新
         context.update({
@@ -269,60 +211,6 @@ def game_maturi_top(request, game_id):
                 'correct_predictions': correct_predictions,
                 'accuracy': accuracy,
             })
-
-        print("\n=== User Prediction Results ===")
-        if request.user.is_authenticated:
-            print(f"Total predictions: {total_predictions}")
-            print(f"Correct predictions: {correct_predictions}")
-            print(f"Accuracy: {accuracy}%")
-        else:
-            print("User not authenticated")
-
-    print(f"Context keys: {context.keys()}")
-    print("=== End Debug ===\n")
-
-    # デバッグ出力を追加
-    print(f"Current time: {now}")
-    print(f"Prediction period: {game.prediction_start_date} to {game.prediction_end_date}")
-    print(f"Is prediction period: {game.is_prediction_period()}")
-
-    # デバッグ出力を追加
-    print("\n=== Prediction Data Debug ===")
-    all_predictions = GamePrediction.objects.filter(maturi_game=game)
-    print(f"Game ID: {game.id}")
-    print(f"Total predictions in this game: {all_predictions.count()}")
-    
-    if request.user.is_authenticated:
-        user_predictions = all_predictions.filter(predictor=request.user)
-        print(f"\nUser: {request.user.nickname if request.user.is_authenticated else 'Anonymous'}")
-        print(f"User's predictions count: {user_predictions.count()}")
-        for pred in user_predictions:
-            print(f"Novel: {pred.novel.title}")
-            print(f"Predicted author: {pred.predicted_author.nickname}")
-            print(f"Original author: {pred.novel.original_author.nickname}")
-            print(f"Created at: {pred.created_at}")
-            print(f"Updated at: {pred.updated_at}")
-            print("---")
-    print("=== End Debug ===\n")
-
-    print("\n=== Game Status Debug ===")
-    print(f"Game ID: {game_id}")
-    print(f"Current User: {request.user.nickname if request.user.is_authenticated else 'Anonymous'}")
-    print(f"Is prediction period finished: {game.is_prediction_period_finished()}")
-    
-    if game.is_prediction_period_finished() and request.user.is_authenticated:
-        predictions = GamePrediction.objects.filter(
-            maturi_game=game,
-            predictor=request.user
-        )
-        
-        print("\n=== User Predictions ===")
-        print(f"Total predictions found: {predictions.count()}")
-        for pred in predictions:
-            print(f"Novel: {pred.novel.title}")
-            print(f"Predicted Author: {pred.predicted_author.nickname}")
-            print(f"Is Correct: {pred.predicted_author_id == pred.novel.original_author_id}")
-            print("---")
 
     return render(request, 'game_maturi/game_maturi_top.html', context)
 
@@ -630,7 +518,7 @@ def submit_prediction(request):
         })
 
     except Exception as e:
-        print(f"予想処理エラー: {str(e)}")  # エラーログ追加
+        logger.error(f"予想処理エラー: {str(e)}")
         return JsonResponse({
             'success': False,
             'message': str(e)
@@ -734,13 +622,6 @@ def game_results(request, game_id):
         for pred in user_predictions:
             novel_predictions[str(pred.novel.id)] = pred
 
-        # デバッグ出力を追加
-        print("\nNovel Predictions Debug:")
-        print(f"Keys in novel_predictions: {list(novel_predictions.keys())}")
-        print(f"Total predictions stored: {len(novel_predictions)}")
-        for novel_id, pred in novel_predictions.items():
-            print(f"Novel ID: {novel_id}, Predicted Author: {pred.predicted_author.nickname}")
-
         # ユーザーの統計情報を計算
         total = user_predictions.count()
         correct = sum(1 for p in user_predictions 
@@ -755,34 +636,26 @@ def game_results(request, game_id):
     # 作品ごとの正解率を計算
     novel_stats = {}
     novels = current_game.published_novels.all()
-    
-    print("\n=== Novel Stats Generation ===")
+
     for novel in novels:
-        print(f"\nProcessing novel {novel.id}: {novel.title}")
-        
         # この作品に対する全予想を取得
-        novel_predictions = all_predictions.filter(novel=novel)
-        total = novel_predictions.count()
-        correct = novel_predictions.filter(
+        novel_preds = all_predictions.filter(novel=novel)
+        total = novel_preds.count()
+        correct = novel_preds.filter(
             predicted_author_id=F('novel__original_author_id')
         ).count()
-        
-        print(f"Novel {novel.id}:")
-        print(f"  - Total predictions: {total}")
-        print(f"  - Correct predictions: {correct}")
-        
+
         novel_stats[novel.id] = {
             'total': total,
             'correct': correct,
             'fraction': f"{correct}/{total}" if total > 0 else "0/0"
         }
-        print(f"  - Stored stats: {novel_stats[novel.id]}")
 
     context = {
         'current_game': current_game,
         'predictor_stats': predictor_stats,
         'novels': current_game.published_novels.all(),
-        'novel_predictions': novel_predictions,
+        'novel_predictions': novel_predictions,  # ユーザーの予想情報（616行目で初期化したもの）
         'all_predictions': all_predictions,
         'novel_stats': novel_stats,
     }
@@ -792,30 +665,25 @@ def game_results(request, game_id):
 def maturi_list(request):
     """祭り一覧を表示するビュー"""
     now = timezone.now().date()
-    print(f"Current date: {now}")
-    
+
     # 過去の祭り開始日の降順）
     past_games = MaturiGame.objects.filter(
         maturi_end_date__lt=now,
         maturi_end_date__isnull=False
     ).order_by('-maturi_start_date')
-    
+
     # 現在開催中の祭り（開始日の降順）
     current_games = MaturiGame.objects.filter(
         maturi_start_date__lte=now,
         maturi_end_date__gte=now
     ).order_by('-maturi_start_date')
-    
+
     # 開催予定の祭り（開始日の降順）
     upcoming_games = MaturiGame.objects.filter(
         maturi_start_date__gt=now,
         maturi_start_date__isnull=False
     ).order_by('-maturi_start_date')
-    
-    print(f"Current games: {current_games.count()}")
-    print(f"Upcoming games: {upcoming_games.count()}")
-    print(f"Past games: {past_games.count()}")
-    
+
     context = {
         'current_games': current_games,
         'upcoming_games': upcoming_games,
@@ -981,11 +849,6 @@ def calculate_progress(game, today):
 # 予想結果追加用の関数
 # @freeze_time("2024-12-20")  # 12月16日に固定
 def add_prediction_results_to_context(current_game, context):
-    # デバッグ出力を追加
-    print("\n=== Results Debug ===")
-    print(f"Adding results to context for game {current_game.id}")
-    print(f"Is prediction period finished: {current_game.is_prediction_period_finished()}")
-    
     # 最後に終了したゲームを取得
     now = timezone.now()
     last_finished_game = MaturiGame.objects.filter(
@@ -1000,8 +863,6 @@ def add_prediction_results_to_context(current_game, context):
     all_predictions = GamePrediction.objects.filter(
         maturi_game=current_game
     ).select_related('predictor', 'predicted_author', 'novel__original_author')
-    
-    print(f"Found {all_predictions.count()} predictions")
 
     # ユーザーの予想情報を取得して追加（これを追加！）
     novel_predictions = {}
@@ -1028,7 +889,6 @@ def add_prediction_results_to_context(current_game, context):
                 'correct': correct,
                 'accuracy': (correct / total * 100) if total > 0 else 0
             }
-            print(f"Stats for {predictor.nickname}: {predictor_stats[predictor]}")
 
     context.update({
         'predictor_stats': predictor_stats,
@@ -1038,7 +898,6 @@ def add_prediction_results_to_context(current_game, context):
         'is_user_entered': is_user_entered,
         'novel_predictions': novel_predictions,  # これを追加！
     })
-    print("=== End Results Debug ===\n")
 
 
 @require_http_methods(["POST"])
@@ -1053,11 +912,6 @@ def predict_author(request):
         data = json.loads(request.body)
         novel_id = data.get('novel_id')
         author_id = data.get('author_id')
-        
-        print(f"\n=== 予想処理開始 ===")
-        print(f"Novel ID: {novel_id}")
-        print(f"Author ID: {author_id}")
-        print(f"User ID: {request.user.id}")
 
         # 祭りゲーム取得
         novel = get_object_or_404(Novel, id=novel_id)
@@ -1076,18 +930,13 @@ def predict_author(request):
             defaults={'predicted_author_id': author_id}
         )
 
-        print(f"予想を{'作成' if created else '更新'}しました：")
-        print(f"- 小説: {prediction.novel.title}")
-        print(f"- 予想した作者: {prediction.predicted_author.nickname}")
-        print(f"- 祭り: {prediction.maturi_game.title}")
-        
         return JsonResponse({
             'success': True,
             'message': '予想を保存しました'
         })
 
     except Exception as e:
-        print(f"予想処理エラー: {str(e)}")
+        logger.error(f"予想処理エラー: {str(e)}")
         return JsonResponse({
             'success': False,
             'message': str(e)

@@ -105,9 +105,9 @@ class MaturiGame(models.Model):
     # 次のゲームを見つける
     @classmethod
     def find_next_game(cls):
+        """未来の祭りを開始日順で取得"""
         now = timezone.localtime(timezone.now()).date()
         return cls.objects.filter(
-            is_prediction_period_finished,
             maturi_start_date__gt=now
         ).order_by('maturi_start_date').first()
 
@@ -122,13 +122,9 @@ class MaturiGame(models.Model):
         now = timezone.localtime(timezone.now()).date()
         return (self.start_date <= now <= self.end_date)
 
-    # @freeze_time("2024-12-20 12:00:00")
     def is_prediction_period(self):
+        """予想期間中かどうかを判定"""
         now = timezone.now().date()
-        print(f"Checking prediction period:")
-        print(f"Now: {now}")
-        print(f"Start: {self.prediction_start_date}")
-        print(f"End: {self.prediction_end_date}")
         return self.prediction_start_date <= now <= self.prediction_end_date
 
     def __str__(self):
