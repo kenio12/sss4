@@ -875,7 +875,8 @@
                         <img src="{% static 'images/tea.svg' %}" alt="Icon" style="height: 24px !important;">
                     </button>
 
-                    {% if novel.genre == '祭り' %}
+                    {% if novel.maturi_games.exists %}
+                        {# 祭りイベントの小説の場合は執筆期間中のみ投稿ボタン表示 #}
                         {% if is_writing_period or novel.status == 'published' %}
                         <button type="submit" name="action" value="publish" class="btn btn-primary btn-publish" style="background-color: #007bff !important; color: white !important; margin: 0 !important;">
                             <span>投稿</span>

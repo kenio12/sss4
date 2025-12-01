@@ -480,16 +480,17 @@ def auto_save_maturi_novel(request):
             title = data.get('title', '')
             content = data.get('content', '')
             novel_id = data.get('novel_id')
-            
-            # 祭り作家を取
+            genre = data.get('genre', '未分類')  # ジャンルをJSONから取得（デフォルトは未分類）
+
+            # 祭り作家を取得
             maturi_writer = User.objects.get(nickname='祭り作家')
-            
+
             if novel_id:
                 # 既存の小説を更新
                 novel = Novel.objects.get(id=novel_id)
                 novel.title = title
                 novel.content = content
-                novel.genre = '祭り'  # ここを追加
+                novel.genre = genre  # 選択されたジャンルを保存
                 novel.author = maturi_writer  # 祭り作家として保存
                 novel.save()
             else:
@@ -498,8 +499,8 @@ def auto_save_maturi_novel(request):
                     title=title,
                     content=content,
                     author=maturi_writer,  # 祭り作家として保存
-                    original_author=request.user,  # 実際の作者は別フィードに保存
-                    genre='祭り'  # ここを確認
+                    original_author=request.user,  # 実際の作者は別フィールドに保存
+                    genre=genre  # 選択されたジャンルを保存
                 )
             
             return JsonResponse({

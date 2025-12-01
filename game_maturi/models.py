@@ -46,8 +46,8 @@ class MaturiGame(models.Model):
         Novel,
         blank=True,
         verbose_name="祭りの小説",
-        related_name='maturi_games',
-        limit_choices_to={'genre': '祭り'}  # ここを追加
+        related_name='maturi_games'
+        # 注：祭り小説かどうかはmaturi_games.exists()で判断する（ジャンルではなくリレーションで管理）
     )
     dummy_author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
