@@ -42,6 +42,22 @@
                 end: new Date('{{ game.prediction_end_date|date:"Y-m-d" }}T23:59:59'),
                 group: 3,
                 style: 'background-color: #9C27B0;'
+            },
+            {
+                id: 5,
+                content: '',
+                start: (function() {
+                    var d = new Date('{{ game.prediction_end_date|date:"Y-m-d" }}T00:00:00');
+                    d.setDate(d.getDate() + 1);
+                    return d;
+                })(),
+                end: (function() {
+                    var d = new Date('{{ game.maturi_end_date|date:"Y-m-d" }}T23:59:59');
+                    d.setDate(d.getDate() - 1);
+                    return d;
+                })(),
+                group: 4,
+                style: 'background-color: #E91E63;'
             }
         ]);
 
@@ -50,13 +66,14 @@
             {id: 0, content: '祭り全体'},
             {id: 1, content: 'エントリー'},
             {id: 2, content: '執筆'},
-            {id: 3, content: '作者予想'}
+            {id: 3, content: '作者予想'},
+            {id: 4, content: '結果発表'}
         ]);
 
         // タイムラインの設定
         var options = {
             locale: 'ja',
-            height: '200px',
+            height: '240px',
             min: new Date('{{ game.maturi_start_date|date:"Y-m-d" }}T00:00:00'),
             max: new Date('{{ game.maturi_end_date|date:"Y-m-d" }}T23:59:59'),
             showCurrentTime: true,
