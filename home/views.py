@@ -74,14 +74,37 @@ class HomePageView(ListView):
         return context
 
     def get_queryset(self):
-        return Novel.objects.filter(
+        queryset = Novel.objects.filter(
             status='published',
             published_date__isnull=False
         ).order_by('-published_date')
 
+        # 🔥 祭り小説を予想期間前は除外（ゲームの公平性のため）
+        # 祭り小説は予想期間が始まってから初めて一般リストに表示される
+        today = timezone.now().date()
+        # 現在進行中の祭りを取得（終了してへん祭り）
+        active_games = MaturiGame.objects.filter(maturi_end_date__gte=today)
+        for game in active_games:
+            if not game.is_prediction_period():
+                # 予想期間が始まってへん祭りの小説は除外
+                queryset = queryset.exclude(maturi_games=game)
+
+        return queryset
+
 
 def novels_list_ajax(request):
-    novels_list = Novel.objects.all().order_by('-published_date')
+    novels_list = Novel.objects.filter(
+        status='published',
+        published_date__isnull=False
+    ).order_by('-published_date')
+
+    # 🔥 祭り小説を予想期間前は除外（ゲームの公平性のため）
+    today = timezone.now().date()
+    active_games = MaturiGame.objects.filter(maturi_end_date__gte=today)
+    for game in active_games:
+        if not game.is_prediction_period():
+            novels_list = novels_list.exclude(maturi_games=game)
+
     paginator = Paginator(novels_list, 5)  # 1ページあたり5項目を表示
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
