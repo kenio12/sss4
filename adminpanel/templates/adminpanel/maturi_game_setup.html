@@ -49,14 +49,27 @@
             <div class="period-section">
                 <h3 class="small-heading">作者の予想期間（予想開始日＝小説公開日）</h3>
                 <div style="display: flex; justify-content: start; align-items: center;">
-                    {{ form.prediction_start_date }} 
-                    <span style="margin: 0 10px;">〜</span> 
+                    {{ form.prediction_start_date }}
+                    <span style="margin: 0 10px;">〜</span>
                     {{ form.prediction_end_date }}
                 </div>
             </div>
 
             <div>
-                <h3 class="small-heading">イベントの終了日</h3>
+                <h3 class="small-heading">結果発表期間（自動計算：予想終了日の翌日〜イベント終了日の前日）</h3>
+                <div style="display: flex; justify-content: start; align-items: center; padding: 10px; background: #e8f4e8; border-radius: 4px;">
+                    <span id="result_period_display" style="font-weight: bold; color: #2e7d32;">
+                        {% if form.prediction_end_date.value and form.maturi_end_date.value %}
+                            設定後に表示されます
+                        {% else %}
+                            予想期間とイベント終了日を設定してください
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="small-heading">イベントの終了日（結果発表終了・ホーム画面から非表示になる日）</h3>
                 <div style="display: flex; justify-content: start; align-items: center;">
                    {{ form.maturi_end_date }}
                 </div>
@@ -345,7 +358,7 @@ function toggleAuthor(button) {
 function togglePrediction(button) {
     const authorSpan = button.previousElementSibling;
     const isShown = button.getAttribute('data-shown') === 'true';
-    
+
     if (isShown) {
         authorSpan.style.display = 'none';
         button.textContent = '予想を見る';
@@ -358,6 +371,55 @@ function togglePrediction(button) {
         }
     }
 }
+
+// 結果発表期間の自動計算
+function updateResultPeriod() {
+    const predictionEndInput = document.querySelector('input[name="prediction_end_date"]');
+    const maturiEndInput = document.querySelector('input[name="maturi_end_date"]');
+    const resultDisplay = document.getElementById('result_period_display');
+
+    if (predictionEndInput && maturiEndInput && resultDisplay) {
+        const predictionEnd = predictionEndInput.value;
+        const maturiEnd = maturiEndInput.value;
+
+        if (predictionEnd && maturiEnd) {
+            // 予想終了日の翌日を計算
+            const predEndDate = new Date(predictionEnd);
+            predEndDate.setDate(predEndDate.getDate() + 1);
+
+            // イベント終了日の前日を計算
+            const maturiEndDate = new Date(maturiEnd);
+            maturiEndDate.setDate(maturiEndDate.getDate() - 1);
+
+            // 日付をフォーマット
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}/${month}/${day}`;
+            };
+
+            resultDisplay.textContent = `${formatDate(predEndDate)} 〜 ${formatDate(maturiEndDate)}`;
+        } else {
+            resultDisplay.textContent = '予想期間とイベント終了日を設定してください';
+        }
+    }
+}
+
+// ページ読み込み時と日付変更時に計算
+document.addEventListener('DOMContentLoaded', function() {
+    updateResultPeriod();
+
+    const predictionEndInput = document.querySelector('input[name="prediction_end_date"]');
+    const maturiEndInput = document.querySelector('input[name="maturi_end_date"]');
+
+    if (predictionEndInput) {
+        predictionEndInput.addEventListener('change', updateResultPeriod);
+    }
+    if (maturiEndInput) {
+        maturiEndInput.addEventListener('change', updateResultPeriod);
+    }
+});
 </script>
 
 {% if messages %}
