@@ -70,6 +70,13 @@ class MaturiGame(models.Model):
         verbose_name="作者公開済み",
         help_text="作者が公開済みの場合はTrue"
     )
+
+    # 🔥 祭り開幕通知フラグ（作成後の次の17時に送信）
+    opening_notification_sent = models.BooleanField(
+        default=False,
+        verbose_name="開幕通知送信済み",
+        help_text="祭り開幕通知を送信済みの場合はTrue"
+    )
     
 
     
