@@ -1,5 +1,5 @@
 from django import forms
-from novels.models import Novel  # Novel モデルをインポート
+from novels.models import Novel, GENRE_CHOICES  # Novel モデルとGENRE_CHOICESをインポート
 from django.core.exceptions import ValidationError
 from utils.constants import INITIAL_CHOICES  # 選択肢をインポート
 from game_maturi.models import MaturiGame
@@ -23,6 +23,14 @@ class MaturiNovelForm(forms.ModelForm):
         widget=forms.Textarea(attrs={'id': 'contentInput'}),
         error_messages={'required': '内容を入力してください。'}
     )
+    # ジャンル選択フィールド（通常のジャンルから選択）
+    genre = forms.ChoiceField(
+        label='ジャンル',
+        choices=GENRE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control', 'style': 'max-width: 300px; font-size: 20px; height:50px'}),
+        required=True,
+        error_messages={'required': 'ジャンルを選択してください。'}
+    )
 
     status = forms.CharField(
         widget=forms.HiddenInput(),
@@ -32,7 +40,7 @@ class MaturiNovelForm(forms.ModelForm):
 
     class Meta:
         model = Novel
-        fields = ['title', 'initial', 'content', 'genre']  # genreを追加
+        fields = ['title', 'initial', 'content', 'genre']
 
     def __init__(self, *args, **kwargs):
         self.is_writing_period = kwargs.pop('is_writing_period', False)
@@ -42,24 +50,11 @@ class MaturiNovelForm(forms.ModelForm):
         for field in self.fields.values():
             field.required = True
 
-        # genreフィールドを常に「祭り」に固定
-        self.fields['genre'] = forms.CharField(
-            widget=forms.HiddenInput(),  # 隠しフィールドに変更
-            initial='祭り'
-        )
-        self.initial['genre'] = '祭り'  # 初期値を設定
-
         # ステータスの初期値設定
         if self.instance.pk:
             self.initial['status'] = self.instance.status
         else:
             self.initial['status'] = 'draft'
-
-    def clean_genre(self):
-        genre = self.cleaned_data.get('genre')
-        if genre != '祭り':
-            raise forms.ValidationError('祭りの小説は必ずジャンルが「祭り」である必要があります。')
-        return genre
 
     def clean(self):
         cleaned_data = super().clean()
@@ -76,16 +71,4 @@ class MaturiNovelForm(forms.ModelForm):
         return cleaned_data
 
     # その他のフィールドはNovelFormから継承
-
-    def save(self, commit=True):
-        """
-        保存時に必ずジャンルを「祭り」に設定
-        """
-        novel = super().save(commit=False)
-        novel.genre = '祭り'  # 保存直前に必ず「祭り」を設定
-        
-        if commit:
-            novel.save()
-        
-        return novel
 

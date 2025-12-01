@@ -224,11 +224,13 @@
 <!-- ジャンル選択 -->
 <div class="form-group">
     <label>ジャンル</label>
-    {% if not is_writing_period %}
-        {{ form.genre|add_class:"form-control" }}
-    {% else %}
-        <input type="text" class="form-control" value="祭り" readonly>
-        {{ form.genre|add_class:"d-none" }}  <!-- Bootstrapのd-noneクラスで非表示に -->
+    {{ form.genre }}
+    {% if form.genre.errors %}
+        <div class="alert alert-danger mt-2">
+            {% for error in form.genre.errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
     {% endif %}
 </div>
 

@@ -342,7 +342,6 @@ def post_or_edit_maturi_novel(request, novel_id=None):
 
     if request.method == 'POST':
         form_data = request.POST.copy()
-        form_data['genre'] = '祭り'  # POSTデータにジャンルを強制的に設定
         
         # actionを取得（これを追加）
         action = request.POST.get('action', 'draft')  # デフォルトは'draft'
@@ -370,7 +369,6 @@ def post_or_edit_maturi_novel(request, novel_id=None):
         
         if form.is_valid():
             saved_novel = form.save(commit=False)
-            saved_novel.genre = '祭り'  # 保存前に強制的に設定
 
             # 祭り作家取得または作成
             try:
@@ -404,19 +402,15 @@ def post_or_edit_maturi_novel(request, novel_id=None):
                 saved_novel.scheduled_at = current_game.novel_publish_start_date
                 saved_novel.scheduled_publish_date = current_game.prediction_start_date
                 saved_novel.status = 'scheduled'
-                saved_novel.genre = '祭り'
                 saved_novel.save()
                 messages.success(request, f'小説を予約公開しました。{current_game.prediction_start_date.strftime("%Y年%m月%d日")}に自動的に公開されます。')
                 return redirect('accounts:view_profile')
             elif action in ['publish', 'edit_published']:
                 saved_novel.status = 'published'
-                saved_novel.genre = '祭り'
             elif action in ['draft', 'rest']:
                 saved_novel.status = 'draft'
-                saved_novel.genre = '祭り'  # ここを追加！
             elif action == 'cancel_schedule':  # 予約公開取り消しの処理を追加
                 saved_novel.status = 'draft'  # ステータスを下書きに戻す
-                saved_novel.genre = '祭り'  # ジャンルは祭りのまま
                 messages.success(request, '予約公開を取り消しました。')
             
             saved_novel.save()
