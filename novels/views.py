@@ -705,6 +705,16 @@ def index(request):
         comments_count=Count('comments')
     ).filter(status='published').order_by('-published_date')  # 投稿日の降順に並替える
 
+    # 🔥 祭り小説を予想期間前は除外（ゲームの公平性のため）
+    # 祭り小説は予想期間が始まってから初めて一般リストに表示される
+    today = timezone.now().date()
+    # 現在進行中の祭りを取得（終了してへん祭り）
+    active_games = MaturiGame.objects.filter(maturi_end_date__gte=today)
+    for game in active_games:
+        if not game.is_prediction_period():
+            # 予想期間が始まってへん祭りの小説は除外
+            novels_list = novels_list.exclude(maturi_games=game)
+
     # # 作者情報を取得するためのユーIDリクエストから取得
     # author_id = request.GET.get('author_id')
     # if author_id:
@@ -885,6 +895,13 @@ def novels_paginated(request):
         likes_count=Count('likes', distinct=True),
         comments_count=Count('comments', distinct=True)
     )
+
+    # 🔥 祭り小説を予想期間前は除外（ゲームの公平性のため）
+    today = timezone.now().date()
+    active_games = MaturiGame.objects.filter(maturi_end_date__gte=today)
+    for game in active_games:
+        if not game.is_prediction_period():
+            novels_list = novels_list.exclude(maturi_games=game)
 
     # タイトル検索
     title_search = request.GET.get('title_search')
@@ -1098,6 +1115,13 @@ class NovelListView(ListView):
             published_date__isnull=False
         ).select_related('author').order_by('-published_date')
 
+        # 🔥 祭り小説を予想期間前は除外（ゲームの公平性のため）
+        today = timezone.now().date()
+        active_games = MaturiGame.objects.filter(maturi_end_date__gte=today)
+        for game in active_games:
+            if not game.is_prediction_period():
+                queryset = queryset.exclude(maturi_games=game)
+
         # GETパラメータからソート条件を取得
         sort_by = self.request.GET.get('sort_by', 'published_date')
         order = self.request.GET.get('order', 'desc')
@@ -1132,6 +1156,13 @@ class NovelPaginatedView(ListView):
             status='published',
             published_date__isnull=False
         ).select_related('author')
+
+        # 🔥 祭り小説を予想期間前は除外（ゲームの公平性のため）
+        today = timezone.now().date()
+        active_games = MaturiGame.objects.filter(maturi_end_date__gte=today)
+        for game in active_games:
+            if not game.is_prediction_period():
+                queryset = queryset.exclude(maturi_games=game)
 
         # フィルタリング条件の適用
         author_search = self.request.GET.get('author_search')
