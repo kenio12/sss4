@@ -1,11 +1,36 @@
 from django import forms
-from novels.models import Novel, GENRE_CHOICES  # Novel モデルとGENRE_CHOICESをインポート
+from novels.models import Novel  # Novel モデルをインポート
 from django.core.exceptions import ValidationError
 from utils.constants import INITIAL_CHOICES  # 選択肢をインポート
 from game_maturi.models import MaturiGame
 import logging
 
 logger = logging.getLogger(__name__)
+
+# 🔥🔥🔥 祭り小説で使用可能なジャンル（通常小説と同じ）🔥🔥🔥
+# ※ 以下のジャンルは祭り小説では使用禁止：
+#   - レジェンド小説、バトル、大会、オフ会、官能、三題噺
+# ※ 通常小説（novels/forms.py）と同じ選択肢を使うこと！
+MATURI_GENRE_CHOICES = [
+    ('', 'ジャンルを選択'),
+    ('初めましての挨拶', '初めましての挨拶'),
+    ('ジョーク', 'ジョーク'),
+    ('サスペンス', 'サスペンス'),
+    ('シリーズ', 'シリーズ'),
+    ('ファンタジー', 'ファンタジー'),
+    ('恋愛', '恋愛'),
+    ('日常', '日常'),
+    ('雑談', '雑談'),
+    ('ミステリー', 'ミステリー'),
+    ('ノンフィクション', 'ノンフィクション'),
+    ('ホラー', 'ホラー'),
+    ('時代', '時代'),
+    ('コメディ', 'コメディ'),
+    ('歴史', '歴史'),
+    ('私小説', '私小説'),
+    ('未分類', '未分類'),
+    ('運用相談', '運用相談'),
+]
 
 class MaturiNovelForm(forms.ModelForm):
     title = forms.CharField(
@@ -23,10 +48,11 @@ class MaturiNovelForm(forms.ModelForm):
         widget=forms.Textarea(attrs={'id': 'contentInput'}),
         error_messages={'required': '内容を入力してください。'}
     )
-    # ジャンル選択フィールド（通常のジャンルから選択）
+    # 🔥 ジャンル選択フィールド（祭り小説用・通常小説と同じ選択肢）🔥
+    # ※ GENRE_CHOICESは使わない！禁止ジャンルが含まれてるから！
     genre = forms.ChoiceField(
         label='ジャンル',
-        choices=GENRE_CHOICES,
+        choices=MATURI_GENRE_CHOICES,
         widget=forms.Select(attrs={'class': 'form-control', 'style': 'max-width: 300px; font-size: 20px; height:50px'}),
         required=True,
         error_messages={'required': 'ジャンルを選択してください。'}
