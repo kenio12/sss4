@@ -65,30 +65,16 @@ class Command(BaseCommand):
 
                     for user in users:
                         try:
-                            subject = f'【超短編小説会】🎉 {game.title} 開幕！'
+                            subject = f'【超短編小説会】テストメール - {game.title}'
                             unsubscribe_url = get_unsubscribe_url(user)
 
                             message = f"""
 {user.nickname} 様
 
-こんにちは！超短編小説会です。
+【テストメール】
 
-🎉🎊 祭り開幕のお知らせ 🎊🎉
-
-「{game.title}」が始まりました！
-
-◆ 今回の語句（5つ全て使用必須）
-{phrases_text}
-
-◆ 日程
-・エントリー期間: {game.entry_start_date.strftime('%Y年%m月%d日')} 〜 {game.entry_end_date.strftime('%Y年%m月%d日')}
-・執筆期間: {game.start_date.strftime('%Y年%m月%d日')} 〜 {game.end_date.strftime('%Y年%m月%d日')}
-・作者予想期間: {game.prediction_start_date.strftime('%Y年%m月%d日')} 〜 {game.prediction_end_date.strftime('%Y年%m月%d日')}
-
-◆ 祭りに参加する
-{settings.BASE_URL}/game_maturi/
-
-皆さんの参加をお待ちしています！
+これはイベント「祭り」のテストメールです。
+本番の案内は、テストが終わってから行います。
 
 ---
 このメールの配信を停止する場合は、以下のリンクをクリックしてください。
