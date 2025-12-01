@@ -371,7 +371,7 @@ def post_or_edit_maturi_novel(request, novel_id=None):
         if form.is_valid():
             saved_novel = form.save(commit=False)
             saved_novel.genre = '祭り'  # 保存前に強制的に設定
-            
+
             # 祭り作家取得または作成
             try:
                 maturi_writer = User.objects.get(nickname='祭り作家')
@@ -453,6 +453,14 @@ def post_or_edit_maturi_novel(request, novel_id=None):
             else:
                 messages.success(request, '小説が保存されました！')
                 return redirect('novels:novel_detail', novel_id=saved_novel.id)
+        else:
+            # form.is_valid()がFalseの時のエラー表示
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f'祭り小説フォームエラー: {form.errors}')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
 
     else:
         form = MaturiNovelForm(instance=novel, is_writing_period=is_writing_period)
