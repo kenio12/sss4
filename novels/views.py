@@ -379,6 +379,8 @@ def novel_detail(request, novel_id):
 
     # 祭り作品かどうかの判定
     is_maturi = hasattr(novel, 'maturi_games') and novel.maturi_games.exists()
+    # 🔥 予想期間中かどうかの判定（コメント作者を匿名にするため）
+    is_prediction_period = False
     logger.debug(f"祭り作品判定: {is_maturi}")
     if is_maturi:
         logger.debug("祭り小説の詳細情報を表示")
@@ -388,9 +390,13 @@ def novel_detail(request, novel_id):
             logger.debug(f"祭りゲームID: {game.id}, タイトル: {game.title}")
             logger.debug(f"is_author_revealed: {game.is_author_revealed}")
             logger.debug(f"prediction_end_date: {game.prediction_end_date}")
-            now = timezone.now().date()
+            now = timezone.localtime(timezone.now()).date()
             logger.debug(f"現在時刻: {now}")
             logger.debug(f"予想期間終了？: {now > game.prediction_end_date}")
+            # 🔥 予想期間中 = 作者未公開 && 予想期間終了してない
+            if not game.is_author_revealed and game.is_prediction_period():
+                is_prediction_period = True
+                logger.debug(f"予想期間中！コメント作者を匿名にする")
 
     # 同イトル作品かどうかの判定
     is_same_title = novel.is_same_title_game if hasattr(novel, 'is_same_title_game') else False
@@ -480,6 +486,7 @@ def novel_detail(request, novel_id):
         'can_edit': can_edit,
         'is_maturi': is_maturi,
         'is_same_title': is_same_title,
+        'is_prediction_period': is_prediction_period,  # 🔥 予想期間中はコメント作者を匿名にする
         'hide_edit_button': False  # これを追加
     }
     logger.debug(f"4. レンダリング前のcontext['novel']: ID={context['novel'].id}, タイトル={context['novel'].title}")
