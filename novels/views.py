@@ -1016,17 +1016,39 @@ def post_comment(request, novel_id):
             
             comment.is_read = True if novel.author == request.user else False
             comment.save()
-            
-            response_data = {
-                'success': True,
-                'comment': {
-                    'author': comment.author.nickname,
-                    'author_id': comment.author.id,
-                    'author_color': comment.author.comment_color,
-                    'content': comment.content,
-                    'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M')
+
+            # 🔥 祭り小説の予想期間中はコメント作者を匿名にする
+            is_prediction_period = False
+            if hasattr(novel, 'maturi_games') and novel.maturi_games.exists():
+                for game in novel.maturi_games.all():
+                    if not game.is_author_revealed and game.is_prediction_period():
+                        is_prediction_period = True
+                        break
+
+            # 🔥 予想期間中は「謎の読者」として返す
+            if is_prediction_period:
+                response_data = {
+                    'success': True,
+                    'comment': {
+                        'author': '🎭 謎の読者',
+                        'author_id': None,
+                        'author_color': '#888888',
+                        'content': comment.content,
+                        'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M'),
+                        'is_anonymous': True
+                    }
                 }
-            }
+            else:
+                response_data = {
+                    'success': True,
+                    'comment': {
+                        'author': comment.author.nickname,
+                        'author_id': comment.author.id,
+                        'author_color': comment.author.comment_color,
+                        'content': comment.content,
+                        'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M')
+                    }
+                }
             
             # 祭り関連のレスポンスデータ
             if comment.is_maturi_comment:
