@@ -399,20 +399,30 @@
 </div>
 
 <script>
+// 公開確認ダイアログ
+function confirmPublish() {
+    return confirm('この小説を公開しますか？公開後は祭り作家として匿名で公開されます。');
+}
+
+// 削除確認ダイアログ
+function confirmDelete() {
+    return confirm('この小説を削除しますか？この操作は取り消せません。');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // 語句カウントの初期化と更新
     const content = document.querySelector('textarea.content');
     const phraseCountDisplay = document.getElementById('phraseCount');
     const requiredPhrases = Array.from(document.querySelectorAll('.keyword-option')).map(el => el.textContent.trim().toLowerCase());
-    
+
     function updatePhraseCount() {
         const text = content.value.toLowerCase();
         const usedPhrases = requiredPhrases.filter(phrase => text.includes(phrase));
         const count = usedPhrases.length;
-        
+
         phraseCountDisplay.textContent = `${count}/5 語句`;
         phraseCountDisplay.style.color = count >= 5 ? 'green' : 'red';
-        
+
         // 使用されている語句をハイライト
         document.querySelectorAll('.keyword-option').forEach(el => {
             if (text.includes(el.textContent.trim().toLowerCase())) {
@@ -422,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // 初期表示時にもカウントを更新
     if (content) {
         updatePhraseCount();
