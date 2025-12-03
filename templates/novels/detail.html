@@ -82,7 +82,7 @@
                     <div class="comment-author" style="display: flex; align-items: center; gap: 8px; margin: 8px 0 0 0 !important; padding: 0 !important;">
                         {% if is_prediction_period %}
                             {# 🔥 祭り小説の予想期間中はコメント作者を「謎の読者」として匿名表示 #}
-                            <span style="color: #888; font-weight: bold;">👤 謎の読者</span>
+                            <span style="color: #888; font-weight: bold;">👻 謎の読者</span>
                         {% elif comment.author %}
                             {% include 'novels/includes/nickname_badge.html' with user=comment.author %}
                             {% if comment.author != user %}
