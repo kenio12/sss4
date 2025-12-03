@@ -1030,7 +1030,7 @@ def post_comment(request, novel_id):
                 response_data = {
                     'success': True,
                     'comment': {
-                        'author': '🎭 謎の読者',
+                        'author': '🥷 謎の読者',
                         'author_id': None,
                         'author_color': '#888888',
                         'content': comment.content,
