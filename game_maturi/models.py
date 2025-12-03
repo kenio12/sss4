@@ -123,8 +123,8 @@ class MaturiGame(models.Model):
         return (self.start_date <= now <= self.end_date)
 
     def is_prediction_period(self):
-        """予想期間中かどうかを判定"""
-        now = timezone.now().date()
+        """予想期間中かどうかを判定（日本時間で判定）"""
+        now = timezone.localtime(timezone.now()).date()
         return self.prediction_start_date <= now <= self.prediction_end_date
 
     def __str__(self):
