@@ -15,7 +15,7 @@ from game_maturi.models import MaturiGame
 
 @shared_task
 def publish_scheduled_novels():
-    now = timezone.now()
+    now = timezone.localtime(timezone.now())  # 🔥 JST時間取得
     published_count = 0
 
     try:
@@ -39,7 +39,7 @@ def publish_scheduled_novels():
 
 @shared_task
 def reveal_maturi_authors():
-    now = timezone.now()
+    now = timezone.localtime(timezone.now())  # 🔥 JST時間取得
     print(f"[Debug] Task started at: {now}")  # デバッグログ追加
     revealed_count = 0
 

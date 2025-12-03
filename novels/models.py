@@ -160,7 +160,7 @@ class Novel(models.Model):
         self.word_count = len(self.content)
 
         # 現在時刻を取得
-        now = timezone.now()
+        now = timezone.localtime(timezone.now())  # 🔥 JST時間取得
 
         # 予約公開の処理
         if self.status == 'scheduled' and self.scheduled_at:
@@ -182,7 +182,7 @@ class Novel(models.Model):
 
             # 新規作成時のみ月を設定（既存の月は変更しない）
             if not self.pk and not self.same_title_event_month:
-                self.same_title_event_month = timezone.now().strftime('%Y-%m')
+                self.same_title_event_month = timezone.localtime(timezone.now()).strftime('%Y-%m')  # 🔥 JST時間取得
 
         # 🆕 一番槍判定（TOCTOU競合対策：トランザクション内でsave完了）
         if self.event != '同タイトル' or self.status != 'published':
@@ -223,7 +223,7 @@ class Novel(models.Model):
             self.is_first_post = True
             # 既に取得日時が設定されている場合は保持
             if not self.first_post_acquired_at:
-                self.first_post_acquired_at = timezone.now()
+                self.first_post_acquired_at = timezone.localtime(timezone.now())  # 🔥 JST時間取得
 
         # 🆕 同タイトル崩れ判定
         # 同じ月に一番槍が既に確定している場合、別タイトルで投稿したら崩れ
@@ -314,7 +314,7 @@ class Comment(models.Model):
                 # 小説に関連する祭りゲームを取得
                 maturi_game = self.novel.maturi_games.first()
                 if maturi_game:
-                    now = timezone.now().date()
+                    now = timezone.localtime(timezone.now()).date()  # 🔥 JST日付取得
                     # 予想期間終了日までは祭り作家として投稿
                     if now <= maturi_game.prediction_end_date:
                         User = get_user_model()

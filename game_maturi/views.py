@@ -43,11 +43,11 @@ def game_maturi_top(request, game_id):
     game = get_object_or_404(MaturiGame, id=game_id)
     novels = game.maturi_novels.filter(status='published')
     active_authors = game.entrants.all().order_by('nickname')
-    now = timezone.now()
-    
+    now = timezone.localtime(timezone.now())  # 🔥 JST時間取得
+
     # 最後に終了したゲームを取得
     last_finished_game = MaturiGame.objects.filter(
-        maturi_end_date__lt=now
+        maturi_end_date__lt=now.date()  # 🔥 日付比較用に.date()追加
     ).order_by('-maturi_end_date').first()
     
     # novel_predictionsをここで初期化
@@ -97,7 +97,7 @@ def game_maturi_top(request, game_id):
         'last_finished_game': last_finished_game,
         'is_user_entered': is_user_entered,
         'novel_predictions': novel_predictions,  # 初期化済みの辞書を渡す
-        'now': timezone.now().date(),
+        'now': timezone.localtime(timezone.now()).date(),  # 🔥 JST日付取得
         'user_novels': user_novels,  # これを追加
     }
 
@@ -195,7 +195,7 @@ def game_maturi_top(request, game_id):
             'correct_predictions': correct if total > 0 else 0,  # ユーザーの正解数
             'accuracy': (correct / total * 100) if total > 0 else 0,  # ユーザーの正解率
             'active_authors': active_authors,
-            'now': timezone.now().date(),  # 明示的に date() オブジェクトに変換
+            'now': timezone.localtime(timezone.now()).date(),  # 🔥 JST日付取得
         })
 
         # ユーザーの予想結果を計算
@@ -443,7 +443,7 @@ def entry_action(request, game_id):
     user_entered = game.is_user_entered(request.user)
     
     # デバッグ出力を追加
-    now = timezone.now()
+    now = timezone.localtime(timezone.now())  # 🔥 JST時間取得
     logger.debug(f"=== Entry Period Debug ===")
     logger.debug(f"Current time: {now}")
     logger.debug(f"Entry period: {game.entry_start_date} to {game.entry_end_date}")
@@ -529,14 +529,15 @@ def prediction_period_finished_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         # 現在のゲームを探す
+        now = timezone.localtime(timezone.now())  # 🔥 JST時間取得
         current_game = MaturiGame.objects.filter(
-            maturi_end_date__gte=timezone.now()
+            maturi_end_date__gte=now.date()  # 🔥 JST日付で比較
         ).order_by('maturi_start_date').first()
-        
+
         if not current_game:
             # 終了した最新の祭りを取得
             current_game = MaturiGame.objects.filter(
-                maturi_end_date__lt=timezone.now()
+                maturi_end_date__lt=now.date()  # 🔥 JST日付で比較
             ).order_by('-maturi_end_date').first()
         
         if not current_game:
@@ -556,13 +557,14 @@ def prediction_result(request, user_id):
     predictor = get_object_or_404(User, id=user_id)
     
     # 現在のゲームを探す（デコータと同じロジック）
+    now = timezone.localtime(timezone.now())  # 🔥 JST時間取得
     current_game = MaturiGame.objects.filter(
-        maturi_end_date__gte=timezone.now()
+        maturi_end_date__gte=now.date()  # 🔥 JST日付で比較
     ).order_by('maturi_start_date').first()
-    
+
     if not current_game:
         current_game = MaturiGame.objects.filter(
-            maturi_end_date__lt=timezone.now()
+            maturi_end_date__lt=now.date()  # 🔥 JST日付で比較
         ).order_by('-maturi_end_date').first()
 
     if not current_game:
@@ -664,7 +666,7 @@ def game_results(request, game_id):
 
 def maturi_list(request):
     """祭り一覧を表示するビュー"""
-    now = timezone.now().date()
+    now = timezone.localtime(timezone.now()).date()  # 🔥 JST日付取得
 
     # 過去の祭り開始日の降順）
     past_games = MaturiGame.objects.filter(
@@ -850,9 +852,9 @@ def calculate_progress(game, today):
 # @freeze_time("2024-12-20")  # 12月16日に固定
 def add_prediction_results_to_context(current_game, context):
     # 最後に終了したゲームを取得
-    now = timezone.now()
+    now = timezone.localtime(timezone.now())  # 🔥 JST時間取得
     last_finished_game = MaturiGame.objects.filter(
-        maturi_end_date__lt=now
+        maturi_end_date__lt=now.date()  # 🔥 JST日付で比較
     ).order_by('-maturi_end_date').first()
     
     # ユーザーがゲームに参加しているかチェック

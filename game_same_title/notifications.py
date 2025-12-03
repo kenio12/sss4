@@ -44,8 +44,8 @@ def send_same_title_recruitment_notification():
         return 0
 
     sent_count = 0
-    current_month = timezone.now().strftime('%Y年%m月')
-    next_month = (timezone.now() + relativedelta(months=1)).strftime('%Y年%m月')
+    current_month = timezone.localtime(timezone.now()).strftime('%Y年%m月')  # 🔥 JST時間取得
+    next_month = (timezone.localtime(timezone.now()) + relativedelta(months=1)).strftime('%Y年%m月')  # 🔥 JST時間取得
 
     # メール送信接続を再利用（効率化）
     connection = get_connection()
@@ -215,7 +215,7 @@ def send_same_title_decision_notification(novel):
         return 0
 
     sent_count = 0
-    current_month = timezone.now().strftime('%Y年%m月')
+    current_month = timezone.localtime(timezone.now()).strftime('%Y年%m月')  # 🔥 JST時間取得
 
     # タイトル提案者（一番盾）を取得
     from game_same_title.models import TitleProposal
@@ -327,7 +327,7 @@ def send_same_title_follower_praise_notification(novel, rank):
     同タイトル追随投稿通知（2番目以降全員）
     投稿者本人への通知 + 全会員への通知の2つを送信
     """
-    current_month = timezone.now().strftime('%Y年%m月')
+    current_month = timezone.localtime(timezone.now()).strftime('%Y年%m月')  # 🔥 JST時間取得
     total_sent = 0
 
     # 一番槍の作品を取得

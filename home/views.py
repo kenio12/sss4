@@ -81,7 +81,7 @@ class HomePageView(ListView):
 
         # 🔥 祭り小説を予想期間前は除外（ゲームの公平性のため）
         # 祭り小説は予想期間が始まってから初めて一般リストに表示される
-        today = timezone.now().date()
+        today = timezone.localtime(timezone.now()).date()  # 🔥 JST日付取得
         # 現在進行中の祭りを取得（終了してへん祭り）
         active_games = MaturiGame.objects.filter(maturi_end_date__gte=today)
         for game in active_games:
@@ -99,7 +99,7 @@ def novels_list_ajax(request):
     ).order_by('-published_date')
 
     # 🔥 祭り小説を予想期間前は除外（ゲームの公平性のため）
-    today = timezone.now().date()
+    today = timezone.localtime(timezone.now()).date()  # 🔥 JST日付取得
     active_games = MaturiGame.objects.filter(maturi_end_date__gte=today)
     for game in active_games:
         if not game.is_prediction_period():
@@ -114,8 +114,8 @@ def novels_list_ajax(request):
     return JsonResponse({'html': html})    
 
 def home_view(request):
-    # 現在の月を取得
-    now = timezone.now().month
+    # 現在の月を取得（🔥 JST時間で）
+    now = timezone.localtime(timezone.now()).month
     # テンプレートに渡すコンテキストに 'now' を追加
     context = {'now': now}
     return render(request, 'home/home.html', context)
