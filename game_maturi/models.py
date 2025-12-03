@@ -260,24 +260,25 @@ class MaturiGame(models.Model):
     # @freeze_time("2024-12-20")  # これを追加
     def is_prediction_period_finished(self):
         """
-        予想期間が終了してるかどうかを判定
+        予想期間が終了してるかどうかを判定（日本時間で判定）
         """
-        now = timezone.now().date()
+        now = timezone.localtime(timezone.now()).date()
         return now > self.prediction_end_date
 
 
     def is_novel_publish_period(self):
-        now = timezone.now()
+        """小説公開期間かどうか（日本時間で判定）"""
+        now = timezone.localtime(timezone.now())
         return self.novel_publish_start_date <= now
 
     def can_publish_novel(self):
         """
-        小説を公開できるかどうかを判定
+        小説を公開できるかどうかを判定（日本時間で判定）
         予想期間中のみTrueを返す
         """
-        now = timezone.now().date()
+        now = timezone.localtime(timezone.now()).date()
         # 執筆期間中で、かつ予想期間が始まっている場合は即時公開可能
-        return (self.start_date <= now <= self.end_date and 
+        return (self.start_date <= now <= self.end_date and
                 now >= self.prediction_start_date)
 
     def get_publish_restriction_message(self):
@@ -293,14 +294,16 @@ class MaturiGame(models.Model):
 
     @classmethod
     def get_last_finished_game(cls):
-        """最後に終了したゲームを取得するクラスメソッド"""
+        """最後に終了したゲームを取得するクラスメソッド（日本時間で判定）"""
+        now = timezone.localtime(timezone.now()).date()
         return cls.objects.filter(
-            maturi_end_date__lt=timezone.now()
+            maturi_end_date__lt=now
         ).order_by('-maturi_end_date').first()
 
     def is_finished(self):
-        """ゲーム終了しているかどうかを判定するメソッド"""
-        return self.maturi_end_date and self.maturi_end_date < timezone.now()
+        """ゲーム終了しているかどうかを判定するメソッド（日本時間で判定）"""
+        now = timezone.localtime(timezone.now()).date()
+        return self.maturi_end_date and self.maturi_end_date < now
 
     def has_scheduled_novels(self):
         """予約投稿された小説があるかどうかを確認"""
