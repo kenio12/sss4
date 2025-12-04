@@ -598,14 +598,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     // コメントの内容を設定（XSS対策のためテキストノードとして追加）
                     const authorP = document.createElement('p');
                     authorP.className = 'comment-author';
-                    
+
                     const authorStrong = document.createElement('strong');
-                    const authorLink = document.createElement('a');
-                    authorLink.href = `/accounts/profile/${data.comment.author_id}/`;
-                    authorLink.className = 'author-link';
-                    authorLink.textContent = data.comment.author;
-                    
-                    authorStrong.appendChild(authorLink);
+
+                    // 🔥 祭り小説の予想期間中は「謎の読者」としてリンクなしで表示
+                    if (data.comment.is_anonymous || data.comment.author_id === null) {
+                        const authorSpan = document.createElement('span');
+                        authorSpan.style.color = '#888';
+                        authorSpan.style.fontWeight = 'bold';
+                        authorSpan.textContent = data.comment.author;
+                        authorStrong.appendChild(authorSpan);
+                    } else {
+                        const authorLink = document.createElement('a');
+                        authorLink.href = `/accounts/profile/${data.comment.author_id}/`;
+                        authorLink.className = 'author-link';
+                        authorLink.textContent = data.comment.author;
+                        authorStrong.appendChild(authorLink);
+                    }
+
                     authorP.appendChild(authorStrong);
                     authorP.appendChild(document.createTextNode(` - ${data.comment.created_at}`));
                     
