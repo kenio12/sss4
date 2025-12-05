@@ -704,9 +704,12 @@ def unpublish_novel(request, novel_id):
 # 今これを使わない方向で進める予定
 # @login_required
 def index(request):
-    novels_list = Novel.objects.select_related('author').prefetch_related(
+    novels_list = Novel.objects.select_related(
+        'author', 'original_author'  # 🔥 original_author も取得
+    ).prefetch_related(
         'comments__author',  # コメントとその作者を事前に取得
-        'likes'  # いいねの情報を事前に取得
+        'likes',  # いいねの情報を事前に取得
+        'maturi_games'  # 🔥 祭りゲーム情報も取得（get_display_author フィルターで使用）
     ).annotate(
         likes_count=Count('likes'),
         comments_count=Count('comments')

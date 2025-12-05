@@ -77,6 +77,10 @@ class HomePageView(ListView):
         queryset = Novel.objects.filter(
             status='published',
             published_date__isnull=False
+        ).select_related(
+            'author', 'original_author'  # 🔥 original_author も取得
+        ).prefetch_related(
+            'maturi_games'  # 🔥 祭りゲーム情報も取得（get_display_author フィルターで使用）
         ).order_by('-published_date')
 
         # 🔥 祭り小説を「執筆期間中」かつ「予想期間前」のみ除外（ゲームの公平性のため）
