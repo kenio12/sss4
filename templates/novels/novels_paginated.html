@@ -473,8 +473,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         {% endif %}
                     </td>
                     <td>
-                        {% if novel.author %}
-                            {% include 'novels/includes/nickname_badge.html' with user=novel.author %}
+                        {% if novel.author__nickname %}
+                            <span>{{ novel.author__nickname }}</span>
                         {% else %}
                             <span>不明な作家</span>
                         {% endif %}
