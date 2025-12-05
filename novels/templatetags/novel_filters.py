@@ -11,7 +11,8 @@ def get_display_author(novel):
     祭り小説の場合、予想期間終了後は本当の作者（original_author）を返す
     それ以外はauthorを返す
     """
-    if novel.event == '祭り' and novel.original_author:
+    # 🔥 祭りゲームとの関連があるかどうかで判定（novel.eventは使わない）
+    if novel.original_author:
         # 祭りゲームを取得
         maturi_game = novel.maturi_games.first()
         if maturi_game:

@@ -979,8 +979,8 @@ def novels_paginated(request):
     novels_data = []
     for novel in page_obj.object_list:
         novel_dict = dict(novel)  # QuerySetの辞書をコピー
-        # 祭り小説の場合、予想期間終了後は original_author を使用
-        if novel_dict.get('event') == '祭り' and novel_dict.get('original_author__nickname'):
+        # 🔥 original_author がある場合、祭りゲームとの関連をチェック（eventフィールドは使わない）
+        if novel_dict.get('original_author__nickname'):
             # この小説の祭りゲームを取得して予想期間終了かチェック
             novel_obj = Novel.objects.filter(id=novel_dict['id']).first()
             if novel_obj:
