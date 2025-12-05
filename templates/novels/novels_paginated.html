@@ -459,9 +459,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>{{ novel.genre }}</td>
                     <td>
                         {% if novel.event == "同作者競作" %}
-                            同
+                            <span class="d-none d-md-inline">同タイトル</span>
+                            <span class="d-md-none">同</span>
                         {% elif novel.event == "祭り" %}
-                            祭
+                            <span class="d-none d-md-inline">祭り</span>
+                            <span class="d-md-none">祭</span>
                         {% elif novel.event %}
                             {{ novel.event }}
                         {% endif %}
