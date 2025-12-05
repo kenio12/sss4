@@ -167,20 +167,22 @@ def game_maturi_top(request, game_id):
             'accuracy': (correct / total * 100) if total > 0 else 0
         }
 
-        # 参加者の統計情報を計算
+        # 予想した全ユーザーの統計情報を計算（エントリーしてなくても予想した人は対象）
         participants_stats = []
-        for author in active_authors:
-            author_predictions = predictions.filter(predictor=author)
-            total = author_predictions.count()
-            correct = sum(1 for p in author_predictions if p.predicted_author_id == p.novel.original_author_id)
-            author_stats = {
+        # 予想した全ユーザーを取得（重複なし）
+        all_predictors = set(pred.predictor for pred in predictions)
+        for predictor in all_predictors:
+            predictor_predictions = predictions.filter(predictor=predictor)
+            total = predictor_predictions.count()
+            correct = sum(1 for p in predictor_predictions if p.predicted_author_id == p.novel.original_author_id)
+            predictor_stats = {
                 'total': total,
                 'correct': correct,
                 'accuracy': (correct / total * 100) if total > 0 else 0
             }
-            participants_stats.append((author, author_stats))
-        
-        # 正解率で降順ソート
+            participants_stats.append((predictor, predictor_stats))
+
+        # 正解率で降順ソート（同率の場合は正解数で）
         participants_stats.sort(key=lambda x: (-x[1]['accuracy'], -x[1]['correct']))
 
         # context更新
