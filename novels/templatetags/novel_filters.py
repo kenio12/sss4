@@ -23,6 +23,19 @@ def get_display_author(novel):
     return novel.author
 
 @register.filter
+def get_display_event(novel):
+    """
+    祭り小説の場合は「祭り」を返す
+    それ以外はnovel.eventを返す
+    """
+    # 🔥 original_authorがある = 祭り小説
+    if novel.original_author:
+        maturi_game = novel.maturi_games.first()
+        if maturi_game:
+            return '祭り'
+    return novel.event
+
+@register.filter
 def modulo(value, arg):
     """Returns the remainder of value divided by arg"""
     return int(value) % int(arg)
