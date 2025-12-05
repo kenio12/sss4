@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="sss-count">{{ novel.word_count }}文字</div>
                 <div class="sss-link sss-author" style="display: flex; align-items: center; gap: 8px;">
-                    {% if novel.author %}{% include 'novels/includes/nickname_badge.html' with user=novel.author %}{% else %}<span>作者不明</span>{% endif %}
+                    {% if novel.author %}{% include 'novels/includes/nickname_badge.html' with user=novel|get_display_author %}{% else %}<span>作者不明</span>{% endif %}
                 </div>
                 <div class="sss-link sss-title" style="color: #007bff !important;">
                     <a href="{% url 'novels:novel_detail' novel.id %}" style="color: #007bff !important;">{{ novel.title }}</a>
@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="sss-info-row">
                     <div class="sss-author" style="display: flex; align-items: center; gap: 8px;">
-                        {% if novel.author %}{% include 'novels/includes/nickname_badge.html' with user=novel.author %}{% else %}<span>作者不明</span>{% endif %}
+                        {% if novel.author %}{% include 'novels/includes/nickname_badge.html' with user=novel|get_display_author %}{% else %}<span>作者不明</span>{% endif %}
                     </div>
                     <div class="sss-date">{{ novel.published_date|date:"m/d" }}</div>
                 </div>

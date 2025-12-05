@@ -957,18 +957,34 @@ def novels_paginated(request):
         novels_list = novels_list.order_by(F(sort_param).asc())
 
     # values()はソート後に適用
+    # 🔥 original_author__nickname も取得（祭り小説の予想期間終了後に正しい作者名を表示するため）
     novels_list = novels_list.values(
         'id', 'title', 'word_count',
         'author_id', 'author__nickname',
-        'published_date', 'genre', 'event',
+        'original_author__nickname', 'event',  # 🔥 original_author追加
+        'published_date', 'genre',
         'same_title_event_month', 'is_first_post',
         'likes_count', 'comments_count'
     )
 
-    # ページネーション
+    # ページネーション（先にページネーションしてからデータ変換）
     paginator = Paginator(novels_list, 20)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
+
+    # 🔥 祭り小説で予想期間終了後は正しい作者名を表示
+    novels_data = []
+    for novel in page_obj.object_list:
+        novel_dict = dict(novel)  # QuerySetの辞書をコピー
+        # 祭り小説の場合、予想期間終了後は original_author を使用
+        if novel_dict.get('event') == '祭り' and novel_dict.get('original_author__nickname'):
+            # この小説の祭りゲームを取得して予想期間終了かチェック
+            novel_obj = Novel.objects.filter(id=novel_dict['id']).first()
+            if novel_obj:
+                maturi_game = novel_obj.maturi_games.first()
+                if maturi_game and today > maturi_game.prediction_end_date:
+                    novel_dict['author__nickname'] = novel_dict['original_author__nickname']
+        novels_data.append(novel_dict)
 
     # タイトル一覧を取得（タイトル選択ドロップダウン用）
     title_choices = Novel.objects.filter(status='published').values_list('id', 'title').distinct().order_by('title')
@@ -976,7 +992,7 @@ def novels_paginated(request):
     # コンテキストの設定
     context = {
         'page_obj': page_obj,
-        'novels': page_obj.object_list,
+        'novels': novels_data,  # 🔥 変換後のデータを使用
         'sort': sort_param,
         'genre_choices': GENRE_CHOICES,
         'authors_list': User.objects.filter(is_active=True),
