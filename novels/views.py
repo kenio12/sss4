@@ -975,7 +975,7 @@ def novels_paginated(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
-    # 🔥 祭り小説で予想期間終了後は正しい作者名を表示
+    # 🔥 祭り小説で予想期間終了後は正しい作者名を表示 & イベント欄に「祭り」を設定
     novels_data = []
     for novel in page_obj.object_list:
         novel_dict = dict(novel)  # QuerySetの辞書をコピー
@@ -985,8 +985,12 @@ def novels_paginated(request):
             novel_obj = Novel.objects.filter(id=novel_dict['id']).first()
             if novel_obj:
                 maturi_game = novel_obj.maturi_games.first()
-                if maturi_game and today > maturi_game.prediction_end_date:
-                    novel_dict['author__nickname'] = novel_dict['original_author__nickname']
+                if maturi_game:
+                    # 🔥 祭り小説のイベント欄に「祭り」を設定
+                    novel_dict['event'] = '祭り'
+                    # 予想期間終了後は本当の作者名を表示
+                    if today > maturi_game.prediction_end_date:
+                        novel_dict['author__nickname'] = novel_dict['original_author__nickname']
         novels_data.append(novel_dict)
 
     # タイトル一覧を取得（タイトル選択ドロップダウン用）
