@@ -453,7 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </tr>
             </thead>
             <tbody>
-                {% for novel in page_obj %}
+                {% for novel in novels %}
                 <tr>
                     <td>{{ novel.word_count|intcomma }}</td>
                     <td>{{ novel.genre }}</td>
