@@ -73,8 +73,9 @@ def game_maturi_top(request, game_id):
                 }
             }
 
-    # 予想期間中の場合、公開済みの小説のみを取得（予約公開は除外）
-    if game.is_prediction_period():
+    # 🔥 予想期間中または予想期間終了後は公開済みの小説を取得
+    # 執筆期間中かつ予想期間前のみ空にする（ゲームの公平性のため）
+    if game.is_prediction_period() or game.is_prediction_period_finished():
         novels = game.maturi_novels.filter(
             status='published'  # 公開済みの小説のみに限定
         ).select_related('author', 'original_author').order_by('-published_date')  # 公開日の降順で並び替え

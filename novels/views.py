@@ -712,14 +712,15 @@ def index(request):
         comments_count=Count('comments')
     ).filter(status='published').order_by('-published_date')  # 投稿日の降順に並替える
 
-    # 🔥 祭り小説を予想期間前は除外（ゲームの公平性のため）
-    # 祭り小説は予想期間が始まってから初めて一般リストに表示される
+    # 🔥 祭り小説を「執筆期間中」かつ「予想期間前」のみ除外（ゲームの公平性のため）
+    # 公開後は普通に一覧に表示される（予想期間・結果発表期間・祭り終了後も表示）
     today = timezone.localtime(timezone.now()).date()  # 🔥 JST日付取得
     # 現在進行中の祭りを取得（終了してへん祭り）
     active_games = MaturiGame.objects.filter(maturi_end_date__gte=today)
     for game in active_games:
-        if not game.is_prediction_period():
-            # 予想期間が始まってへん祭りの小説は除外
+        # 予想期間が始まっていない AND まだ執筆期間中の場合のみ除外
+        if not game.is_prediction_period() and game.start_date and today <= game.end_date:
+            # 執筆期間中で予想期間前の祭り小説のみ除外
             novels_list = novels_list.exclude(maturi_games=game)
 
     # # 作者情報を取得するためのユーIDリクエストから取得
@@ -903,11 +904,13 @@ def novels_paginated(request):
         comments_count=Count('comments', distinct=True)
     )
 
-    # 🔥 祭り小説を予想期間前は除外（ゲームの公平性のため）
+    # 🔥 祭り小説を「執筆期間中」かつ「予想期間前」のみ除外（ゲームの公平性のため）
+    # 公開後は普通に一覧に表示される（予想期間・結果発表期間・祭り終了後も表示）
     today = timezone.localtime(timezone.now()).date()  # 🔥 JST日付取得
     active_games = MaturiGame.objects.filter(maturi_end_date__gte=today)
     for game in active_games:
-        if not game.is_prediction_period():
+        # 予想期間が始まっていない AND まだ執筆期間中の場合のみ除外
+        if not game.is_prediction_period() and game.start_date and today <= game.end_date:
             novels_list = novels_list.exclude(maturi_games=game)
 
     # タイトル検索
@@ -1144,11 +1147,13 @@ class NovelListView(ListView):
             published_date__isnull=False
         ).select_related('author').order_by('-published_date')
 
-        # 🔥 祭り小説を予想期間前は除外（ゲームの公平性のため）
+        # 🔥 祭り小説を「執筆期間中」かつ「予想期間前」のみ除外（ゲームの公平性のため）
+        # 公開後は普通に一覧に表示される（予想期間・結果発表期間・祭り終了後も表示）
         today = timezone.localtime(timezone.now()).date()  # 🔥 JST日付取得
         active_games = MaturiGame.objects.filter(maturi_end_date__gte=today)
         for game in active_games:
-            if not game.is_prediction_period():
+            # 予想期間が始まっていない AND まだ執筆期間中の場合のみ除外
+            if not game.is_prediction_period() and game.start_date and today <= game.end_date:
                 queryset = queryset.exclude(maturi_games=game)
 
         # GETパラメータからソート条件を取得
@@ -1186,11 +1191,13 @@ class NovelPaginatedView(ListView):
             published_date__isnull=False
         ).select_related('author')
 
-        # 🔥 祭り小説を予想期間前は除外（ゲームの公平性のため）
+        # 🔥 祭り小説を「執筆期間中」かつ「予想期間前」のみ除外（ゲームの公平性のため）
+        # 公開後は普通に一覧に表示される（予想期間・結果発表期間・祭り終了後も表示）
         today = timezone.localtime(timezone.now()).date()  # 🔥 JST日付取得
         active_games = MaturiGame.objects.filter(maturi_end_date__gte=today)
         for game in active_games:
-            if not game.is_prediction_period():
+            # 予想期間が始まっていない AND まだ執筆期間中の場合のみ除外
+            if not game.is_prediction_period() and game.start_date and today <= game.end_date:
                 queryset = queryset.exclude(maturi_games=game)
 
         # フィルタリング条件の適用
