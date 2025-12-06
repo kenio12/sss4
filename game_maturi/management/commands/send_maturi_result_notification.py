@@ -132,8 +132,8 @@ class Command(BaseCommand):
             # 結果発表期間 = prediction_end_date の翌日 から maturi_end_date の前日まで
             # 結果発表日（prediction_end_date + 1日）が今日で、未送信のもの
             result_games = MaturiGame.objects.filter(
-                result_notification_sent=False,
-                is_author_revealed=True  # 作者公開済みのもの
+                result_notification_sent=False
+                # is_author_revealed は日付ベースで判定するため不要
             ).select_for_update(of=('self',))
 
             # 結果発表日が今日のゲームをフィルタ
