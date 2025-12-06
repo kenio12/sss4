@@ -849,9 +849,16 @@
                     html = html.replace(/①/g, '<br><br>①');
                     html = html.replace(/②/g, '<br><br>②');
                     html = html.replace(/③/g, '<br><br>③');
-                    // □■の前に改行2つ追加
+                    // □■の前に改行2つ追加（ただし「□■」「■□」の組み合わせは保持）
+                    // 一旦、見出しパターン「□■」と「■□」を一時的なプレースホルダーに置換
+                    html = html.replace(/□■/g, '___OPEN_BRACKET___');
+                    html = html.replace(/■□/g, '___CLOSE_BRACKET___');
+                    // 単独の□と■には改行追加
                     html = html.replace(/□/g, '<br><br>□');
                     html = html.replace(/■/g, '<br><br>■');
+                    // プレースホルダーを元に戻す（改行付きで美しく）
+                    html = html.replace(/___OPEN_BRACKET___/g, '<br><br>□■');
+                    html = html.replace(/___CLOSE_BRACKET___/g, '■□');
                     festivalDesc.innerHTML = html;
                 }
 
