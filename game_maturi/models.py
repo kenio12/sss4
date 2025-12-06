@@ -77,6 +77,13 @@ class MaturiGame(models.Model):
         verbose_name="開幕通知送信済み",
         help_text="祭り開幕通知を送信済みの場合はTrue"
     )
+
+    # 🔥 結果発表通知フラグ（結果発表日の11時に送信）
+    result_notification_sent = models.BooleanField(
+        default=False,
+        verbose_name="結果通知送信済み",
+        help_text="祭り結果通知を送信済みの場合はTrue"
+    )
     
 
     
