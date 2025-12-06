@@ -592,32 +592,32 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
+                        <tr style="background-color: rgba(76, 175, 80, 0.2);">
                             <td>祭りの開始</td>
                             <td>{{ game.maturi_start_date|date:"Y年m月d日" }}</td>
                             <td></td>
                         </tr>
-                        <tr>
+                        <tr style="background-color: rgba(33, 150, 243, 0.3);">
                             <td>エントリー期間</td>
                             <td>{{ game.entry_start_date|date:"Y年m月d日" }}</td>
                             <td>{{ game.entry_end_date|date:"Y年m月d日" }}</td>
                         </tr>
-                        <tr>
+                        <tr style="background-color: rgba(255, 152, 0, 0.3);">
                             <td>執筆期間</td>
                             <td>{{ game.start_date|date:"Y年m月d日" }}</td>
                             <td>{{ game.end_date|date:"Y年m月d日" }}</td>
                         </tr>
-                        <tr>
+                        <tr style="background-color: rgba(156, 39, 176, 0.3);">
                             <td>作者予想期間（小説公開日）</td>
                             <td>{{ game.novel_publish_start_date|date:"Y年m月d日" }}</td>
                             <td>{{ game.prediction_end_date|date:"Y年m月d日" }}</td>
                         </tr>
-                        <tr>
+                        <tr style="background-color: rgba(233, 30, 99, 0.3);">
                             <td>結果発表期間</td>
                             <td>{{ game.prediction_end_date|add_days:1|date:"Y年m月d日" }}</td>
                             <td>{{ game.maturi_end_date|add_days:-1|date:"Y年m月d日" }}</td>
                         </tr>
-                        <tr>
+                        <tr style="background-color: rgba(76, 175, 80, 0.2);">
                             <td>祭りの終了</td>
                             <td></td>
                             <td>{{ game.maturi_end_date|date:"Y年m月d日" }}</td>
