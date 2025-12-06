@@ -183,9 +183,6 @@ class Command(BaseCommand):
                     for i, n in enumerate(ninja_novels, 1):
                         ninja_text += f'🥷{i}位 「{n["novel"].title}」- 正解者{n["correct_count"]}人\n'
 
-                    # 結果ページURL
-                    result_url = f"{settings.BASE_URL}/game_maturi/game_top/{game.id}/"
-
                     # 参加者（予想したユーザー）に送信
                     sent_count = 0
                     error_count = 0
@@ -220,7 +217,7 @@ class Command(BaseCommand):
 {ninja_text}
 ━━━━━━━━━━━━━━━━━━━━
 
-詳細はこちら: {result_url}
+ホームの「🏮祭」マークより結果をご確認ください。
 
 ---
 このメールの配信を停止する場合は、以下のリンクをクリックしてください。
