@@ -83,15 +83,19 @@ def get_prediction_rankings(game):
 def get_ninja_novels(game):
     """
     忍者小説ランキングを取得（逃げ切り作品 = 正解者が少なかった小説）
+    🔥 自分の小説に対する自分の予想は除外する（分子にも分母にも入れない）
     戻り値: [(novel, correct_count, total_predictions), ...]
     """
     novels = game.maturi_novels.all()
     ninja_rankings = []
 
     for novel in novels:
+        # 🔥 自分の小説に対する自分の予想を除外
         predictions = GamePrediction.objects.filter(
             maturi_game=game,
             novel=novel
+        ).exclude(
+            predictor_id=novel.original_author_id
         )
         total_predictions = predictions.count()
 

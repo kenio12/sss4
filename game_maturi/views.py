@@ -187,9 +187,13 @@ def game_maturi_top(request, game_id):
         participants_stats.sort(key=lambda x: (-x[1]['accuracy'], -x[1]['correct']))
 
         # 🥷 忍者小説ランキング（逃げ切り作品 = 正解者が少なかった小説）
+        # 🔥 自分の小説に対する自分の予想は除外する（分子にも分母にも入れない）
         ninja_novels = []
         for novel in novels:
-            novel_preds = predictions.filter(novel=novel)
+            # 自分の小説に対する自分の予想を除外してフィルタ
+            novel_preds = predictions.filter(novel=novel).exclude(
+                predictor_id=novel.original_author_id
+            )
             total_preds = novel_preds.count()
             correct_count = novel_preds.filter(
                 predicted_author_id=F('novel__original_author_id')
