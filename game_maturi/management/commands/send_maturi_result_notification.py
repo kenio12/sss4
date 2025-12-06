@@ -202,6 +202,9 @@ class Command(BaseCommand):
                             subject = f'【超短編小説会】🎉 {game.title} 結果発表！'
                             unsubscribe_url = get_unsubscribe_url(user)
 
+                            # 祭りページのURL
+                            game_url = f"{settings.BASE_URL}/game_maturi/game_top/{game.id}/"
+
                             message = f"""
 {user.nickname} 様
 
@@ -217,7 +220,9 @@ class Command(BaseCommand):
 {ninja_text}
 ━━━━━━━━━━━━━━━━━━━━
 
-ホームの「🏮祭」マークより結果をご確認ください。
+詳細は下記リンクからご確認ください！
+
+👉 {game_url}
 
 ---
 このメールの配信を停止する場合は、以下のリンクをクリックしてください。

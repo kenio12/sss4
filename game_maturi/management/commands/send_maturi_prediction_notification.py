@@ -81,12 +81,16 @@ class Command(BaseCommand):
                             subject = f'【超短編小説会】🔮 {game.title} 作者予想期間スタート！'
                             unsubscribe_url = get_unsubscribe_url(user)
 
+                            # 祭りページのURL
+                            game_url = f"{settings.BASE_URL}/game_maturi/game_top/{game.id}/"
+
                             message = f"""
 {user.nickname} 様
 
 さて、予想期間が開始しました。
-今より小説の作家予想ができるので、ホーム画面の「🏮祭」ボタンからアクセスして、
-祭り作品の真の作者を予想しましょう！
+今より小説の作家予想ができるので、下記リンクから祭り作品の真の作者を予想しましょう！
+
+👉 {game_url}
 
 なお予想期間は{end_date_str}までです。
 追加で作品が投稿されるかもしれませんので、最終日である{end_date_str}に再度予想漏れがないか確認しましょう！

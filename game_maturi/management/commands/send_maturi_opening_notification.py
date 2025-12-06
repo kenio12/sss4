@@ -64,6 +64,9 @@ class Command(BaseCommand):
                             subject = f'【超短編小説会】🎉 {game.title} 開幕！'
                             unsubscribe_url = get_unsubscribe_url(user)
 
+                            # 祭りページのURL
+                            game_url = f"{settings.BASE_URL}/game_maturi/game_top/{game.id}/"
+
                             message = f"""
 {user.nickname} 様
 
@@ -73,11 +76,9 @@ class Command(BaseCommand):
 ■ {game.title}
 ━━━━━━━━━━━━━━━━━━━━
 
-祭りに作家として参加されたい方は、
-1. 超短編小説会トップページ（{settings.BASE_URL}）にアクセス
-2. 画面上部の「🏮祭」マークをクリック
-3. 「エントリー」ボタンを押して参加登録！
-してください。
+祭りに作家として参加されたい方は、下記リンクから「エントリー」ボタンを押して参加登録してください！
+
+👉 {game_url}
 
 エントリーのうえ、こぞってご参加ください！
 楽しいで🎵
