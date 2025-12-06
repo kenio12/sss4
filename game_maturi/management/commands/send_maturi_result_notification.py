@@ -84,7 +84,8 @@ def get_ninja_novels(game):
     """
     忍者小説ランキングを取得（逃げ切り作品 = 正解者が少なかった小説）
     🔥 自分の小説に対する自分の予想は除外する（分子にも分母にも入れない）
-    戻り値: [(novel, correct_count, total_predictions), ...]
+    🔥 同じ正解数なら同率順位、3人以上同率1位なら2位以下は表示しない
+    戻り値: [(novel, correct_count, total_predictions, rank), ...]
     """
     novels = game.maturi_novels.all()
     ninja_rankings = []
@@ -115,7 +116,24 @@ def get_ninja_novels(game):
     # 正解者数で昇順ソート（正解者が少ない順 = 逃げ切り度が高い）
     ninja_rankings.sort(key=lambda x: (x['correct_count'], -x['total_predictions']))
 
-    return ninja_rankings[:3]  # 上位3作品
+    # 🔥 同率順位を計算
+    if not ninja_rankings:
+        return []
+
+    current_rank = 1
+    prev_correct = None
+    for i, n in enumerate(ninja_rankings):
+        if prev_correct is not None and n['correct_count'] != prev_correct:
+            current_rank = i + 1
+        n['rank'] = current_rank
+        prev_correct = n['correct_count']
+
+    # 1位が3人以上いたら1位だけ表示、それ以外は3位まで表示
+    first_place_count = sum(1 for n in ninja_rankings if n['rank'] == 1)
+    if first_place_count >= 3:
+        return [n for n in ninja_rankings if n['rank'] == 1]
+    else:
+        return [n for n in ninja_rankings if n['rank'] <= 3]
 
 
 def get_rank_emoji(rank):
@@ -182,10 +200,10 @@ class Command(BaseCommand):
                         rank_emoji = get_rank_emoji(i)
                         ranking_text += f'{rank_emoji}  {r["user"].nickname}    {r["correct"]}/{r["total"]}（{r["accuracy"]:.1f}%）\n'
 
-                    # 忍者小説文字列を作成
+                    # 忍者小説文字列を作成（同率順位対応）
                     ninja_text = ''
-                    for i, n in enumerate(ninja_novels, 1):
-                        ninja_text += f'🥷{i}位 「{n["novel"].title}」- 正解者{n["correct_count"]}人\n'
+                    for n in ninja_novels:
+                        ninja_text += f'🥷{n["rank"]}位 「{n["novel"].title}」- 正解者{n["correct_count"]}人\n'
 
                     # 参加者（予想したユーザー）に送信
                     sent_count = 0

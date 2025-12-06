@@ -183,15 +183,15 @@
                 </thead>
                 <tbody>
                     {% for item in ninja_novels %}
-                        <tr {% if forloop.first %}class="table-success"{% endif %}>
+                        <tr {% if item.rank == 1 %}class="table-success"{% endif %}>
                             <td>
-                                {% if forloop.counter == 1 %}
+                                {% if item.rank == 1 %}
                                     <span class="badge bg-success">
                                         🥷 1位
                                     </span>
-                                {% elif forloop.counter == 2 %}
+                                {% elif item.rank == 2 %}
                                     🥷 2位
-                                {% elif forloop.counter == 3 %}
+                                {% elif item.rank == 3 %}
                                     🥷 3位
                                 {% endif %}
                             </td>

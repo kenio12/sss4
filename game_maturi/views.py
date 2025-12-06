@@ -188,6 +188,7 @@ def game_maturi_top(request, game_id):
 
         # 🥷 忍者小説ランキング（逃げ切り作品 = 正解者が少なかった小説）
         # 🔥 自分の小説に対する自分の予想は除外する（分子にも分母にも入れない）
+        # 🔥 同じ正解数なら同率順位、3人以上同率1位なら2位以下は表示しない
         ninja_novels = []
         for novel in novels:
             # 自分の小説に対する自分の予想を除外してフィルタ
@@ -206,7 +207,26 @@ def game_maturi_top(request, game_id):
             })
         # 正解者数で昇順ソート（正解者が少ない順 = 逃げ切り度が高い）
         ninja_novels.sort(key=lambda x: (x['correct_count'], -x['total_predictions']))
-        ninja_novels = ninja_novels[:3]  # 上位3作品
+
+        # 🔥 同率順位を計算して表示数を決定
+        if ninja_novels:
+            # 順位を付与（同じ正解数なら同率順位）
+            current_rank = 1
+            prev_correct = None
+            ranked_novels = []
+            for i, n in enumerate(ninja_novels):
+                if prev_correct is not None and n['correct_count'] != prev_correct:
+                    current_rank = i + 1
+                n['rank'] = current_rank
+                prev_correct = n['correct_count']
+                ranked_novels.append(n)
+
+            # 1位が3人以上いたら1位だけ表示、それ以外は3位まで表示
+            first_place_count = sum(1 for n in ranked_novels if n['rank'] == 1)
+            if first_place_count >= 3:
+                ninja_novels = [n for n in ranked_novels if n['rank'] == 1]
+            else:
+                ninja_novels = [n for n in ranked_novels if n['rank'] <= 3]
 
         # context更新
         context.update({
