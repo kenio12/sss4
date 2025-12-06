@@ -165,6 +165,51 @@
                 </table>
             </div>
         {% endif %}
+
+        <!-- 🥷 忍者小説ランキング（逃げ切り作品） -->
+        {% if ninja_novels %}
+        <h3 class="mt-4">🥷 忍者小説ランキング（逃げ切り作品）</h3>
+        <p class="text-muted" style="font-size: 0.9em;">正解者が少なかった = 作者バレしなかった作品ランキング</p>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">順位</th>
+                        <th>作品タイトル</th>
+                        <th>作者</th>
+                        <th>正解者数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in ninja_novels %}
+                        <tr {% if forloop.first %}class="table-success"{% endif %}>
+                            <td>
+                                {% if forloop.counter == 1 %}
+                                    <span class="badge bg-success">
+                                        🥷 1位
+                                    </span>
+                                {% elif forloop.counter == 2 %}
+                                    🥷 2位
+                                {% elif forloop.counter == 3 %}
+                                    🥷 3位
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'novels:novel_detail' item.novel.id %}"
+                                   style="color: #007bff; text-decoration: none;">
+                                    {{ item.novel.title }}
+                                </a>
+                            </td>
+                            <td>
+                                {% include 'novels/includes/nickname_badge.html' with user=item.novel.original_author %}
+                            </td>
+                            <td>{{ item.correct_count }}/{{ item.total_predictions }}人</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
     </div>
 {% endif %}
 

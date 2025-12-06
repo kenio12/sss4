@@ -186,6 +186,24 @@ def game_maturi_top(request, game_id):
         # 正解率で降順ソート（同率の場合は正解数で）
         participants_stats.sort(key=lambda x: (-x[1]['accuracy'], -x[1]['correct']))
 
+        # 🥷 忍者小説ランキング（逃げ切り作品 = 正解者が少なかった小説）
+        ninja_novels = []
+        for novel in novels:
+            novel_preds = predictions.filter(novel=novel)
+            total_preds = novel_preds.count()
+            correct_count = novel_preds.filter(
+                predicted_author_id=F('novel__original_author_id')
+            ).count()
+            ninja_novels.append({
+                'novel': novel,
+                'correct_count': correct_count,
+                'total_predictions': total_preds,
+                'incorrect_count': total_preds - correct_count
+            })
+        # 正解者数で昇順ソート（正解者が少ない順 = 逃げ切り度が高い）
+        ninja_novels.sort(key=lambda x: (x['correct_count'], -x['total_predictions']))
+        ninja_novels = ninja_novels[:3]  # 上位3作品
+
         # context更新
         context.update({
             'all_predictions': predictions,
@@ -199,6 +217,7 @@ def game_maturi_top(request, game_id):
             'accuracy': (correct / total * 100) if total > 0 else 0,  # ユーザーの正解率
             'active_authors': active_authors,
             'now': timezone.localtime(timezone.now()).date(),  # 🔥 JST日付取得
+            'ninja_novels': ninja_novels,  # 🥷 忍者小説ランキング
         })
 
         # ユーザーの予想結果を計算
