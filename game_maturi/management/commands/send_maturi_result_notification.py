@@ -1,8 +1,13 @@
 """
 祭り結果発表通知コマンド
 
-結果発表日の11時に参加者へ結果通知を送信する
-Heroku Schedulerで毎日11時（JST = UTC 02:00）に実行
+予想期間終了日の翌日9時に参加者へ結果通知を送信する
+Heroku Schedulerで毎日9時（JST = UTC 00:00）に実行
+
+タイムライン:
+- prediction_end_date = 予想期間最終日（例: 12月5日）
+- reveal_maturi_authors: 15:00 UTC = 翌日 00:00 JST（例: 12月6日 00:00）→ 作者公開
+- send_maturi_result_notification: 00:00 UTC = 09:00 JST（例: 12月6日 09:00）→ 結果通知
 
 通知内容:
 1. 予想成績ランキング（正解数・正解率）
@@ -17,6 +22,7 @@ from django.core import signing
 from django.db import transaction
 from django.db.models import Count, Q
 from game_maturi.models import MaturiGame, GamePrediction
+from datetime import timedelta
 import logging
 import time
 
@@ -139,8 +145,7 @@ class Command(BaseCommand):
             # 結果発表日が今日のゲームをフィルタ
             target_games = []
             for game in result_games:
-                # 結果発表日 = prediction_end_date + 1日
-                from datetime import timedelta
+                # 結果発表日 = prediction_end_date + 1日（予想期間終了日の翌日9時に通知）
                 result_date = game.prediction_end_date + timedelta(days=1)
                 if result_date == now:
                     target_games.append(game)
