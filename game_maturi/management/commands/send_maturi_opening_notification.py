@@ -59,10 +59,6 @@ class Command(BaseCommand):
                     sent_count = 0
                     error_count = 0
 
-                    # 語句一覧を取得
-                    phrases = list(game.phrases.values_list('text', flat=True))
-                    phrases_text = '、'.join(phrases) if phrases else '（語句未設定）'
-
                     for user in users:
                         try:
                             subject = f'【超短編小説会】🎉 {game.title} 開幕！'
@@ -77,17 +73,11 @@ class Command(BaseCommand):
 ■ {game.title}
 ━━━━━━━━━━━━━━━━━━━━
 
-📝 今回のお題語句：
-{phrases_text}
-
-📅 スケジュール：
-・小説投稿期間：{game.maturi_start_date.strftime('%m月%d日')} 〜 {game.prediction_start_date.strftime('%m月%d日')}
-・作者予想期間：{game.prediction_start_date.strftime('%m月%d日')} 〜 {game.prediction_end_date.strftime('%m月%d日')}
-
-▼ 参加方法
+祭りに作家として参加されたい方は、
 1. 超短編小説会トップページ（{settings.BASE_URL}）にアクセス
 2. 画面上部の「🏮祭」マークをクリック
 3. 「エントリー」ボタンを押して参加登録！
+してください。
 
 エントリーのうえ、こぞってご参加ください！
 楽しいで🎵
