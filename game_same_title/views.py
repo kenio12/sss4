@@ -132,8 +132,16 @@ def same_title(request, page=1):
             proposed_at__lt=current_month_end
         )
         # エントリー制廃止により削除: already_entered, entered_last_month, already_entered_users
+
+        # 🔥 ユーザーの今月の同タイトル小説（draft + published）を取得 🔥
+        user_same_title_novels = Novel.objects.filter(
+            author=request.user,
+            is_same_title_game=True,
+            same_title_event_month=current_month_str
+        ).order_by('-published_date', '-created_at')
     else:
         existing_proposals = []
+        user_same_title_novels = []
 
     next_month = get_next_month_str()
     # エントリー制廃止により entry_success を削除
@@ -147,6 +155,7 @@ def same_title(request, page=1):
         'page_obj': page_obj,
         'same_title_novels': page_obj.object_list,
         'title_proposals': title_proposals,
+        'user_same_title_novels': user_same_title_novels,  # 🔥 ユーザーの同タイトル小説
     })
 
 # 過去の同タイトル一覧を表示する新しい関数

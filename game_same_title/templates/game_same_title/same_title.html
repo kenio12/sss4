@@ -258,7 +258,48 @@
       </div>
     {% endif %}
   {% endif %}
-  
+
+  <!-- 🔥 ユーザーの今月の同タイトル小説リスト（非公開含む） 🔥 -->
+  {% if user.is_authenticated and user_same_title_novels %}
+  <div style="margin-top: 30px; padding: 15px; background-color: #fff8e1; border: 2px solid #ffc107; border-radius: 8px;">
+    <h4 style="position: relative; padding-left: 15px; margin-bottom: 15px;">
+      <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: #ffc107;"></div>
+      📝 あなたの今月の同タイトル小説
+    </h4>
+    <table class="table table-striped" style="background-color: white;">
+      <thead>
+        <tr>
+          <th>状態</th>
+          <th>タイトル</th>
+          <th>文字数</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for novel in user_same_title_novels %}
+        <tr>
+          <td>
+            {% if novel.status == 'published' %}
+              <span class="badge bg-success">公開中</span>
+            {% else %}
+              <span class="badge bg-secondary">非公開</span>
+            {% endif %}
+          </td>
+          <td>{{ novel.title }}</td>
+          <td>{{ novel.word_count|intcomma }}</td>
+          <td>
+            <a href="{% url 'game_same_title:post_or_edit_same_title_with_id' novel.id %}" class="btn btn-sm btn-outline-primary">編集</a>
+            {% if novel.status == 'published' %}
+              <a href="{% url 'novels:novel_detail' novel.id %}" class="btn btn-sm btn-outline-info">閲覧</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
   <h4 style="position: relative; padding-left: 15px;">
     <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: #8ecae6;"></div>
     今月の同タイトル候補
