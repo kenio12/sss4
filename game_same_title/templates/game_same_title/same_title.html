@@ -168,12 +168,16 @@
   <p style="margin-bottom: 20px;">毎月最大３つまでタイトルを提案できます。入力して、提案するボタンを押してください！</p>
   <form method="post" action="{% url 'game_same_title:create_title_proposal' %}">
     {% csrf_token %}
-    <ul style="margin-left: 30px;">
+    <ul style="margin-left: 30px; list-style: none; padding-left: 0;">
     {% for proposal in existing_proposals %}
-    <li>{{ proposal.title }}</li>
+    <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+      <span style="flex: 1;">{{ proposal.title }}</span>
+      <button type="button" class="btn btn-sm btn-outline-primary" onclick="openEditModal({{ proposal.id }}, '{{ proposal.title|escapejs }}')">編集</button>
+      <button type="button" class="btn btn-sm btn-outline-danger" onclick="openDeleteModal({{ proposal.id }}, '{{ proposal.title|escapejs }}')">削除</button>
+    </li>
     {% endfor %}
     </ul>
-    
+
     {% if existing_proposals.count == 0 %}
     <!-- まだ何も提案されていない場合、3つの入力フィールドを表示 -->
       <input type="text" class="form-control" id="title1" name="title1" placeholder="タイトルを入力">
@@ -453,6 +457,70 @@ function showBadgeModal(badgeType) {
         `;
     }
 
+    modal.show();
+}
+</script>
+
+<!-- 提案編集モーダル -->
+<div class="modal fade" id="editProposalModal" tabindex="-1" aria-labelledby="editProposalModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="editProposalForm" method="post" action="">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProposalModalLabel">提案を編集</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editProposalTitle" class="form-label">タイトル</label>
+                        <input type="text" class="form-control" id="editProposalTitle" name="title" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">変更を保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 提案削除モーダル -->
+<div class="modal fade" id="deleteProposalModal" tabindex="-1" aria-labelledby="deleteProposalModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="deleteProposalForm" method="post" action="">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteProposalModalLabel">提案を削除</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                </div>
+                <div class="modal-body">
+                    <p>「<span id="deleteProposalTitle" style="font-weight: bold;"></span>」を削除しますか？</p>
+                    <p class="text-danger">この操作は取り消せません。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="submit" class="btn btn-danger">削除する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openEditModal(proposalId, currentTitle) {
+    const modal = new bootstrap.Modal(document.getElementById('editProposalModal'));
+    document.getElementById('editProposalTitle').value = currentTitle;
+    document.getElementById('editProposalForm').action = `/game_same_title/proposals/${proposalId}/edit/`;
+    modal.show();
+}
+
+function openDeleteModal(proposalId, title) {
+    const modal = new bootstrap.Modal(document.getElementById('deleteProposalModal'));
+    document.getElementById('deleteProposalTitle').textContent = title;
+    document.getElementById('deleteProposalForm').action = `/game_same_title/proposals/${proposalId}/delete/`;
     modal.show();
 }
 </script>

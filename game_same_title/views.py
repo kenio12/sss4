@@ -656,5 +656,55 @@ def auto_save(request):
         )
         logger.info(f'新しい小説が作成されました: ノベルID {novel.id}')
         return JsonResponse({'message': '自動保存されました。', 'novel_id': novel.id})
+
+
+@login_required
+def edit_title_proposal(request, proposal_id):
+    """来月の提案を編集する"""
+    proposal = get_object_or_404(TitleProposal, id=proposal_id, proposer=request.user)
+
+    # 今月の提案のみ編集可能（来月分の提案）
+    current_month_start = timezone.localtime(timezone.now()).date().replace(day=1)
+    next_month_start = current_month_start + relativedelta(months=1)
+
+    if not (current_month_start <= proposal.proposed_at.date() < next_month_start):
+        messages.error(request, '過去の提案は編集できません。')
+        return redirect('game_same_title:same_title')
+
+    if request.method == 'POST':
+        new_title = request.POST.get('title', '').strip()
+        if new_title:
+            proposal.title = new_title
+            proposal.save()
+            messages.success(request, f'提案を「{new_title}」に変更しました。')
+        else:
+            messages.error(request, 'タイトルを入力してください。')
+        return redirect('game_same_title:same_title')
+
+    # GETの場合は同タイトルページにリダイレクト（フォームはモーダルで表示）
+    return redirect('game_same_title:same_title')
+
+
+@login_required
+def delete_title_proposal(request, proposal_id):
+    """来月の提案を削除する"""
+    proposal = get_object_or_404(TitleProposal, id=proposal_id, proposer=request.user)
+
+    # 今月の提案のみ削除可能（来月分の提案）
+    current_month_start = timezone.localtime(timezone.now()).date().replace(day=1)
+    next_month_start = current_month_start + relativedelta(months=1)
+
+    if not (current_month_start <= proposal.proposed_at.date() < next_month_start):
+        messages.error(request, '過去の提案は削除できません。')
+        return redirect('game_same_title:same_title')
+
+    if request.method == 'POST':
+        title = proposal.title
+        proposal.delete()
+        messages.success(request, f'「{title}」の提案を削除しました。')
+        return redirect('game_same_title:same_title')
+
+    # GETの場合は同タイトルページにリダイレクト
+    return redirect('game_same_title:same_title')
     
 
