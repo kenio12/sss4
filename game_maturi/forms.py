@@ -46,7 +46,8 @@ class MaturiNovelForm(forms.ModelForm):
     )
     content = forms.CharField(
         widget=forms.Textarea(attrs={'id': 'contentInput'}),
-        error_messages={'required': '内容を入力してください。'}
+        error_messages={'required': '内容を入力してください。'},
+        strip=False  # 先頭・末尾のスペースを保持
     )
     # 🔥 ジャンル選択フィールド（祭り小説用・通常小説と同じ選択肢）🔥
     # ※ GENRE_CHOICESは使わない！禁止ジャンルが含まれてるから！
