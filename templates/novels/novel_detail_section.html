@@ -241,6 +241,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const phraseElements = document.querySelectorAll('.maturi-phrase-tag');
     if (phraseElements.length === 0) return;
 
+    // 語句ごとの薄い色（目立たない）
+    const phraseColors = [
+        'rgba(255, 200, 200, 0.5)',  // 薄いピンク
+        'rgba(200, 230, 255, 0.5)',  // 薄い水色
+        'rgba(220, 255, 200, 0.5)',  // 薄い黄緑
+        'rgba(255, 240, 180, 0.5)',  // 薄いクリーム
+        'rgba(230, 200, 255, 0.5)',  // 薄い紫
+        'rgba(255, 220, 200, 0.5)',  // 薄いオレンジ
+        'rgba(200, 255, 240, 0.5)',  // 薄いミント
+        'rgba(255, 200, 230, 0.5)',  // 薄いローズ
+        'rgba(240, 240, 200, 0.5)',  // 薄い黄色
+        'rgba(200, 220, 255, 0.5)',  // 薄いラベンダー
+    ];
+
     // 語句リストを取得
     const phrases = Array.from(phraseElements).map(el => el.getAttribute('data-phrase'));
 
@@ -251,23 +265,25 @@ document.addEventListener('DOMContentLoaded', function() {
     let content = contentElement.innerHTML;
     let usedPhrases = [];
 
-    // 各語句をハイライト（最初に出てきた1回だけ）
-    phrases.forEach(phrase => {
+    // 各語句をハイライト（最初に出てきた1回だけ、語句ごとに色を変える）
+    phrases.forEach((phrase, index) => {
         const regex = new RegExp(`(${phrase})`, 'i');  // 最初の1つだけマッチ
+        const color = phraseColors[index % phraseColors.length];
         if (content.match(regex)) {
-            usedPhrases.push(phrase);
-            content = content.replace(regex, '<span class="maturi-phrase-highlight">$1</span>');
+            usedPhrases.push({phrase, color, index});
+            content = content.replace(regex, `<span class="maturi-phrase-highlight" style="background-color: ${color};">$1</span>`);
         }
     });
 
     contentElement.innerHTML = content;
 
-    // 使用済み語句のタグを緑色に変更
-    phraseElements.forEach(el => {
+    // 使用済み語句のタグを同じ色に変更
+    phraseElements.forEach((el, index) => {
         const phrase = el.getAttribute('data-phrase');
-        if (usedPhrases.some(used => used.toLowerCase() === phrase.toLowerCase())) {
-            el.style.backgroundColor = '#c8e6c9';
-            el.style.borderColor = '#4caf50';
+        const usedPhrase = usedPhrases.find(used => used.phrase.toLowerCase() === phrase.toLowerCase());
+        if (usedPhrase) {
+            el.style.backgroundColor = usedPhrase.color;
+            el.style.borderColor = '#888';
             el.innerHTML = '✓ ' + el.innerHTML;
         }
     });
