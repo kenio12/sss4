@@ -295,6 +295,8 @@
         {% if form.instance.status == 'published' %}
             <!-- 公開済みの場合は編集ボタンのみ表示 -->
             {% if can_publish %}
+                <button type="button" id="ajaxSaveBtn" class="btn btn-success" style="margin:5px !important;" title="画面遷移なしで保存します。校正中に便利！">保存</button>
+                <span id="saveStatus" style="margin-left: 10px; color: green; display: none;">✓ 保存完了！</span>
                 <button type="submit" name="action" value="edit_published" class="btn btn-primary" style="margin:5px !important;" title="編集して再投稿します">編集して公開保存</button>
             {% else %}
                 <div class="alert alert-info">
