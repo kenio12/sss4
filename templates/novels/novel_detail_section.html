@@ -258,37 +258,48 @@ document.addEventListener('DOMContentLoaded', function() {
     // 語句リストを取得
     const phrases = Array.from(phraseElements).map(el => el.getAttribute('data-phrase'));
 
-    // 本文要素を取得
+    // 題名要素と本文要素を取得
+    const titleElement = document.querySelector('.novel-title');
     const contentElement = document.querySelector('.novel-content p');
     if (!contentElement) return;
 
+    let titleText = titleElement ? titleElement.textContent : '';
     let content = contentElement.innerHTML;
     let usedPhrases = [];
 
-    // まず各語句の出現位置を調べる
+    // 題名+本文を結合して出現位置を調べる（番号付けのため）
+    const fullText = titleText + '\n' + contentElement.textContent;
     let phrasePositions = [];
     phrases.forEach((phrase, index) => {
         const regex = new RegExp(phrase, 'i');
-        const match = content.match(regex);
+        const match = fullText.match(regex);
         if (match) {
             phrasePositions.push({
                 phrase: phrase,
                 position: match.index,
-                colorIndex: index
+                colorIndex: index,
+                inTitle: match.index < titleText.length  // 題名内かどうか
             });
         }
     });
 
-    // 出現位置でソート（本文で上から出てきた順）
+    // 出現位置でソート（題名→本文の順で上から出てきた順）
     phrasePositions.sort((a, b) => a.position - b.position);
 
     // ソートした順番で番号を付けてハイライト
     phrasePositions.forEach((item, sortedIndex) => {
         const regex = new RegExp(`(${item.phrase})`, 'i');  // 最初の1つだけマッチ
         const color = phraseColors[item.colorIndex % phraseColors.length];
-        const number = sortedIndex + 1;  // 本文で出てきた順番
-        usedPhrases.push({phrase: item.phrase, color, index: item.colorIndex, number});
-        content = content.replace(regex, `<span class="maturi-phrase-highlight" style="background-color: ${color};"><sup class="phrase-number">${number}</sup>$1</span>`);
+        const number = sortedIndex + 1;  // 出てきた順番
+        usedPhrases.push({phrase: item.phrase, color, index: item.colorIndex, number, inTitle: item.inTitle});
+
+        if (item.inTitle && titleElement) {
+            // 題名にハイライト
+            titleElement.innerHTML = titleElement.innerHTML.replace(regex, `<span class="maturi-phrase-highlight" style="background-color: ${color};"><sup class="phrase-number">${number}</sup>$1</span>`);
+        } else {
+            // 本文にハイライト
+            content = content.replace(regex, `<span class="maturi-phrase-highlight" style="background-color: ${color};"><sup class="phrase-number">${number}</sup>$1</span>`);
+        }
     });
 
     contentElement.innerHTML = content;
