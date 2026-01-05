@@ -411,13 +411,18 @@ function confirmDelete() {
 
 document.addEventListener('DOMContentLoaded', function() {
     // 語句カウントの初期化と更新
+    const titleInput = document.querySelector('input.title2, .title2');  // タイトル入力欄
     const content = document.querySelector('textarea.content');
     const phraseCountDisplay = document.getElementById('phraseCount');
     const requiredPhrases = Array.from(document.querySelectorAll('.keyword-option')).map(el => el.textContent.trim().toLowerCase());
 
     function updatePhraseCount() {
-        const text = content.value.toLowerCase();
-        const usedPhrases = requiredPhrases.filter(phrase => text.includes(phrase));
+        // 題名と本文を結合してチェック
+        const titleText = titleInput ? titleInput.value.toLowerCase() : '';
+        const contentText = content ? content.value.toLowerCase() : '';
+        const fullText = titleText + '\n' + contentText;
+
+        const usedPhrases = requiredPhrases.filter(phrase => fullText.includes(phrase));
         const count = usedPhrases.length;
 
         phraseCountDisplay.textContent = `${count}/5 語句`;
@@ -425,7 +430,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 使用されている語句をハイライト
         document.querySelectorAll('.keyword-option').forEach(el => {
-            if (text.includes(el.textContent.trim().toLowerCase())) {
+            if (fullText.includes(el.textContent.trim().toLowerCase())) {
                 el.style.backgroundColor = '#e6ffe6';  // 薄い緑色
             } else {
                 el.style.backgroundColor = '#f8f9fa';  // デフォルトの背景色
@@ -437,6 +442,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (content) {
         updatePhraseCount();
         content.addEventListener('input', updatePhraseCount);
+    }
+    // タイトル入力時もカウントを更新
+    if (titleInput) {
+        titleInput.addEventListener('input', updatePhraseCount);
     }
 });
 </script>
