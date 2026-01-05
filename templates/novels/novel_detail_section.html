@@ -265,15 +265,30 @@ document.addEventListener('DOMContentLoaded', function() {
     let content = contentElement.innerHTML;
     let usedPhrases = [];
 
-    // 各語句をハイライト（最初に出てきた1回だけ、語句ごとに色を変える）
+    // まず各語句の出現位置を調べる
+    let phrasePositions = [];
     phrases.forEach((phrase, index) => {
-        const regex = new RegExp(`(${phrase})`, 'i');  // 最初の1つだけマッチ
-        const color = phraseColors[index % phraseColors.length];
-        if (content.match(regex)) {
-            const number = usedPhrases.length + 1;  // 1から始まる番号
-            usedPhrases.push({phrase, color, index, number});
-            content = content.replace(regex, `<span class="maturi-phrase-highlight" style="background-color: ${color};"><sup class="phrase-number">${number}</sup>$1</span>`);
+        const regex = new RegExp(phrase, 'i');
+        const match = content.match(regex);
+        if (match) {
+            phrasePositions.push({
+                phrase: phrase,
+                position: match.index,
+                colorIndex: index
+            });
         }
+    });
+
+    // 出現位置でソート（本文で上から出てきた順）
+    phrasePositions.sort((a, b) => a.position - b.position);
+
+    // ソートした順番で番号を付けてハイライト
+    phrasePositions.forEach((item, sortedIndex) => {
+        const regex = new RegExp(`(${item.phrase})`, 'i');  // 最初の1つだけマッチ
+        const color = phraseColors[item.colorIndex % phraseColors.length];
+        const number = sortedIndex + 1;  // 本文で出てきた順番
+        usedPhrases.push({phrase: item.phrase, color, index: item.colorIndex, number});
+        content = content.replace(regex, `<span class="maturi-phrase-highlight" style="background-color: ${color};"><sup class="phrase-number">${number}</sup>$1</span>`);
     });
 
     contentElement.innerHTML = content;
