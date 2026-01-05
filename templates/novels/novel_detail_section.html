@@ -251,9 +251,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let content = contentElement.innerHTML;
     let usedPhrases = [];
 
-    // 各語句をハイライト（大文字小文字区別なし）
+    // 各語句をハイライト（最初に出てきた1回だけ）
     phrases.forEach(phrase => {
-        const regex = new RegExp(`(${phrase})`, 'gi');
+        const regex = new RegExp(`(${phrase})`, 'i');  // 最初の1つだけマッチ
         if (content.match(regex)) {
             usedPhrases.push(phrase);
             content = content.replace(regex, '<span class="maturi-phrase-highlight">$1</span>');
@@ -284,11 +284,11 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-    /* 祭り語句ハイライト */
+    /* 祭り語句ハイライト（薄め・目立たない色） */
     .maturi-phrase-highlight {
-        background: linear-gradient(180deg, transparent 60%, #ffeb3b 60%);
-        padding: 0 2px;
-        font-weight: bold;
+        background-color: rgba(255, 235, 200, 0.6);
+        border-bottom: 1px dashed #d4a373;
+        padding: 0 1px;
     }
 </style>
 
