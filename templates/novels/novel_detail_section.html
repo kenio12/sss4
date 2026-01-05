@@ -26,6 +26,25 @@
         <span class="comments-count">コメント: {{ novel.comments.count }}</span>
     </div>
 
+    <!-- 🎪 祭り語句表示（祭り小説のみ） -->
+    {% if novel.maturi_games.exists %}
+        {% with maturi=novel.maturi_games.first %}
+            <div class="maturi-phrases-section" style="margin-bottom: 20px; margin-left: 0.5rem; padding: 15px; background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-radius: 10px; border: 2px solid #ff9800;">
+                <div style="margin-bottom: 10px; font-weight: bold; color: #e65100;">
+                    <span style="font-size: 1.1em;">🎪 {{ maturi.title }} の語句</span>
+                    <small style="color: #666; font-weight: normal;">（5つ以上使用が条件）</small>
+                </div>
+                <div class="maturi-phrases-list" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    {% for phrase in maturi.phrases.all %}
+                        <span class="maturi-phrase-tag" data-phrase="{{ phrase.text }}" style="padding: 5px 12px; background: #fff; border: 2px solid #ff9800; border-radius: 20px; font-size: 0.95em; cursor: default;">
+                            {{ phrase.text }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endwith %}
+    {% endif %}
+
     <!-- タイトルセクション -->
     <div class="title-section">
         <h2 class="novel-title card-title">
@@ -216,7 +235,61 @@ function showBadgeModal(badgeType) {
 
     modal.show();
 }
+
+// 🎪 祭り語句ハイライト機能
+document.addEventListener('DOMContentLoaded', function() {
+    const phraseElements = document.querySelectorAll('.maturi-phrase-tag');
+    if (phraseElements.length === 0) return;
+
+    // 語句リストを取得
+    const phrases = Array.from(phraseElements).map(el => el.getAttribute('data-phrase'));
+
+    // 本文要素を取得
+    const contentElement = document.querySelector('.novel-content p');
+    if (!contentElement) return;
+
+    let content = contentElement.innerHTML;
+    let usedPhrases = [];
+
+    // 各語句をハイライト（大文字小文字区別なし）
+    phrases.forEach(phrase => {
+        const regex = new RegExp(`(${phrase})`, 'gi');
+        if (content.match(regex)) {
+            usedPhrases.push(phrase);
+            content = content.replace(regex, '<span class="maturi-phrase-highlight">$1</span>');
+        }
+    });
+
+    contentElement.innerHTML = content;
+
+    // 使用済み語句のタグを緑色に変更
+    phraseElements.forEach(el => {
+        const phrase = el.getAttribute('data-phrase');
+        if (usedPhrases.some(used => used.toLowerCase() === phrase.toLowerCase())) {
+            el.style.backgroundColor = '#c8e6c9';
+            el.style.borderColor = '#4caf50';
+            el.innerHTML = '✓ ' + el.innerHTML;
+        }
+    });
+
+    // 使用語句数を表示
+    const phrasesSection = document.querySelector('.maturi-phrases-section');
+    if (phrasesSection) {
+        const countDiv = document.createElement('div');
+        countDiv.style.cssText = 'margin-top: 10px; font-weight: bold; text-align: right;';
+        countDiv.innerHTML = `<span style="color: ${usedPhrases.length >= 5 ? '#4caf50' : '#f44336'};">${usedPhrases.length}/5 語句使用</span>`;
+        phrasesSection.appendChild(countDiv);
+    }
+});
 </script>
 
+<style>
+    /* 祭り語句ハイライト */
+    .maturi-phrase-highlight {
+        background: linear-gradient(180deg, transparent 60%, #ffeb3b 60%);
+        padding: 0 2px;
+        font-weight: bold;
+    }
+</style>
 
 
