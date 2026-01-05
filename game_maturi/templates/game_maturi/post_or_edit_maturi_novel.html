@@ -340,7 +340,8 @@
                     </div>
                 {% else %}
                     <!-- 通常の下書き状態の場合 -->
-                    <button type="submit" name="action" value="draft" class="btn btn-success" title="一時保存します。画面はこのままです。">保存</button>
+                    <button type="button" id="ajaxSaveBtn" class="btn btn-success" title="画面遷移なしで保存します。校正中に便利！">保存</button>
+                    <span id="saveStatus" style="margin-left: 10px; color: green; display: none;">✓ 保存完了！</span>
                     {% if edit %}
                         <button type="submit" name="action" value="rest" class="btn btn-warning ml-2" style="margin:5px !important;" title="一時保存します。自身の部屋に移動します。">休息</button>
                         {% if can_publish %}
@@ -408,6 +409,77 @@ function confirmPublish() {
 function confirmDelete() {
     return confirm('この小説を削除しますか？削除すると元に戻せません。');
 }
+
+// Ajax保存機能（画面遷移なし）
+document.addEventListener('DOMContentLoaded', function() {
+    const ajaxSaveBtn = document.getElementById('ajaxSaveBtn');
+    const saveStatus = document.getElementById('saveStatus');
+
+    if (ajaxSaveBtn) {
+        ajaxSaveBtn.addEventListener('click', function() {
+            // ボタンを無効化
+            ajaxSaveBtn.disabled = true;
+            ajaxSaveBtn.textContent = '保存中...';
+
+            // フォームデータを取得
+            const titleInput = document.querySelector('input.title2, .title2, input[name="title"]');
+            const contentInput = document.querySelector('textarea.content, textarea[name="content"]');
+            const genreSelect = document.querySelector('select[name="genre"]');
+            const novelIdInput = document.getElementById('novelId');
+
+            const data = {
+                title: titleInput ? titleInput.value : '',
+                content: contentInput ? contentInput.value : '',
+                genre: genreSelect ? genreSelect.value : '',
+                novel_id: novelIdInput ? novelIdInput.value : ''
+            };
+
+            // Ajax送信
+            fetch('{% url "game_maturi:auto_save_maturi_novel" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    // 成功メッセージ表示
+                    saveStatus.style.display = 'inline';
+                    saveStatus.textContent = '✓ 保存完了！';
+                    saveStatus.style.color = 'green';
+
+                    // novel_idが新規作成の場合は更新
+                    if (result.novel_id && novelIdInput) {
+                        novelIdInput.value = result.novel_id;
+                    }
+
+                    // 3秒後にメッセージを消す
+                    setTimeout(() => {
+                        saveStatus.style.display = 'none';
+                    }, 3000);
+                } else {
+                    // エラーメッセージ表示
+                    saveStatus.style.display = 'inline';
+                    saveStatus.textContent = '✗ 保存失敗: ' + (result.message || 'エラー');
+                    saveStatus.style.color = 'red';
+                }
+            })
+            .catch(error => {
+                console.error('保存エラー:', error);
+                saveStatus.style.display = 'inline';
+                saveStatus.textContent = '✗ 保存失敗';
+                saveStatus.style.color = 'red';
+            })
+            .finally(() => {
+                // ボタンを再有効化
+                ajaxSaveBtn.disabled = false;
+                ajaxSaveBtn.textContent = '保存';
+            });
+        });
+    }
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     // 語句カウントの初期化と更新

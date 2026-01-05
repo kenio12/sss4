@@ -14,5 +14,6 @@ urlpatterns = [
     path('maturi_list/', views.maturi_list, name='maturi_list'),
     path('predict/', views.predict_author, name='predict_author'),
     path('cancel_prediction/', views.cancel_prediction, name='cancel_prediction'),
+    path('auto-save/', views.auto_save_maturi_novel, name='auto_save_maturi_novel'),
 
 ]
