@@ -270,8 +270,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const regex = new RegExp(`(${phrase})`, 'i');  // 最初の1つだけマッチ
         const color = phraseColors[index % phraseColors.length];
         if (content.match(regex)) {
-            usedPhrases.push({phrase, color, index});
-            content = content.replace(regex, `<span class="maturi-phrase-highlight" style="background-color: ${color};">$1</span>`);
+            const number = usedPhrases.length + 1;  // 1から始まる番号
+            usedPhrases.push({phrase, color, index, number});
+            content = content.replace(regex, `<span class="maturi-phrase-highlight" style="background-color: ${color};"><sup class="phrase-number">${number}</sup>$1</span>`);
         }
     });
 
@@ -305,6 +306,15 @@ document.addEventListener('DOMContentLoaded', function() {
         background-color: rgba(255, 235, 200, 0.6);
         border-bottom: 1px dashed #d4a373;
         padding: 0 1px;
+    }
+
+    /* 語句番号（小さく上付き） */
+    .phrase-number {
+        font-size: 0.55em;
+        color: #666;
+        vertical-align: super;
+        margin-right: 1px;
+        font-weight: bold;
     }
 </style>
 
