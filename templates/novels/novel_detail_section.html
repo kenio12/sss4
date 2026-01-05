@@ -293,14 +293,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     contentElement.innerHTML = content;
 
-    // 使用済み語句のタグを同じ色に変更
+    // 使用済み語句のタグを同じ色に変更し、番号も表示
     phraseElements.forEach((el, index) => {
         const phrase = el.getAttribute('data-phrase');
         const usedPhrase = usedPhrases.find(used => used.phrase.toLowerCase() === phrase.toLowerCase());
         if (usedPhrase) {
             el.style.backgroundColor = usedPhrase.color;
             el.style.borderColor = '#888';
-            el.innerHTML = '✓ ' + el.innerHTML;
+            el.innerHTML = '<sup class="phrase-number">' + usedPhrase.number + '</sup>✓ ' + el.innerHTML;
         }
     });
 
