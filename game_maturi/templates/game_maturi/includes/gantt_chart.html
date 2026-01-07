@@ -70,6 +70,9 @@
             {id: 4, content: '結果発表'}
         ]);
 
+        // 日付情報を保存する配列
+        var dateMap = {};
+
         // タイムラインの設定
         var options = {
             locale: 'ja',
@@ -85,14 +88,17 @@
                     vertical: 0
                 }
             },
-            timeAxis: { 
-                scale: 'day', 
+            timeAxis: {
+                scale: 'day',
                 step: 1
             },
             format: {
                 minorLabels: function(date, scale, step) {
                     if (scale === 'day') {
                         var day = date.date(); // momentオブジェクトから日を取得
+                        // 日付情報をマップに保存（キー: 下1桁+月日、値: 実際の日付）
+                        var key = date.format('YYYY-MM-DD');
+                        dateMap[key] = day;
                         return String(day % 10); // 1桁目（下1桁）を返す
                     }
                     return String(date.hours());
@@ -110,34 +116,34 @@
         var container = document.getElementById('timeline');
         var timeline = new vis.Timeline(container, items, groups, options);
 
-        // 日付ラベルに色を付ける関数（位置ベースで日付を計算）
+        // 日付ラベルに色を付ける関数
         function colorizeMinorLabels() {
-            var minorLabels = document.querySelectorAll('.vis-time-axis .vis-text.vis-minor');
-            var timelineWindow = timeline.getWindow();
-            var startTime = timelineWindow.start.getTime();
-            var endTime = timelineWindow.end.getTime();
+            var minorLabels = Array.from(document.querySelectorAll('.vis-time-axis .vis-text.vis-minor'));
+            if (minorLabels.length === 0) return;
 
-            // タイムラインの描画領域を取得
-            var centerPanel = document.querySelector('.vis-panel.vis-center');
-            if (!centerPanel) return;
-            var panelWidth = centerPanel.offsetWidth;
+            // 要素をX位置でソート
+            minorLabels.sort(function(a, b) {
+                var transformA = window.getComputedStyle(a).transform;
+                var transformB = window.getComputedStyle(b).transform;
+                var xA = 0, xB = 0;
+                if (transformA !== 'none') {
+                    var matrixA = transformA.match(/matrix.*\((.+)\)/);
+                    if (matrixA) xA = parseFloat(matrixA[1].split(', ')[4]);
+                }
+                if (transformB !== 'none') {
+                    var matrixB = transformB.match(/matrix.*\((.+)\)/);
+                    if (matrixB) xB = parseFloat(matrixB[1].split(', ')[4]);
+                }
+                return xA - xB;
+            });
 
-            minorLabels.forEach(function(label) {
-                // 要素のtransformからX位置を取得
-                var transform = window.getComputedStyle(label).transform;
-                if (transform === 'none') return;
+            // 開始日から順番に色を付ける
+            var startDate = new Date('{{ game.maturi_start_date|date:"Y-m-d" }}T00:00:00');
 
-                // matrix(a, b, c, d, tx, ty) からtxを取得
-                var matrix = transform.match(/matrix.*\((.+)\)/);
-                if (!matrix) return;
-                var values = matrix[1].split(', ');
-                var xPos = parseFloat(values[4]);
-
-                // X位置から日時を計算
-                var timeRatio = xPos / panelWidth;
-                var time = startTime + (endTime - startTime) * timeRatio;
-                var date = new Date(time);
-                var day = date.getDate();
+            minorLabels.forEach(function(label, index) {
+                var currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + index);
+                var day = currentDate.getDate();
 
                 // 10日単位で色分け
                 if (day >= 1 && day <= 9) {
@@ -162,14 +168,19 @@
         updateCurrentTime();
 
         // 初期表示時に色を付ける（少し遅延を入れてレンダリング完了を待つ）
-        setTimeout(colorizeMinorLabels, 100);
+        setTimeout(colorizeMinorLabels, 500);
+
+        // タイムラインが変更されたときのイベントハンドラ
+        timeline.on('changed', function() {
+            setTimeout(colorizeMinorLabels, 100);
+        });
 
         // タイムラインの表示範囲が変更されたときのイベントハンドラ
         timeline.on('rangechanged', function() {
             // 少し遅延を入れて現在時刻の線を更新
             setTimeout(updateCurrentTime, 100);
             // 色も再適用
-            setTimeout(colorizeMinorLabels, 150);
+            setTimeout(colorizeMinorLabels, 200);
         });
 
         // 定期的に現在時刻の線を更新（1秒ごと）
