@@ -521,6 +521,40 @@ document.addEventListener('DOMContentLoaded', function() {
     if (titleInput) {
         titleInput.addEventListener('input', updatePhraseCount);
     }
+
+    // 文字数カウンター機能
+    const titleWordCount = document.getElementById('titleWordCount');
+    const footerWordCount = document.getElementById('footerWordCount');
+
+    // タイトル文字数更新
+    function updateTitleCount() {
+        if (titleInput && titleWordCount) {
+            const count = titleInput.value.length;
+            titleWordCount.textContent = `${count} / 100文字`;
+            titleWordCount.style.color = count > 100 ? 'red' : 'black';
+        }
+    }
+
+    // 本文文字数更新
+    function updateContentCount() {
+        if (content && footerWordCount) {
+            const count = content.value.length;
+            footerWordCount.textContent = `${count} / 10,000文字`;
+            footerWordCount.style.color = count > 10000 ? 'red' : '#fff';
+        }
+    }
+
+    // 初期表示時にカウントを更新
+    updateTitleCount();
+    updateContentCount();
+
+    // 入力時にカウントを更新
+    if (titleInput) {
+        titleInput.addEventListener('input', updateTitleCount);
+    }
+    if (content) {
+        content.addEventListener('input', updateContentCount);
+    }
 });
 </script>
 
