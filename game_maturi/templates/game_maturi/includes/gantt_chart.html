@@ -90,11 +90,9 @@
                 step: 1
             },
             format: {
-                minorLabels: function(date, scale, step) {
-                    if (scale === 'day') {
-                        return date.getDate(); // 0埋めなしの日（1, 2, 3...）
-                    }
-                    return date.getHours();
+                minorLabels: {
+                    day: 'D',
+                    hour: 'H'
                 },
                 majorLabels: {
                     day: 'YYYY年M月',
