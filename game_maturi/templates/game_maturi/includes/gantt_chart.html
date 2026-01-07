@@ -93,7 +93,18 @@
                 minorLabels: function(date, scale, step) {
                     if (scale === 'day') {
                         var day = date.date(); // momentオブジェクトから日を取得
-                        return String(day % 10); // 1桁目（下1桁）を文字列で返す（0も表示するため）
+                        var digit = day % 10; // 1桁目（下1桁）
+                        var color;
+                        if (day >= 1 && day <= 9) {
+                            color = '#e53935'; // 赤（1〜9日）
+                        } else if (day >= 10 && day <= 19) {
+                            color = '#43a047'; // 緑（10〜19日）
+                        } else if (day >= 20 && day <= 29) {
+                            color = '#1e88e5'; // 青（20〜29日）
+                        } else {
+                            color = '#8e24aa'; // 紫（30〜31日）
+                        }
+                        return '<span style="color:' + color + ';font-weight:bold">' + digit + '</span>';
                     }
                     return String(date.hours());
                 },
