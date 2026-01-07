@@ -90,9 +90,12 @@
                 step: 1
             },
             format: {
-                minorLabels: {
-                    day: 'D',
-                    hour: 'H'
+                minorLabels: function(date, scale, step) {
+                    if (scale === 'day') {
+                        var day = date.date(); // momentオブジェクトから日を取得
+                        return day % 10; // 1桁目（下1桁）のみ表示
+                    }
+                    return date.hours();
                 },
                 majorLabels: {
                     day: 'YYYY年M月',
