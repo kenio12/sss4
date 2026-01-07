@@ -93,9 +93,9 @@
                 minorLabels: function(date, scale, step) {
                     if (scale === 'day') {
                         var day = date.date(); // momentオブジェクトから日を取得
-                        return day % 10; // 1桁目（下1桁）のみ表示
+                        return String(day % 10); // 1桁目（下1桁）を文字列で返す（0も表示するため）
                     }
-                    return date.hours();
+                    return String(date.hours());
                 },
                 majorLabels: {
                     day: 'YYYY年M月',
