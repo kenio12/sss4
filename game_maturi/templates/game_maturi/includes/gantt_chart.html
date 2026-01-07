@@ -183,9 +183,8 @@
                     decade++;
                     if (decade > 3) decade = 0; // 月をまたぐ
                 }
-                // 30-31日から1日への遷移（0→1または1→1の後に1が来る）
-                if (index > startIndex && decade === 3 && (prevDigit === 0 || prevDigit === 1) && digit === 1) {
-                    // 31日→1日の遷移を検出
+                // 31日→1日の遷移（1→1の場合のみ：31日の「1」の後に1日の「1」が来る）
+                if (index > startIndex && decade === 3 && prevDigit === 1 && digit === 1) {
                     decade = 0;
                 }
 
