@@ -93,18 +93,7 @@
                 minorLabels: function(date, scale, step) {
                     if (scale === 'day') {
                         var day = date.date(); // momentオブジェクトから日を取得
-                        var digit = day % 10; // 1桁目（下1桁）
-                        var color;
-                        if (day >= 1 && day <= 9) {
-                            color = '#e53935'; // 赤（1〜9日）
-                        } else if (day >= 10 && day <= 19) {
-                            color = '#43a047'; // 緑（10〜19日）
-                        } else if (day >= 20 && day <= 29) {
-                            color = '#1e88e5'; // 青（20〜29日）
-                        } else {
-                            color = '#8e24aa'; // 紫（30〜31日）
-                        }
-                        return '<span style="color:' + color + ';font-weight:bold">' + digit + '</span>';
+                        return String(day % 10); // 1桁目（下1桁）を返す
                     }
                     return String(date.hours());
                 },
@@ -120,7 +109,35 @@
         // タイムラインの作成
         var container = document.getElementById('timeline');
         var timeline = new vis.Timeline(container, items, groups, options);
-        
+
+        // 日付ラベルに色を付ける関数
+        function colorizeMinorLabels() {
+            var minorLabels = document.querySelectorAll('.vis-time-axis .vis-text.vis-minor');
+            var startDate = new Date('{{ game.maturi_start_date|date:"Y-m-d" }}T00:00:00');
+
+            minorLabels.forEach(function(label, index) {
+                // 開始日から何日目かを計算
+                var currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + index);
+                var day = currentDate.getDate();
+
+                // 10日単位で色分け
+                if (day >= 1 && day <= 9) {
+                    label.style.color = '#e53935'; // 赤
+                    label.style.fontWeight = 'bold';
+                } else if (day >= 10 && day <= 19) {
+                    label.style.color = '#43a047'; // 緑
+                    label.style.fontWeight = 'bold';
+                } else if (day >= 20 && day <= 29) {
+                    label.style.color = '#1e88e5'; // 青
+                    label.style.fontWeight = 'bold';
+                } else {
+                    label.style.color = '#8e24aa'; // 紫（30,31日）
+                    label.style.fontWeight = 'bold';
+                }
+            });
+        }
+
         // 現在時刻の線を更新する関数
         function updateCurrentTime() {
             timeline.setCurrentTime(new Date());
@@ -129,10 +146,15 @@
         // 初期表示時に現在時刻の線を設定
         updateCurrentTime();
 
+        // 初期表示時に色を付ける（少し遅延を入れてレンダリング完了を待つ）
+        setTimeout(colorizeMinorLabels, 100);
+
         // タイムラインの表示範囲が変更されたときのイベントハンドラ
         timeline.on('rangechanged', function() {
             // 少し遅延を入れて現在時刻の線を更新
             setTimeout(updateCurrentTime, 100);
+            // 色も再適用
+            setTimeout(colorizeMinorLabels, 150);
         });
 
         // 定期的に現在時刻の線を更新（1秒ごと）
@@ -174,7 +196,8 @@
         border-color: #f0f0f0;
     }
     .vis-grid.vis-major {
-        border-color: #e0e0e0;
+        border-color: #666 !important;
+        border-width: 2px !important;
     }
     .vis-text {
         font-size: 12px;
