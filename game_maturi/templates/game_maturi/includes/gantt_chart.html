@@ -137,15 +137,30 @@
                 return xA - xB;
             });
 
-            // 開始日から順番に色を付ける
+            // 開始日の情報
             var startDate = new Date('{{ game.maturi_start_date|date:"Y-m-d" }}T00:00:00');
+            var startDay = startDate.getDate();
+
+            // 最初のラベルの表示数字と期待値を比較してオフセット検出
+            var firstLabelDigit = parseInt(minorLabels[0].textContent.trim());
+            var expectedDigit = startDay % 10;
+            var dayOffset = 0;
+
+            if (!isNaN(firstLabelDigit) && firstLabelDigit !== expectedDigit) {
+                // 期待した数字と実際の数字の差を計算
+                var diff = firstLabelDigit - expectedDigit;
+                // 9→0の境界を考慮（差が大きすぎる場合は10の境界を超えている）
+                if (diff > 5) diff -= 10;
+                if (diff < -5) diff += 10;
+                dayOffset = -diff;
+            }
 
             minorLabels.forEach(function(label, index) {
                 var currentDate = new Date(startDate);
-                currentDate.setDate(startDate.getDate() + index);
+                currentDate.setDate(startDay + index + dayOffset);
                 var day = currentDate.getDate();
 
-                // 10日単位で色分け
+                // 10日単位で色分け（1-9日:赤、10-19日:緑、20-29日:青、30-31日:紫）
                 if (day >= 1 && day <= 9) {
                     label.style.color = '#e53935'; // 赤
                 } else if (day >= 10 && day <= 19) {
