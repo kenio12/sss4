@@ -140,35 +140,66 @@
             // 開始日の情報
             var startDate = new Date('{{ game.maturi_start_date|date:"Y-m-d" }}T00:00:00');
             var startDay = startDate.getDate();
+            var startDigit = startDay % 10;
 
-            // 最初のラベルの表示数字と期待値を比較してオフセット検出
-            var firstLabelDigit = parseInt(minorLabels[0].textContent.trim());
-            var expectedDigit = startDay % 10;
-            var dayOffset = 0;
+            // 開始日のdecadeを計算（0: 1-9日, 1: 10-19日, 2: 20-29日, 3: 30-31日）
+            var decade;
+            if (startDay <= 9) decade = 0;
+            else if (startDay <= 19) decade = 1;
+            else if (startDay <= 29) decade = 2;
+            else decade = 3;
 
-            if (!isNaN(firstLabelDigit) && firstLabelDigit !== expectedDigit) {
-                // 期待した数字と実際の数字の差を計算
-                var diff = firstLabelDigit - expectedDigit;
-                // 9→0の境界を考慮（差が大きすぎる場合は10の境界を超えている）
-                if (diff > 5) diff -= 10;
-                if (diff < -5) diff += 10;
-                dayOffset = -diff;
+            // 開始日のラベルを見つける（表示数字が開始日の下1桁と一致するもの）
+            var startIndex = -1;
+            for (var i = 0; i < minorLabels.length; i++) {
+                var digit = parseInt(minorLabels[i].textContent.trim());
+                if (digit === startDigit) {
+                    startIndex = i;
+                    break;
+                }
             }
 
-            minorLabels.forEach(function(label, index) {
-                var currentDate = new Date(startDate);
-                currentDate.setDate(startDay + index + dayOffset);
-                var day = currentDate.getDate();
+            // 開始インデックスが見つからない場合は最初から
+            if (startIndex === -1) startIndex = 0;
 
-                // 10日単位で色分け（1-9日:赤、10-19日:緑、20-29日:青、30-31日:紫）
-                if (day >= 1 && day <= 9) {
-                    label.style.color = '#e53935'; // 赤
-                } else if (day >= 10 && day <= 19) {
-                    label.style.color = '#43a047'; // 緑
-                } else if (day >= 20 && day <= 29) {
-                    label.style.color = '#1e88e5'; // 青
+            // 前の数字を追跡（decade遷移検出用）
+            var prevDigit = (startDigit + 9) % 10; // 開始日の1つ前の数字
+
+            minorLabels.forEach(function(label, index) {
+                var digit = parseInt(label.textContent.trim());
+                if (isNaN(digit)) {
+                    label.style.fontWeight = 'bold';
+                    return;
+                }
+
+                // 開始インデックスより前のラベルは処理しない
+                if (index < startIndex) {
+                    label.style.fontWeight = 'bold';
+                    return;
+                }
+
+                // decade遷移検出（9→0になったらdecadeを進める）
+                if (index > startIndex && prevDigit === 9 && digit === 0) {
+                    decade++;
+                    if (decade > 3) decade = 0; // 月をまたぐ
+                }
+                // 30-31日から1日への遷移（0→1または1→1の後に1が来る）
+                if (index > startIndex && decade === 3 && (prevDigit === 0 || prevDigit === 1) && digit === 1) {
+                    // 31日→1日の遷移を検出
+                    decade = 0;
+                }
+
+                prevDigit = digit;
+
+                // 色を付ける
+                if (decade === 0) {
+                    label.style.color = '#e53935'; // 赤（1-9日）
+                } else if (decade === 1) {
+                    label.style.color = '#43a047'; // 緑（10-19日）
+                } else if (decade === 2) {
+                    label.style.color = '#1e88e5'; // 青（20-29日）
                 } else {
-                    label.style.color = '#8e24aa'; // 紫（30,31日）
+                    label.style.color = '#8e24aa'; // 紫（30-31日）
                 }
                 label.style.fontWeight = 'bold';
             });
