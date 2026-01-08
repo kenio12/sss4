@@ -82,13 +82,16 @@ def game_maturi_top(request, game_id):
     else:
         novels = []
 
-    # ユーザーの小説を取得（既存のコードを修正）
+    # ユーザーの小説を取得（maturi_game_idが空でもゲーム期間中のものは表示）
     user_novels = []
     if request.user.is_authenticated and is_user_entered:
-        user_novels = game.maturi_novels.filter(
-            models.Q(author=request.user) | 
-            models.Q(original_author=request.user)
-        ).order_by('-published_date')  # 公開日の降順で並び替え
+        from novels.models import Novel
+        # original_authorが自分の小説を取得（ゲーム期間中のもの全て）
+        user_novels = Novel.objects.filter(
+            original_author=request.user,
+            created_at__date__gte=game.maturi_start_date,
+            created_at__date__lte=game.maturi_end_date
+        ).order_by('-updated_at')  # 更新日の降順で並び替え
 
     # 基本のコンテキストを作成
     context = {
