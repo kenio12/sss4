@@ -438,6 +438,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 novel_id: novelIdInput ? novelIdInput.value : ''
             };
 
+            // 🔥 デバッグログ（2026-01-11）
+            console.log('🔥 Ajax保存デバッグ:');
+            console.log('  initialSelect要素:', initialSelect);
+            console.log('  initial値:', data.initial);
+            console.log('  送信データ:', JSON.stringify(data));
+
             // Ajax送信
             fetch('{% url "game_maturi:auto_save_maturi_novel" %}', {
                 method: 'POST',
