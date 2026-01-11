@@ -282,7 +282,12 @@ def post_or_edit_maturi_novel(request, novel_id=None):
         
         # actionを取得（これを追加）
         action = request.POST.get('action', 'draft')  # デフォルトは'draft'
-        
+
+        # 🔥 デバッグログ追加（2026-01-11）🔥
+        import logging
+        debug_logger = logging.getLogger(__name__)
+        debug_logger.info(f'🔥 祭り小説POST: action={action}, novel_id={novel_id}')
+
         # ここで先にformを定義
         if novel and novel.status == 'published':
             form_data['status'] = 'published'
@@ -303,7 +308,12 @@ def post_or_edit_maturi_novel(request, novel_id=None):
                 'can_publish': current_game and current_game.can_publish_novel()
             }
             return render(request, 'game_maturi/post_or_edit_maturi_novel.html', context)
-        
+
+        # 🔥 デバッグログ追加（2026-01-11）- フォームバリデーション確認 🔥
+        debug_logger.info(f'🔥 フォームバリデーション: is_valid={form.is_valid()}')
+        if not form.is_valid():
+            debug_logger.error(f'🔥 フォームエラー: {form.errors}')
+
         if form.is_valid():
             saved_novel = form.save(commit=False)
 
