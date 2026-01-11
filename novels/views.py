@@ -122,6 +122,16 @@ def post_or_edit_novel(request, novel_id=None):
             saved_novel.save()
             form.save_m2m()
 
+            # 🔥🔥🔥 祭り小説の maturi_novels 追加処理（2026-01-11バグ修正）🔥🔥🔥
+            # 祭り小説（original_author がある）の場合、maturi_novels に追加する
+            # 通常投稿ページからでも漏れないようにする
+            if saved_novel.original_author:
+                active_game = MaturiGame.find_active_game_for_writing()
+                if active_game and not active_game.maturi_novels.filter(id=saved_novel.id).exists():
+                    active_game.maturi_novels.add(saved_novel)
+                    active_game.save()
+                    logger.info(f"祭り小説をmaturi_novelsに追加: novel_id={saved_novel.id}, game={active_game.title}")
+
             # 🔥🔥🔥 同タイトル通知処理（2025-10-16追加・超重要）🔥🔥🔥
             if action == 'publish' and saved_novel.is_same_title_game:
                 from game_same_title.models import MonthlySameTitleInfo

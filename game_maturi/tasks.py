@@ -30,6 +30,16 @@ def publish_scheduled_novels():
                 novel.status = 'published'
                 novel.published_date = now
                 novel.save()
+
+                # 🔥🔥🔥 祭り小説の maturi_novels 追加処理（2026-01-11バグ修正）🔥🔥🔥
+                # 予約公開時に maturi_novels への追加が漏れないようにする
+                if novel.original_author:
+                    active_game = MaturiGame.find_active_game_for_writing()
+                    if active_game and not active_game.maturi_novels.filter(id=novel.id).exists():
+                        active_game.maturi_novels.add(novel)
+                        active_game.save()
+                        print(f"[Debug] 祭り小説をmaturi_novelsに追加: novel_id={novel.id}")
+
                 published_count += 1
 
         return f"{published_count}件の小説を公開しました"
