@@ -351,11 +351,14 @@ def post_or_edit_maturi_novel(request, novel_id=None):
                 messages.success(request, '予約公開を取り消しました。')
             
             saved_novel.save()
-            
-            # 祭りゲームとの関連付け
-            if current_game and not current_game.maturi_novels.filter(id=saved_novel.id).exists():
-                current_game.maturi_novels.add(saved_novel)
-                current_game.save()
+
+            # 祭りゲームとの関連付け（🔥 執筆期間中も対応 - 2026-01-11バグ修正）
+            # find_current_game() は祭り本番期間のみなので、執筆期間中は None になる
+            # find_active_game_for_writing() で執筆期間中の祭りも取得できるようにした
+            active_game = MaturiGame.find_active_game_for_writing()
+            if active_game and not active_game.maturi_novels.filter(id=saved_novel.id).exists():
+                active_game.maturi_novels.add(saved_novel)
+                active_game.save()
 
             # 削除アクションの処理を修正
             if action == 'delete':

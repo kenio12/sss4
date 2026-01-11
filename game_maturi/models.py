@@ -115,7 +115,26 @@ class MaturiGame(models.Model):
             maturi_start_date__lte=now,
             maturi_end_date__gte=now
         ).first()
-    
+
+    @classmethod
+    def find_active_game_for_writing(cls):
+        """
+        執筆期間中または祭り本番期間中の祭りを取得
+        祭り小説投稿時に使用（maturi_novels への追加漏れ防止）
+
+        🔥 バグ修正（2026-01-11）:
+        find_current_game() は祭り本番期間（maturi_start_date〜maturi_end_date）のみ
+        しかし小説投稿は執筆期間（start_date〜end_date）に行われるため、
+        執筆期間中に投稿すると maturi_novels への追加がスキップされる問題があった
+        """
+        from django.db.models import Q
+        now = timezone.localtime(timezone.now()).date()
+        return cls.objects.filter(
+            # 執筆期間中 または 祭り本番期間中
+            Q(start_date__lte=now, end_date__gte=now) |  # 執筆期間
+            Q(maturi_start_date__lte=now, maturi_end_date__gte=now)  # 祭り本番期間
+        ).order_by('-maturi_start_date').first()
+
     # 次のゲームを見つける
     @classmethod
     def find_next_game(cls):
