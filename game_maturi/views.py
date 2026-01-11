@@ -344,6 +344,10 @@ def post_or_edit_maturi_novel(request, novel_id=None):
                 return redirect('accounts:view_profile')
             elif action in ['publish', 'edit_published']:
                 saved_novel.status = 'published'
+            elif action == 'edit_scheduled':
+                # 🔥 予約公開の編集保存（2026-01-11バグ修正）
+                # ステータスはscheduledのまま維持
+                saved_novel.status = 'scheduled'
             elif action in ['draft', 'rest']:
                 saved_novel.status = 'draft'
             elif action == 'cancel_schedule':  # 予約公開取り消しの処理を追加
@@ -381,7 +385,8 @@ def post_or_edit_maturi_novel(request, novel_id=None):
             if action == 'rest':
                 messages.success(request, '小説を保存して休憩します。')
                 return redirect('accounts:view_profile')
-            elif action == 'draft':
+            elif action in ['draft', 'edit_scheduled', 'edit_published']:
+                # 🔥 編集保存後は同じ編集ページにリダイレクト（プレビュー反映のため）
                 messages.success(request, '小説が保存されました！')
                 return redirect('game_maturi:post_or_edit_maturi_novel', novel_id=saved_novel.id)
             else:

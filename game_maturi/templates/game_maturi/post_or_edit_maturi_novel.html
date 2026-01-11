@@ -457,10 +457,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         novelIdInput.value = result.novel_id;
                     }
 
-                    // 3秒後にメッセージを消す
+                    // 🔥🔥🔥 プレビュー反映のためページリロード（2026-01-11バグ修正）🔥🔥🔥
+                    // 保存完了メッセージ表示後、1秒後にリロード
                     setTimeout(() => {
-                        saveStatus.style.display = 'none';
-                    }, 3000);
+                        window.location.reload();
+                    }, 1000);
                 } else {
                     // エラーメッセージ表示
                     saveStatus.style.display = 'inline';
