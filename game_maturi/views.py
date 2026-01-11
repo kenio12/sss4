@@ -438,6 +438,9 @@ def auto_save_maturi_novel(request):
             genre = data.get('genre', '未分類')  # ジャンルをJSONから取得（デフォルトは未分類）
             initial = data.get('initial', '')  # 🔥 頭文字のふりがなを追加（2026-01-11バグ修正）
 
+            # 🔥 デバッグログ追加（2026-01-11）
+            print(f"🔥 auto_save DEBUG: novel_id={novel_id}, initial={repr(initial)}, genre={repr(genre)}")
+
             # 祭り作家を取得
             maturi_writer = User.objects.get(nickname='祭り作家')
 
