@@ -455,10 +455,18 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(result => {
                 if (result.status === 'success') {
-                    // 成功メッセージ表示
-                    saveStatus.style.display = 'inline';
-                    saveStatus.textContent = '✓ 保存完了！';
-                    saveStatus.style.color = 'green';
+                    // 🔥 警告があれば表示（2026-01-11）
+                    if (result.warning) {
+                        alert(result.warning);
+                        saveStatus.style.display = 'inline';
+                        saveStatus.textContent = '⚠️ 保存完了（警告あり）';
+                        saveStatus.style.color = 'orange';
+                    } else {
+                        // 成功メッセージ表示
+                        saveStatus.style.display = 'inline';
+                        saveStatus.textContent = '✓ 保存完了！';
+                        saveStatus.style.color = 'green';
+                    }
 
                     // novel_idが新規作成の場合は更新
                     if (result.novel_id && novelIdInput) {

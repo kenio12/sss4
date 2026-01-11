@@ -464,9 +464,15 @@ def auto_save_maturi_novel(request):
                     initial=initial  # 🔥 頭文字のふりがなを保存（2026-01-11バグ修正）
                 )
             
+            # 🔥 頭文字が空なら警告メッセージを追加（2026-01-11）
+            warning = None
+            if not initial or not initial.strip():
+                warning = '⚠️ 頭文字のふりがなが未選択です！公開する前に選択してください。'
+
             return JsonResponse({
                 'status': 'success',
-                'novel_id': novel.id
+                'novel_id': novel.id,
+                'warning': warning  # 🔥 警告があれば返す
             })
             
         except Exception as e:
