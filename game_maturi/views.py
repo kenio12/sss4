@@ -295,9 +295,9 @@ def post_or_edit_maturi_novel(request, novel_id=None):
         else:
             form = MaturiNovelForm(form_data, instance=novel, is_writing_period=is_writing_period)
         
-        # 頭文字のふりがなのェック
+        # 頭文字のふりがなのチェック
         if not form_data.get('initial', '').strip():
-            messages.error(request, 'タイトルの頭文字のふりがな力してください！')
+            messages.error(request, '🚨 【公開できません】タイトルの頭文字のふりがなを選択してください！頭文字がないと公開ボタンが効きません。')
             context = {
                 'form': form,
                 'novel': novel,
@@ -436,6 +436,7 @@ def auto_save_maturi_novel(request):
             content = data.get('content', '')
             novel_id = data.get('novel_id')
             genre = data.get('genre', '未分類')  # ジャンルをJSONから取得（デフォルトは未分類）
+            initial = data.get('initial', '')  # 🔥 頭文字のふりがなを追加（2026-01-11バグ修正）
 
             # 祭り作家を取得
             maturi_writer = User.objects.get(nickname='祭り作家')
@@ -446,6 +447,7 @@ def auto_save_maturi_novel(request):
                 novel.title = title
                 novel.content = content
                 novel.genre = genre  # 選択されたジャンルを保存
+                novel.initial = initial  # 🔥 頭文字のふりがなを保存（2026-01-11バグ修正）
                 novel.author = maturi_writer  # 祭り作家として保存
                 novel.save()
             else:
@@ -455,7 +457,8 @@ def auto_save_maturi_novel(request):
                     content=content,
                     author=maturi_writer,  # 祭り作家として保存
                     original_author=request.user,  # 実際の作者は別フィールドに保存
-                    genre=genre  # 選択されたジャンルを保存
+                    genre=genre,  # 選択されたジャンルを保存
+                    initial=initial  # 🔥 頭文字のふりがなを保存（2026-01-11バグ修正）
                 )
             
             return JsonResponse({

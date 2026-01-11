@@ -427,12 +427,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const titleInput = document.querySelector('input.title2, .title2, input[name="title"]');
             const contentInput = document.querySelector('textarea.content, textarea[name="content"]');
             const genreSelect = document.querySelector('select[name="genre"]');
+            const initialSelect = document.querySelector('select[name="initial"]');  // 🔥 頭文字追加（2026-01-11）
             const novelIdInput = document.getElementById('novelId');
 
             const data = {
                 title: titleInput ? titleInput.value : '',
                 content: contentInput ? contentInput.value : '',
                 genre: genreSelect ? genreSelect.value : '',
+                initial: initialSelect ? initialSelect.value : '',  // 🔥 頭文字追加（2026-01-11バグ修正）
                 novel_id: novelIdInput ? novelIdInput.value : ''
             };
 
