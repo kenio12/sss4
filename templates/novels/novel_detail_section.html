@@ -320,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (phrasesSection) {
         const countDiv = document.createElement('div');
         countDiv.style.cssText = 'margin-top: 10px; font-weight: bold; text-align: right;';
-        countDiv.innerHTML = `<span style="color: ${usedPhrases.length >= 5 ? '#4caf50' : '#f44336'};">${usedPhrases.length}/5 語句使用</span>`;
+        countDiv.innerHTML = `<span style="color: ${usedPhrases.length >= 5 ? '#4caf50' : '#f44336'};">${usedPhrases.length}/${phrases.length} 語句使用</span>`;
         phrasesSection.appendChild(countDiv);
     }
 });
