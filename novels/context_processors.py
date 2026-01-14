@@ -40,8 +40,9 @@ from contacts.models import Contact
 def latest_unread_novels(request):
     try:
         if request.user.is_authenticated:
+            # 祭り小説の場合はoriginal_authorも確認
             novels = Novel.objects.filter(
-                author=request.user,
+                Q(author=request.user) | Q(original_author=request.user),
                 comments__is_read=False,
                 comments__author__isnull=False
             ).annotate(
