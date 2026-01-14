@@ -259,7 +259,7 @@
 
         <!-- 語句カウント表示 -->
         <div id="phraseCount" style="text-align: right; padding: 10px; color: red; position: fixed; bottom: 40px; right: 20px; width: auto;">
-            0/5 語句
+            0/{{ current_game.phrases.count }} 語句
         </div>
 
         <!-- 現在のフレーズ示フィールド -->
@@ -516,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const usedPhrases = requiredPhrases.filter(phrase => fullText.includes(phrase));
         const count = usedPhrases.length;
 
-        phraseCountDisplay.textContent = `${count}/5 語句`;
+        phraseCountDisplay.textContent = `${count}/${requiredPhrases.length} 語句`;
         phraseCountDisplay.style.color = count >= 5 ? 'green' : 'red';
 
         // 使用されている語句をハイライト
