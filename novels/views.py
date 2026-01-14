@@ -551,10 +551,12 @@ def novel_detail(request, novel_id):
 def toggle_comment_read_status(request, comment_id):
     try:
         # N+1対策：select_related追加
+        # 祭り小説の場合はoriginal_authorも確認
         comment = get_object_or_404(
-            Comment.objects.select_related('novel__author', 'author'),
-            id=comment_id,
-            novel__author=request.user
+            Comment.objects.select_related('novel__author', 'novel__original_author', 'author').filter(
+                Q(novel__author=request.user) | Q(novel__original_author=request.user)
+            ),
+            id=comment_id
         )
         data = json.loads(request.body)
         comment.is_read = data.get('is_read', False)
@@ -565,9 +567,10 @@ def toggle_comment_read_status(request, comment_id):
         cache.delete(cache_key)
         
         # 未読コメントのある小説の情報を更新して返す（N+1対策：select_related追加）
+        # 祭り小説の場合はoriginal_authorも確認
         novels_with_unread = Novel.objects.filter(
-            author=request.user
-        ).select_related('author').annotate(
+            Q(author=request.user) | Q(original_author=request.user)
+        ).select_related('author', 'original_author').annotate(
             unread_count=Count(
                 'comments',
                 filter=Q(
@@ -608,9 +611,11 @@ def mark_comments_as_read(request):
         comment_ids = data.get('commentIds', [])
         
         # 指定されたコメントIDに対するコメントを既読に設定
+        # 祭り小説の場合はoriginal_authorも確認
         updated = Comment.objects.filter(
-            id__in=comment_ids,
-            novel__author=request.user  # 自分の小説のコメントのみ
+            id__in=comment_ids
+        ).filter(
+            Q(novel__author=request.user) | Q(novel__original_author=request.user)
         ).update(is_read=True)
         
         # キャッシュをリアする
