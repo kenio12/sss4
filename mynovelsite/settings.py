@@ -110,7 +110,7 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'development').lower()
 if ENVIRONMENT == 'production':
     # Herokuの環境であれば、DATABASE_URLから設定を上書き
     DATABASES = {
-        'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+        'default': dj_database_url.config(conn_max_age=60, ssl_require=True)
     }
 elif ENVIRONMENT == 'test':
     # テスト環境ではDocker Composeから渡されるDATABASE_URLをそのまま利用する
