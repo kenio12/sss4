@@ -392,6 +392,34 @@
                         <li>公開開始日：{{ current_game.prediction_start_date|date:"Y年m月d日" }}</li>
                     </ul>
                 </div>
+
+                <!-- 執筆期間外でも非公開小説は操作可能 -->
+                {% if novel and novel.status == 'draft' %}
+                <div class="alert alert-warning">
+                    <h5>📝 非公開小説の操作</h5>
+                    <p>この小説は祭りとしては公開できませんが、以下の操作が可能です：</p>
+                </div>
+                <div class="mt-3">
+                    <button type="submit"
+                            name="action"
+                            value="convert_to_normal"
+                            class="btn btn-primary"
+                            style="margin:5px !important;"
+                            onclick="return confirm('この小説を通常の小説として公開しますか？祭り作品ではなく、あなたの名前で公開されます。')"
+                            title="祭りではなく通常の小説として公開します">
+                            通常の小説として公開
+                    </button>
+                    <button type="submit"
+                            name="action"
+                            value="delete"
+                            class="btn btn-danger"
+                            onclick="return confirmDelete()"
+                            style="margin:5px !important;"
+                            title="小説を削除します">
+                            削除
+                    </button>
+                </div>
+                {% endif %}
             {% endif %}
         {% endif %}
     </form>

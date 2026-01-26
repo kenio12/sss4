@@ -377,19 +377,32 @@ def post_or_edit_maturi_novel(request, novel_id=None):
             # 削除アクションの処理を修正
             if action == 'delete':
                 if novel:
-                    # 現在のゲームを取得
-                    current_game = MaturiGame.find_current_game()
-                    if current_game:
-                        # 祭りゲームから小説を削除
-                        current_game.maturi_novels.remove(novel)
-                    
+                    # 全ての関連する祭りゲームから小説を削除
+                    for game in novel.maturi_games.all():
+                        game.maturi_novels.remove(novel)
+
                     # 2. この小説に関連する全ての予想を削除
                     GamePrediction.objects.filter(novel=novel).delete()
-                    
+
                     # 3. 小説自体を削除
                     novel.delete()
                     messages.success(request, '小説を削除しました。')
                     return redirect('accounts:view_profile')
+
+            # 通常小説として公開するアクション（執筆期間外の非公開小説用）
+            if action == 'convert_to_normal':
+                if novel and novel.status == 'draft':
+                    # 1. 祭りゲームとの関連を解除
+                    for game in novel.maturi_games.all():
+                        game.maturi_novels.remove(novel)
+
+                    # 2. 著者を実際の作者に変更（祭り作家から本人へ）
+                    saved_novel.author = saved_novel.original_author
+                    saved_novel.status = 'published'
+                    saved_novel.save()
+
+                    messages.success(request, '通常の小説として公開しました！')
+                    return redirect('novels:novel_detail', novel_id=saved_novel.id)
 
             # リダイレクト処理
             if action == 'rest':
