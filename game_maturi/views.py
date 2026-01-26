@@ -407,6 +407,23 @@ def post_or_edit_maturi_novel(request, novel_id=None):
                     messages.success(request, '通常の小説として公開しました！')
                     return redirect('novels:novel_detail', novel_id=saved_novel.id)
 
+            # 通常小説として保存するアクション（公開済み・下書き問わず、ステータスは維持）
+            if action == 'convert_to_normal_save':
+                if novel:
+                    # 1. 祭りゲームとの関連を解除
+                    for game in novel.maturi_games.all():
+                        game.maturi_novels.remove(novel)
+
+                    # 2. 著者を実際の作者に変更（祭り作家から本人へ）
+                    saved_novel.author = saved_novel.original_author
+                    # 3. original_authorをNoneにする（通常小説として扱うため）
+                    saved_novel.original_author = None
+                    # ステータスは変更しない（現在のまま維持）
+                    saved_novel.save()
+
+                    messages.success(request, '通常の小説として保存しました！')
+                    return redirect('novels:edit_novel', novel_id=saved_novel.id)
+
             # リダイレクト処理
             if action == 'rest':
                 messages.success(request, '小説を保存して休憩します。')
