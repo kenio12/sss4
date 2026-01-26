@@ -398,6 +398,9 @@ def post_or_edit_maturi_novel(request, novel_id=None):
 
                     # 2. 著者を実際の作者に変更（祭り作家から本人へ）
                     saved_novel.author = saved_novel.original_author
+                    # 3. original_authorをNoneにする（通常小説として扱うため）
+                    #    これがないと、編集時に再び祭りゲームに紐付けられてしまう
+                    saved_novel.original_author = None
                     saved_novel.status = 'published'
                     saved_novel.save()
 
