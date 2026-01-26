@@ -3,25 +3,28 @@ from novels.models import Novel
 
 
 class Command(BaseCommand):
-    help = 'Fix novel 1989 - fix self-reference from 童 to 私'
+    help = 'Fix novel 1989 - full review and fix age-appropriate terms'
 
     def handle(self, *args, **options):
         novel = Novel.objects.get(id=1989)
         content = novel.content
 
-        # Fix: when 16-year-old Sara talks about herself, she should say 私 not 童
-        old = '「穀物倉に隠れていた……童を……」'
-        new = '「穀物倉に隠れていた……私を……」'
+        # Find all occurrences of 童 and show context
+        self.stdout.write('=== Searching for 童 in the novel ===')
 
-        if old in content:
-            content = content.replace(old, new)
-            novel.content = content
-            novel.save()
-            self.stdout.write(self.style.SUCCESS('Fixed: 童 -> 私 (self-reference)'))
-        else:
-            self.stdout.write(self.style.WARNING('Text not found'))
-            # Debug
-            idx = content.find('穀物倉に隠れていた')
-            if idx >= 0:
-                self.stdout.write(f'Found at {idx}:')
-                self.stdout.write(repr(content[idx:idx+50]))
+        idx = 0
+        count = 0
+        while True:
+            idx = content.find('童', idx)
+            if idx == -1:
+                break
+            count += 1
+            # Get context (100 chars before and after)
+            start = max(0, idx - 80)
+            end = min(len(content), idx + 80)
+            context = content[start:end].replace('\r\n', ' ')
+            self.stdout.write(f'\n--- Occurrence {count} at position {idx} ---')
+            self.stdout.write(context)
+            idx += 1
+
+        self.stdout.write(f'\n\nTotal: {count} occurrences of 童')
