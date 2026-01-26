@@ -3,14 +3,25 @@ from novels.models import Novel
 
 
 class Command(BaseCommand):
-    help = 'Fix novel 1989 - change "女" to "童" in early chapters (age 7)'
+    help = 'Fix novel 1989 - fix typo 闘->闇'
 
     def handle(self, *args, **options):
         novel = Novel.objects.get(id=1989)
         content = novel.content
-        changes = 0
 
-        # Chapter 1 past scene (after ---) - age 7, use "童"
+        # Fix typo: 闘 -> 闇
+        old = '童は、その闘を、いつまでも見つめていた'
+        new = '童は、その闇を、いつまでも見つめていた'
+
+        if old in content:
+            content = content.replace(old, new)
+            novel.content = content
+            novel.save()
+            self.stdout.write(self.style.SUCCESS('Fixed typo: 闘 -> 闇'))
+        else:
+            self.stdout.write(self.style.WARNING('Text not found'))
+
+        # Old code below for reference
         replacements_ch1 = [
             ('だが、女が最も鮮明に覚えているのは', 'だが、童が最も鮮明に覚えているのは'),
             ('その一連の動作を、女は見つめていた', 'その一連の動作を、童は見つめていた'),
