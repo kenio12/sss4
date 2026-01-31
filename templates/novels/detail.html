@@ -83,10 +83,16 @@
                         {% if is_prediction_period %}
                             {# 🔥 祭り小説の予想期間中はコメント作者を「謎の読者」として匿名表示 #}
                             <span style="color: #888; font-weight: bold;">👻 謎の読者</span>
+                            {# 真の作者には既読チェックボックスを表示（作者バレしない） #}
+                            {% if novel.original_author == user and comment.author != user %}
+                                <label class="mark-as-read" style="{% if not comment.is_read %}background-color: pink !important{% endif %}">
+                                    <input type="checkbox" class="read-checkbox" data-comment-id="{{ comment.id }}" onchange="toggleCommentReadStatus({{ comment.id }}, this)" {% if comment.is_read %}checked{% endif %}>既読にする
+                                </label>
+                            {% endif %}
                         {% elif comment.author %}
                             {% include 'novels/includes/nickname_badge.html' with user=comment.author %}
                             {% if comment.author != user %}
-                                {% if novel.author == user %}
+                                {% if novel.author == user or novel.original_author == user %}
                                     <label class="mark-as-read" style="{% if not comment.is_read %}background-color: pink !important{% endif %}">
                                         <input type="checkbox" class="read-checkbox" data-comment-id="{{ comment.id }}" onchange="toggleCommentReadStatus({{ comment.id }}, this)" {% if comment.is_read %}checked{% endif %}>既読にする
                                     </label>

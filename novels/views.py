@@ -1118,8 +1118,8 @@ def post_comment(request, novel_id):
 @require_POST
 def toggle_comment_read(request, comment_id):
     # N+1対策：select_related追加
-    comment = get_object_or_404(Comment.objects.select_related('novel__author', 'author'), id=comment_id)
-    if request.user != comment.novel.author:
+    comment = get_object_or_404(Comment.objects.select_related('novel__author', 'novel__original_author', 'author'), id=comment_id)
+    if request.user != comment.novel.author and request.user != comment.novel.original_author:
         return JsonResponse({'success': False, 'error': '権限がありません'})
 
     data = json.loads(request.body)
@@ -1128,7 +1128,7 @@ def toggle_comment_read(request, comment_id):
 
     # 未読コメントのある小説を再取得（N+1対策：select_related追加）
     novels = Novel.objects.filter(
-        author=request.user,
+        Q(author=request.user) | Q(original_author=request.user),
         comments__is_read=False,
         comments__author__isnull=False
     ).exclude(
